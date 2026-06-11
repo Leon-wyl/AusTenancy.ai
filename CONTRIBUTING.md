@@ -9,22 +9,22 @@ We follow a **Git Flow** model:
 | Branch Type      | Naming Convention                         | Source        | Merge Target |
 | ---------------- | ----------------------------------------- | ------------- | ------------ |
 | Main             | `main`                                    | —             | —            |
-| Develop          | `develop`                                 | —             | `main`       |
-| Feature          | `feature/<issue-number>-<short-desc>`     | `develop`     | `develop`    |
-| Bug Fix          | `fix/<issue-number>-<short-desc>`         | `develop`     | `develop`    |
+<!-- | Develop          | `develop`                                 | —             | `main`       | -->
+| Feature          | `feature/<issue-number>-<short-desc>`     | `main`     | `main`    |
+| Bug Fix          | `fix/<issue-number>-<short-desc>`         | `main`     | `main`    |
 | Hotfix           | `hotfix/<issue-number>-<short-desc>`      | `main`        | `main`       |
-| Release          | `release/<version>`                       | `develop`     | `main`       |
-| Documentation    | `docs/<issue-number>-<short-desc>`        | `develop`     | `develop`    |
-| Chore            | `chore/<issue-number>-<short-desc>`       | `develop`     | `develop`    |
+| Release          | `release/<version>`                       | `main`     | `main`       |
+| Documentation    | `docs/<issue-number>-<short-desc>`        | `main`     | `main`    |
+| Chore            | `chore/<issue-number>-<short-desc>`       | `main`     | `main`    |
 
 ### Workflow
 
-1. Create a feature/fix branch from `develop`.
+1. Create a feature/fix branch from `main`.
 2. Commit using the conventional commit format (see below).
-3. Open a pull request targeting `develop`.
+3. Open a pull request targeting `main`.
 4. Ensure all CI checks pass (lint, type-check, tests).
-5. Squash-merge into `develop`.
-6. `develop` is periodically merged into `main` via release branches.
+5. Squash-merge into `main`.
+<!-- 6. `develop` is periodically merged into `main` via release branches. -->
 
 ## Conventional Commits
 
