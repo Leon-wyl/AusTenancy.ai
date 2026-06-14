@@ -27,3 +27,14 @@ env/
 data/processed/
 data/raw/*.pdf
 prompt.xml
+
+# Qdrant
+qdrant_storage/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+docs/superpowers/
+
+# Temporary
+tmp/

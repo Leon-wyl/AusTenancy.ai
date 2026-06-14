@@ -2,6 +2,10 @@
 
 Australian Residential Tenancies Compliance Agent — a stateful, graph-based RAG system for jurisdiction-aware tenancy law queries.
 
+## Governance
+
+This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and PR conventions. When relevant to the task, consult documents in `docs/` (AGENT_WORKFLOW.md, ARCHITECTURE_DESIGN.md, PRD.md, etc.) for design, architecture, and workflow guidance.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -24,13 +28,6 @@ pip install -r requirements.txt
 cp .env.example .env
 # Fill in credentials in .env
 ```
-
-## Code Conventions
-
-- **Commits:** Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`)
-- **Linting:** `ruff check .`
-- **Formatting:** `ruff format .`
-- **Branching:** Git Flow — `feature/*`, `fix/*` from `develop`; PR to `develop`; `develop` → `main` via `release/*`
 
 ## Architecture
 
@@ -55,9 +52,15 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 ## Project Structure
 
 ```
-src/               # Source code
-docs/              # Design docs, PRD, workflows, agent workflow
-data/raw/          # PDF legislation files (gitignored — see CONTRIBUTING for sourcing)
-data/processed/    # Generated hierarchical chunks (gitignored)
-agent.md           # This file
+src/                          # Source code
+  data_processing/            # PDF parsing → hierarchical chunks
+    parser.py                 #   VIC RTA PDF parser (PyMuPDF + regex)
+  retrieval/                  # Vector store indexing + hybrid search
+    vector_store.py           #   Qdrant ingestion with dense + BM25
+tests/                        # Pytest suite
+docs/                         # Design docs, PRD, workflows
+data/raw/                     # PDF legislation files (gitignored)
+data/processed/               # Generated hierarchical chunks (gitignored)
+qdrant_storage/               # Local Qdrant database (gitignored)
+agent.md                      # This file
 ```
