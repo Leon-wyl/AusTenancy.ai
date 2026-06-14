@@ -1,0 +1,29 @@
+[project]
+name = "austenancy"
+version = "0.1.0"
+description = "Australian Residential Tenancies Compliance Agent"
+requires-python = ">=3.12"
+dependencies = [
+    "PyMuPDF>=1.24.0",
+    "fastembed>=0.8.0",
+    "qdrant-client>=1.13.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501", "N802", "F401"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: slow tests that require full E2E ingestion",
+]
