@@ -10,7 +10,7 @@ We follow a **Git Flow** model:
 | ---------------- | ----------------------------------------- | ------------- | ------------ |
 | Main             | `main`                                    | —             | —            |
 <!-- | Develop          | `develop`                                 | —             | `main`       | -->
-| Feature          | `feature/<issue-number>-<short-desc>`     | `main`     | `main`    |
+| Feature          | `feat/<issue-number>-<short-desc>`        | `main`     | `main`    |
 | Bug Fix          | `fix/<issue-number>-<short-desc>`         | `main`     | `main`    |
 | Hotfix           | `hotfix/<issue-number>-<short-desc>`      | `main`        | `main`       |
 | Release          | `release/<version>`                       | `main`     | `main`       |

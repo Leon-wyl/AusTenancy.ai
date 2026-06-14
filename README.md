@@ -60,6 +60,19 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 └─────────────────────────────────────────────────────────┘
 ```
 
+*Phase 1 implements Document Ingestion → Qdrant Vector Store. Remaining nodes are planned for Phase 2+.*
+
+## What's Built (Phase 1)
+
+| Component | File | Status |
+|-----------|------|--------|
+| VIC RTA PDF Parser | `src/data_processing/parser.py` | Done |
+| Qdrant Vector Store | `src/retrieval/vector_store.py` | Done |
+| LangGraph Orchestrator | (pending) | Not started |
+| LLM IRAC Reasoner | (pending) | Not started |
+
+The parser extracts ~500+ hierarchical chunks (Act → Part → Division → Section) from the Victorian Residential Tenancies Act 1997 PDF, with jurisdiction metadata enrichment. The vector store indexes these chunks into Qdrant using BGE-small-en-v1.5 embeddings with BM25 sparse vectors for hybrid search (dense + sparse) with Reciprocal Rank Fusion.
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and populate all values:
@@ -123,11 +136,11 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your credentials
 
-# Run ingestion pipeline
-python src/ingest.py
+# Parse VIC RTA PDF into hierarchical chunks
+python src/data_processing/parser.py
 
-# Start the API server
-python src/main.py
+# Index chunks into Qdrant vector store
+python src/retrieval/vector_store.py
 ```
 
 ## Development
