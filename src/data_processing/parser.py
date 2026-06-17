@@ -18,7 +18,7 @@ OUTPUT_JSON = "data/processed/vic_rta_chunks.json"
 STATE = "VIC"
 ACT_NAME = "Residential Tenancies Act 1997"
 ACT_YEAR = "1997"
-TOKEN_THRESHOLD = 512  # split long sections into sub-chunks above this token count
+TOKEN_THRESHOLD = 2048  # split long sections into sub-chunks above this token count
 
 PART_RE = re.compile(r"^Part\s+(\d+[A-Z]*)\s*[—-]\s*(.+)$")
 DIVISION_RE = re.compile(r"^Division\s+(\d+[A-Z]*)\s*[—-]\s*(.+)$")
