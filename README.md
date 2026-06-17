@@ -17,6 +17,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | Retrieval           | LangChain, Qdrant (vector + BM25 hybrid)               |
 | Re-ranking          | BGE-Reranker                                            |
 | LLM (primary)       | Anthropic Claude 3.5 Sonnet (via AWS Bedrock)           |
+| LLM (current dev)   | DeepSeek (OpenAI-compatible SDK, swappable to Bedrock)  |
 | LLM (fallback)      | OpenAI GPT-4o / Google Gemini                           |
 | Embeddings          | Amazon Titan Text Embeddings v2 (via Bedrock)           |
 | Document Chunking   | Layout-aware hierarchical (Act→Part→Section)            |
@@ -60,7 +61,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 └─────────────────────────────────────────────────────────┘
 ```
 
-*Phase 1 implements Document Ingestion → Qdrant Vector Store. Remaining nodes are planned for Phase 2+.*
+*Phase 1 (parser + vector store) and Phase 3 (generation) complete. Phase 2 (LangGraph orchestration) pending.*
 
 ## What's Built (Phase 1)
 
@@ -69,7 +70,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | VIC RTA PDF Parser | `src/data_processing/parser.py` | Done |
 | Qdrant Vector Store | `src/retrieval/vector_store.py` | Done |
 | LangGraph Orchestrator | (pending) | Not started |
-| LLM IRAC Reasoner | (pending) | Not started |
+| LLM IRAC Reasoner | `src/generation/generator.py` | Done |
 
 The parser extracts ~500+ hierarchical chunks (Act → Part → Division → Section) from the Victorian Residential Tenancies Act 1997 PDF, with jurisdiction metadata enrichment. The vector store indexes these chunks into Qdrant using BGE-small-en-v1.5 embeddings with BM25 sparse vectors for hybrid search (dense + sparse) with Reciprocal Rank Fusion.
 
@@ -141,6 +142,9 @@ python src/data_processing/parser.py
 
 # Index chunks into Qdrant vector store
 python src/retrieval/vector_store.py
+
+# Run RAG compliance pipeline (requires DEEPSEEK_API_KEY in .env)
+python src/generation/generator.py
 ```
 
 ## Development

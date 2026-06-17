@@ -14,6 +14,7 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | Retrieval | LangChain, Qdrant (dense + BM25 hybrid) |
 | Re-ranking | BGE-Reranker-v2-m3 |
 | LLM (primary) | Claude 3.5 Sonnet (via AWS Bedrock) |
+| LLM (current dev) | DeepSeek (OpenAI-compatible SDK) |
 | LLM (classifier) | Amazon Nova Lite |
 | Embeddings | Amazon Titan Text Embeddings v2 |
 | Language | Python 3.12+ |
@@ -26,7 +27,15 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Fill in credentials in .env
+# Fill in credentials in .env (set DEEPSEEK_API_KEY)
+```
+
+## Run
+
+```bash
+python src/data_processing/parser.py          # Parse VIC RTA PDF → chunks
+python src/retrieval/vector_store.py           # Index chunks → Qdrant
+python src/generation/generator.py            # Run RAG compliance pipeline
 ```
 
 ## Architecture
@@ -57,6 +66,8 @@ src/                          # Source code
     parser.py                 #   VIC RTA PDF parser (PyMuPDF + regex)
   retrieval/                  # Vector store indexing + hybrid search
     vector_store.py           #   Qdrant ingestion with dense + BM25
+  generation/                 # RAG compliance pipeline
+    generator.py              #   Query rewrite → retrieve → LLM → citation verify
 tests/                        # Pytest suite
 docs/                         # Design docs, PRD, workflows
 data/raw/                     # PDF legislation files (gitignored)
