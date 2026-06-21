@@ -4,19 +4,22 @@ Australian Residential Tenancies Compliance Agent — a stateful, graph-based RA
 
 ## Governance
 
-This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and PR conventions. When relevant to the task, consult documents in `docs/` (AGENT_WORKFLOW.md, ARCHITECTURE_DESIGN.md, PRD.md, etc.) for design, architecture, and workflow guidance.
+This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and PR conventions. When relevant to the task, consult documents in `docs/` (AGENT_WORKFLOW.md, ARCHITECTURE_DESIGN.md, PRD.md, EVALUATION_PLAN.md, LANGSMITH_SETUP.md) for design, architecture, evaluation, and workflow guidance.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Orchestration | LangGraph (state graphs, multi-agent) |
-| Retrieval | LangChain, Qdrant (dense + BM25 hybrid) |
-| Re-ranking | BGE-Reranker-v2-m3 |
-| LLM (primary) | Claude 3.5 Sonnet (via AWS Bedrock) |
-| LLM (current dev) | DeepSeek (OpenAI-compatible SDK) |
-| LLM (classifier) | Amazon Nova Lite |
-| Embeddings | Amazon Titan Text Embeddings v2 |
+| Orchestration | LangGraph (state graphs, multi-agent supervisor) — planned |
+| Retrieval | Qdrant (dense BGE-small + BM25 hybrid, RRF fusion) |
+| Embeddings | BGE-small-en-v1.5 via fastembed (fine-tuning planned) |
+| Embeddings (prod) | Amazon Titan Text Embeddings v2 (via Bedrock) |
+| LLM (current dev) | DeepSeek via OpenAI-compatible SDK |
+| LLM (prod target) | Claude 3.5 Sonnet (via AWS Bedrock) |
+| LLM (classifier) | Amazon Nova Lite — planned |
+| Evaluation | RAGAS (faithfulness, context precision, answer relevance) |
+| Monitoring | LangSmith tracing — planned (post-LangGraph) |
+| Deployment | AWS Lambda + API Gateway (Docker container) — planned |
 | Language | Python 3.12+ |
 | Lint/Format | Ruff |
 
@@ -27,7 +30,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Fill in credentials in .env (set DEEPSEEK_API_KEY)
+# Set DEEPSEEK_API_KEY in .env
 ```
 
 ## Run
@@ -36,9 +39,18 @@ cp .env.example .env
 python src/data_processing/parser.py          # Parse VIC RTA PDF → chunks
 python src/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/generation/generator.py            # Run RAG compliance pipeline
+pytest tests/ -m "not slow"                   # Run tests
 ```
 
 ## Architecture
+
+### Current (Phase 3 — Linear RAG Pipeline)
+
+```
+rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_citations
+```
+
+### Planned (Phase C — LangGraph Agent)
 
 LangGraph state machine with these nodes:
 
@@ -48,8 +60,9 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 
 - **State:** `TypedDict` for internal (node→node), Pydantic for boundaries (API, LLM output, tool I/O)
 - **LLM prompt:** IRAC format (Issue → Rule → Application → Conclusion)
-- **Tools (Converse API toolConfig):** `rag_retriever`, `date_calculator`, `rent_increase_validator`
+- **Tools (Converse API toolConfig):** `rag_retriever`, `date_calculator`, `rent_increase_validator`, `get_suburb_price_stats` (HTAG AI, planned)
 - **Cross-session memory:** Mem0 for jurisdiction/role persistence
+- **Multi-agent supervisor:** Route legislation vs pricing queries (Phase E, planned)
 
 ## Critical Rules
 
@@ -57,6 +70,60 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 2. **Every claim needs a citation** — citation verifier cross-checks LLM output against retrieved chunks. Strip or flag uncited claims.
 3. **No citation hallucination** — if a section isn't in the retrieved set, output uncertainty, not a fabricated citation.
 4. **Pydantic at boundaries** — validate LLM extraction, API input, and tool results with Pydantic. Internal state uses lightweight TypedDict.
+
+## Roadmap
+
+### ✅ Phase A: Quality Foundation
+| Step | Status | What |
+|------|--------|------|
+| 1 | ⬜ | RAGAS evaluation on VIC (20 golden QA pairs) |
+| 2 | ⬜ | Embedding fine-tuning on legal contrastive pairs |
+| 3 | ⬜ | Re-evaluate with fine-tuned embeddings |
+
+### Phase B: Scale to All 8 Jurisdictions
+| Step | Status | What |
+|------|--------|------|
+| 4 | ⬜ | NSW legislation ingestion |
+| 5 | ⬜ | QLD, SA, WA, TAS, ACT, NT ingestion |
+| 6 | ⬜ | Multi-state RAGAS evaluation (40 QA pairs) |
+
+### Phase C: Conversational Agent
+| Step | Status | What |
+|------|--------|------|
+| 7 | ⬜ | LangGraph agent (7-node state machine) |
+| 8 | ⬜ | Agent RAGAS evaluation |
+| 9 | ⬜ | LangSmith tracing |
+
+### Phase D: Production Deployment
+| Step | Status | What |
+|------|--------|------|
+| 10 | ⬜ | Migrate to AWS Bedrock |
+| 11 | ⬜ | Containerize (Docker + ECR) |
+| 12 | ⬜ | Deploy Lambda + API Gateway |
+| 13 | ⬜ | Safety guardrails |
+
+### Phase F: Frontend
+| Step | Status | What |
+|------|--------|------|
+| 18 | ⬜ | Chat box frontend |
+
+### Phase E: Market Intelligence
+| Step | Status | What |
+|------|--------|------|
+| 14 | ⬜ | HTAG AI client |
+| 15 | ⬜ | Pricing specialist agent |
+| 16 | ⬜ | Multi-agent supervisor |
+| 17 | ⬜ | Final evaluation + red-teaming |
+
+### ✅ Completed
+| Phase | What |
+|-------|------|
+| 0 | VIC RTA PDF parser (PyMuPDF + regex, hierarchical chunking) |
+| 0 | Qdrant vector store (BGE-small + BM25, RRF fusion) |
+| 0 | RAG pipeline (query rewrite → hybrid retrieve → LLM → citation verify) |
+| 0 | Citation verification with subsection support |
+
+**Timeline:** ~17 steps, ~27-43 hours with AI assistance. Critical path: 1→7→12→18.
 
 ## Project Structure
 
@@ -68,6 +135,10 @@ src/                          # Source code
     vector_store.py           #   Qdrant ingestion with dense + BM25
   generation/                 # RAG compliance pipeline
     generator.py              #   Query rewrite → retrieve → LLM → citation verify
+  pricing/                    # Market intelligence (planned)
+    htag_client.py            #   HTAG AI API client
+api/                          # FastAPI + Lambda handler (planned)
+eval/                         # RAGAS evaluation scripts (planned)
 tests/                        # Pytest suite
 docs/                         # Design docs, PRD, workflows
 data/raw/                     # PDF legislation files (gitignored)
