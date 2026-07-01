@@ -197,6 +197,8 @@ def hybrid_retrieve(
             "section_title": p.payload.get("section_title"),
             "part": p.payload.get("part"),
             "state": p.payload.get("state"),
+            "year": p.payload.get("year"),
+            "act": p.payload.get("act"),
         }
         for p in results.points
     ]

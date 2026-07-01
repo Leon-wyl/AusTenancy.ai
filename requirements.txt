@@ -1,3 +1,6 @@
 PyMuPDF>=1.24.0
 fastembed>=0.8.0
 qdrant-client>=1.13.0
+flashrank
+openai
+python-dotenv
