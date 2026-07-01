@@ -70,6 +70,7 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 2. **Every claim needs a citation** — citation verifier cross-checks LLM output against retrieved chunks. Strip or flag uncited claims.
 3. **No citation hallucination** — if a section isn't in the retrieved set, output uncertainty, not a fabricated citation.
 4. **Pydantic at boundaries** — validate LLM extraction, API input, and tool results with Pydantic. Internal state uses lightweight TypedDict.
+5. **Dual-source citations** — cross-reference uploaded documents against legislation. Flag contradictions. Format: [Contract, Clause X] + [VIC RTA 1997 Sec Y].
 
 ## Roadmap
 
@@ -100,6 +101,7 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 | 10 | ⬜ | Migrate to AWS Bedrock |
 | 11 | ⬜ | Containerize (Docker + ECR) |
 | 12 | ⬜ | Deploy Lambda + API Gateway |
+| 12a | ⬜ | File upload & contract analysis (PDF/JPG parsing, clause extraction, dual-source citations) |
 | 13 | ⬜ | Safety guardrails |
 
 ### Phase F: Frontend
@@ -137,6 +139,8 @@ src/                          # Source code
     generator.py              #   Query rewrite → retrieve → LLM → citation verify
   pricing/                    # Market intelligence (planned)
     htag_client.py            #   HTAG AI API client
+  processing/                 # Document parsing (planned)
+    document_parser.py        #   PDF/JPG extraction, clause metadata
 api/                          # FastAPI + Lambda handler (planned)
 eval/                         # RAGAS evaluation scripts (planned)
 tests/                        # Pytest suite

@@ -92,6 +92,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | 10 | ⬜ | Migrate to AWS Bedrock (BedrockLLMProvider, Claude Sonnet, Converse API) |
 | 11 | ⬜ | Containerize (Dockerfile, fastembed models baked in, push to ECR) |
 | 12 | ⬜ | Deploy Lambda + API Gateway (FastAPI + Mangum, POST /api/tenancy/query) |
+| 12a | ⬜ | File upload & document analysis (PDF/JPG parsing, contract clause extraction, dual-source citation [Contract, Clause X] + [VIC RTA 1997 Sec Y], cross-reference detection) |
 | 13 | ⬜ | Safety guardrails (PII detection, off-topic filter, jailbreak defense, citation grounding alert) |
 
 ### Phase F: Frontend
