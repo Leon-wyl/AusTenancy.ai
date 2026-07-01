@@ -68,7 +68,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 ### ✅ Phase A: Quality Foundation
 | Step | Status | What |
 |------|--------|------|
-| 1 | ⬜ | RAGAS evaluation on VIC (20 golden QA pairs, faithfulness + context precision + answer relevance) |
+| 1 | ✅ | RAGAS evaluation on VIC (20 golden QA pairs, faithfulness + context precision + answer relevance) |
 | 2 | ⬜ | Embedding fine-tuning (BGE-small on legal contrastive pairs, Colab T4, Sentence Transformers) |
 | 3 | ⬜ | Re-evaluate with fine-tuned embeddings (compare baseline vs fine-tuned scores) |
 
@@ -108,7 +108,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | 16 | ⬜ | Multi-agent supervisor (create_supervisor, route legislation vs pricing, cross-agent delegation) |
 | 17 | ⬜ | Final multi-agent evaluation + red-teaming report |
 
-### ✅ Completed (feat/vic-legal-pdf-parsing + feat/vic-rerank-llm-generation)
+### ✅ Completed (feat/ragas-vic)
 | Step | What |
 |------|------|
 | 0 | VIC RTA PDF parser (PyMuPDF + regex, hierarchical chunking, TOKEN_THRESHOLD=2048) |
@@ -116,6 +116,9 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | 0 | RAG pipeline (query rewrite → hybrid retrieve → LLM (DeepSeek) → citation verification) |
 | 0 | IRAC-structured system prompt with practical next step guidance |
 | 0 | Citation verification with subsection support `[VIC RTA 1997 Sec 91ZM(7)]` |
+| Phase A | RAGAS evaluation suite (20 golden QA pairs, 3 metrics: faithfulness/context_precision/answer_relevancy) |
+| Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
+| Phase A | Golden-context diagnostic confirming LLM/format as faithfulness bottleneck |
 
 **Timeline:** ~17 steps, ~27-43 hours with AI assistance. Critical path: 1→7→12→18.
 

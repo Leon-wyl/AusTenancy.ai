@@ -77,7 +77,7 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 ### ✅ Phase A: Quality Foundation
 | Step | Status | What |
 |------|--------|------|
-| 1 | ⬜ | RAGAS evaluation on VIC (20 golden QA pairs) |
+| 1 | ✅ | RAGAS evaluation on VIC (20 golden QA pairs) |
 | 2 | ⬜ | Embedding fine-tuning on legal contrastive pairs |
 | 3 | ⬜ | Re-evaluate with fine-tuned embeddings |
 
@@ -124,6 +124,8 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 | 0 | Qdrant vector store (BGE-small + BM25, RRF fusion) |
 | 0 | RAG pipeline (query rewrite → hybrid retrieve → LLM → citation verify) |
 | 0 | Citation verification with subsection support |
+| Phase A | RAGAS evaluation suite (20 golden QA pairs, faithfulness/context_precision/answer_relevancy, ablation study, golden-context diagnostic) |
+| Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
 
 **Timeline:** ~17 steps, ~27-43 hours with AI assistance. Critical path: 1→7→12→18.
 
@@ -142,7 +144,7 @@ src/                          # Source code
   processing/                 # Document parsing (planned)
     document_parser.py        #   PDF/JPG extraction, clause metadata
 api/                          # FastAPI + Lambda handler (planned)
-eval/                         # RAGAS evaluation scripts (planned)
+src/evaluation/               # RAGAS evaluation scripts + golden dataset
 tests/                        # Pytest suite
 docs/                         # Design docs, PRD, workflows
 data/raw/                     # PDF legislation files (gitignored)

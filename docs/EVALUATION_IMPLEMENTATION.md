@@ -187,6 +187,8 @@ This is a stronger trust signal than the aggregate faithfulness score. Users can
 | Context Precision | 0.51 | 0.82 | 0.55 | 0.36 | 0.33 |
 | Answer Relevancy | 0.86 | 0.86 | 0.85 | 0.85 | 0.88 |
 
+The `exclude_parts` filter is a configurable pipeline parameter (not hardcoded). Pass `None` for the default standard residential filter, `[]` for no filtering, or a custom list to include/exclude specific Parts. The eval script exposes this as `--exclude-parts PARTS` (comma-separated). See the [CLI reference](#cli-reference) for usage.
+
 ---
 
 ## Python 3.14 Compatibility
