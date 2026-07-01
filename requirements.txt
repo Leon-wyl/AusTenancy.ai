@@ -4,3 +4,6 @@ qdrant-client>=1.13.0
 flashrank
 openai
 python-dotenv
+ragas==0.1.22
+datasets
+tqdm

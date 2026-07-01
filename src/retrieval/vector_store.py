@@ -128,15 +128,19 @@ def hybrid_retrieve(
     query_text: str,
     state_filter: dict | None = None,
     top_k: int = 5,
+    exclude_parts: list[str] | None = None,
 ) -> list[dict]:
     """
     Hybrid search combining dense (cosine) and sparse (BM25) retrieval
-    with Reciprocal Rank Fusion (RRF) and a metadata hard filter.
+    with Reciprocal Rank Fusion (RRF) and metadata hard filters.
 
     Args:
         query_text: Natural language query (e.g. "notice period for unpaid rent").
         state_filter: Metadata must-match filter (e.g. {"state": "VIC"}).
         top_k: Number of top-ranked chunks to return.
+        exclude_parts: Optional list of Part numbers to exclude from results
+            (e.g. ["3", "4", "4A", "12A"] excludes rooming houses, caravan parks,
+            site agreements, and SDA dwellings).
 
     Returns:
         List of dicts with keys: chunk_id, text, score, section_id,
@@ -160,12 +164,25 @@ def hybrid_retrieve(
     )
 
     prefetch_filter = None
+    must_conditions = []
+    must_not_conditions = []
+
     if state_filter:
-        prefetch_filter = models.Filter(
-            must=[
+        for key, value in state_filter.items():
+            must_conditions.append(
                 models.FieldCondition(key=key, match=models.MatchValue(value=value))
-                for key, value in state_filter.items()
-            ]
+            )
+
+    if exclude_parts:
+        for part in exclude_parts:
+            must_not_conditions.append(
+                models.FieldCondition(key="part", match=models.MatchValue(value=part))
+            )
+
+    if must_conditions or must_not_conditions:
+        prefetch_filter = models.Filter(
+            must=must_conditions if must_conditions else None,
+            must_not=must_not_conditions if must_not_conditions else None,
         )
 
     results = client.query_points(

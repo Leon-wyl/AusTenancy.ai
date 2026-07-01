@@ -38,3 +38,7 @@ docs/superpowers/
 
 # Temporary
 tmp/
+
+# Evaluation outputs
+vic_eval_*.csv
+vic_eval_*.json
