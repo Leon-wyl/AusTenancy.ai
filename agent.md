@@ -78,8 +78,10 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 | Step | Status | What |
 |------|--------|------|
 | 1 | ✅ | RAGAS evaluation on VIC (20 golden QA pairs) |
-| 2 | ⬜ | Embedding fine-tuning on legal contrastive pairs |
-| 3 | ⬜ | Re-evaluate with fine-tuned embeddings |
+| 2 | ⏸️ | Embedding fine-tuning on legal contrastive pairs |
+| 3 | ⏸️ | Re-evaluate with fine-tuned embeddings |
+
+Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps that a better embedding model would address.
 
 ### Phase B: Scale to All 8 Jurisdictions
 | Step | Status | What |
@@ -126,6 +128,7 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 | 0 | Citation verification with subsection support |
 | Phase A | RAGAS evaluation suite (20 golden QA pairs, faithfulness/context_precision/answer_relevancy, ablation study, golden-context diagnostic) |
 | Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
+| Phase A | IRAC format retained over two-section alternative (industry standard for legal analysis; faithfulness ceiling is a metric problem, not a format problem) |
 
 **Timeline:** ~17 steps, ~27-43 hours with AI assistance. Critical path: 1→7→12→18.
 

@@ -221,7 +221,43 @@ Python 3.14 introduced stricter asyncio behavior (no automatic event loop creati
 
 - Run the golden-context diagnostic FIRST, before any pipeline changes. It would have saved the reranker ablation effort.
 - Accept the ~0.40 faithfulness ceiling for IRAC earlier and focus energy on the metrics that CAN be improved (CP, AR).
-- For v2: switch to a two-section answer format — "Statutory Provisions" (scored for faith) + "Application to Your Situation" (not scored). This gives a clean, improvable metric without abandoning personalized legal analysis.
+
+---
+
+## Roadmap Adjustments
+
+Based on the evaluation results, two roadmap decisions were made:
+
+### Fine-tuning (Steps 2-3): Deprioritized
+
+The golden-context diagnostic proved retrieval quality is not the primary bottleneck.
+Key evidence:
+- Context precision improved from 0.49 → 0.62 with just Part metadata filtering
+- The current BGE-small + BM25 hybrid search already ranks the correct sections first
+  (e.g., Sec 91ZM at rank #1 for eviction queries)
+- Given perfect statutory text (golden contexts), faithfulness did not improve
+  (overall delta -0.03)
+
+Fine-tuning would address a retrieval problem that doesn't exist. Steps 2-3 are
+deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps that
+a domain-adapted embedding model would resolve.
+
+### IRAC Format: Retained
+
+A two-section answer format ("Statutory Provisions" / "Application to Your
+Situation") was considered but rejected. IRAC is the professional standard for
+legal analysis. The faithfulness metric's ceiling (~0.40) reflects a misalignment
+between the metric (designed for factual QA) and IRAC (designed for legal reasoning),
+not a format deficiency. Revisit if multi-state evaluation or user feedback
+identifies format-specific issues.
+
+### Next Priority: Phase B (Multi-State Scaling)
+
+Steps 4-6 (NSW → all 8 jurisdictions → multi-state RAGAS evaluation) are the
+next highest-impact work. Scaling will test whether:
+- The PDF parser is reusable across different legislative formats
+- The Part filter strategy generalises (each state has different section grouping)
+- Retrieval quality holds across jurisdictions with different legal terminology
 
 ---
 

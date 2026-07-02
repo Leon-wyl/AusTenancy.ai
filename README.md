@@ -61,7 +61,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 └─────────────────────────────────────────────────────────┘
 ```
 
-*Phase A (quality foundation) in progress. Phase B (multi-state ingestion) next. See full roadmap below.*
+*Phase A step 1 complete (RAGAS evaluation). Phase B (multi-state ingestion) next. See full roadmap below.*
 
 ## Roadmap
 
@@ -69,8 +69,10 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | Step | Status | What |
 |------|--------|------|
 | 1 | ✅ | RAGAS evaluation on VIC (20 golden QA pairs, faithfulness + context precision + answer relevance) |
-| 2 | ⬜ | Embedding fine-tuning (BGE-small on legal contrastive pairs, Colab T4, Sentence Transformers) |
-| 3 | ⬜ | Re-evaluate with fine-tuned embeddings (compare baseline vs fine-tuned scores) |
+| 2 | ⏸️ | Embedding fine-tuning (BGE-small on legal contrastive pairs, Colab T4, Sentence Transformers) |
+| 3 | ⏸️ | Re-evaluate with fine-tuned embeddings (compare baseline vs fine-tuned scores) |
+
+Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps.
 
 ### Phase B: Scale to All 8 Jurisdictions
 | Step | Status | What |
