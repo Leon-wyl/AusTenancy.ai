@@ -1,0 +1,320 @@
+[
+  {
+    "question": "My landlord texted me saying my rent's going up $80 next week. I live in Footscray and they already put the rent up 9 months ago. Can they do this? I'm freaking out because I can't afford that on such short notice.",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "44(1)",
+        "44(3)",
+        "44(4A)",
+        "44(5)",
+        "45"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Footscray, VIC"
+    },
+    "ground_truth": "ISSUE: Whether the landlord's text message constitutes a valid rent increase notice under the Residential Tenancies Act 1997 (VIC).\n\nRULE: Under section 44(1) of the Residential Tenancies Act 1997 (VIC), a residential rental provider must give a renter at least 90 days' notice in the prescribed form of a proposed rent increase. The notice must be in the prescribed form \u2014 a text message does not satisfy this requirement. Section 44(3) requires the notice to include the amount of the increase, the method by which it was calculated, and a statement informing the renter of their right under section 45 to apply to the Director within 30 days. Further, section 44(4A) prohibits a residential rental provider from increasing the rent at intervals of less than 12 months. Section 44(5) provides that any rent increase in contravention of this section is invalid.\n\nAPPLICATION: Here, the landlord gave notice by text message (SMS), which is not the prescribed form. The notice provided only one week's notice, far less than the required 90 days under section 44(1). The message did not include the calculation method required by section 44(3)(b) nor the statement about the right to complain under section 44(3)(c). Critically, the last rent increase was only 9 months ago, which violates the 12-month interval restriction under section 44(4A).\n\nCONCLUSION: The rent increase is invalid on multiple grounds: the notice was not in the prescribed form, did not provide 90 days' notice, lacked the required calculation method and rights statement, and was issued less than 12 months since the previous increase. Pursuant to section 44(5), the increase is invalid. The renter should inform the landlord in writing that the notice is invalid and, if the landlord persists, the renter may apply to VCAT. The renter may also apply to the Director under section 45 within 30 days of receiving the notice to investigate whether the rent is excessive."
+  },
+  {
+    "question": "I'm 3 months into a 12-month lease in Carlton, and the agent just sent an email saying rent's going up $40/week starting next month. The lease agreement says absolutely nothing about rent increases during the fixed term. I thought a lease locked in my rent for the whole year?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "44(4)",
+        "44(5)"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Carlton, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider can increase rent during a fixed-term residential rental agreement when the agreement contains no provision for mid-term rent increases.\n\nRULE: Under section 44(4) of the Residential Tenancies Act 1997 (VIC), a residential rental provider under a fixed-term residential rental agreement must not increase the rent before the term ends unless the agreement provides for a rent increase within the fixed term of a specified amount (and the increase is not more than that amount), or specifies the method by which a rent increase within the fixed term is to be calculated (and the increase is not more than an amount calculated using the specified method). Section 44(5) provides that a rent increase in contravention of this section is invalid.\n\nAPPLICATION: The tenant is only 3 months into a 12-month fixed-term agreement in Carlton, VIC. The agreement contains no provision for rent increases during the fixed term \u2014 it neither specifies an amount nor a method for calculating mid-term increases. The landlord's proposed increase of $40 per week during the fixed term therefore falls within the prohibition in section 44(4).\n\nCONCLUSION: The rent increase is invalid under sections 44(4) and 44(5) of the Residential Tenancies Act 1997 (VIC). The tenant is not required to pay the increased rent and should inform the agent in writing that the increase is unlawful during the fixed term. The landlord must wait until the fixed term ends before proposing any rent increase, and at that time must comply with all requirements under section 44(1)-(3), including 90 days' written notice in the prescribed form."
+  },
+  {
+    "question": "Got a letter from the landlord that just says 'Starting next month your rent will be $30 more per week'. That's literally all it says \u2014 no breakdown, no formula, nothing else. Is this a valid rent increase notice?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "44(1)",
+        "44(3)",
+        "44(5)",
+        "45"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "VIC"
+    },
+    "ground_truth": "ISSUE: Whether a rent increase notice that states only the amount of the increase, without specifying the calculation method or the renter's right to complain, complies with the requirements of section 44 of the Residential Tenancies Act 1997 (VIC).\n\nRULE: Section 44(3) of the Residential Tenancies Act 1997 (VIC) mandates that a notice of a proposed rent increase must include three elements: (a) the amount of the rent increase, (b) the method by which the rent increase was calculated, and (c) a statement informing the renter of the renter's right under section 45 to apply within 30 days after the notice is given to the Director to investigate and report on the proposed rent. Section 44(1) also requires that the notice be in the prescribed form and provide at least 90 days' notice. Section 44(5) renders invalid any rent increase made in contravention of this section.\n\nAPPLICATION: The letter provided by the landlord states only the amount of the increase ($30 per week). It does not specify the method by which the increase was calculated as required by section 44(3)(b), nor does it include the mandatory statement informing the renter of their right under section 45 to apply to the Director within 30 days to investigate excessive rent as required by section 44(3)(c). The notice is therefore deficient in two of the three mandatory content requirements.\n\nCONCLUSION: The rent increase notice is invalid under sections 44(3) and 44(5) of the Residential Tenancies Act 1997 (VIC). The renter should advise the landlord in writing that the notice fails to comply with the statutory content requirements. The landlord must issue a fresh notice in the prescribed form that includes the calculation method, the right-to-complain statement, and provides at least 90 days' notice."
+  },
+  {
+    "question": "I've been in this apartment in Dandenong for 18 months and the rent's gone up three times already. First after 6 months, then again 5 months later, and now they just sent another increase letter. Is there a limit on how often they can put the rent up? I'm barely keeping up.",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "44(1)",
+        "44(4A)",
+        "44(5)",
+        "48"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Dandenong, VIC"
+    },
+    "ground_truth": "ISSUE: Whether multiple rent increases within an 18-month period comply with the statutory frequency restriction on rent increases under the Residential Tenancies Act 1997 (VIC).\n\nRULE: Section 44(4A) of the Residential Tenancies Act 1997 (VIC) provides that a residential rental provider must not increase the rent payable under a residential rental agreement at intervals of less than 12 months. Section 44(5) provides that any rent increase in contravention of this section is invalid. Additionally, under section 44(1), each increase must be preceded by at least 90 days' written notice in the prescribed form. Section 44(2) further provides that each notice may only provide for one rent increase.\n\nAPPLICATION: The tenant in Dandenong has had three rent increases within an 18-month period: the first at approximately 6 months, the second approximately 5 months later (11 months into the tenancy), and a third proposed increase after 18 months. The second increase occurred only approximately 5 months after the first \u2014 a clear interval of less than 12 months, which contravenes section 44(4A). The third proposed increase, occurring approximately 7 months after the second, also falls within the prohibited 12-month interval from the second increase, though it may also contravene the 12-month restriction from the first increase depending on exact dates.\n\nCONCLUSION: At minimum, the second increase was invalid under sections 44(4A) and 44(5) of the Residential Tenancies Act 1997 (VIC) because it occurred less than 12 months after the first increase. Depending on the exact dates, the third increase may also be invalid. The tenant should document all increase dates and amounts, and apply to VCAT to challenge the invalid increases. If the tenant has already paid the invalidly increased rent, the Tribunal may order a refund under section 48. The tenant should also check whether each notice complied with the 90-day notice period and content requirements under section 44(1) and (3)."
+  },
+  {
+    "question": "My rent went from $380 to $450 a week in Prahran. All the similar apartments around here are $350-400 max. I just got the notice 2 weeks ago. Is there anything I can do about the amount even if the paperwork was done properly?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "44(3)(c)",
+        "45(1)",
+        "46(1)",
+        "47(1)",
+        "48"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Prahran, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter can challenge an allegedly excessive rent increase even when the notice is procedurally compliant with section 44 of the Residential Tenancies Act 1997 (VIC).\n\nRULE: Under section 44(3)(c) of the Residential Tenancies Act 1997 (VIC), a rent increase notice must include a statement informing the renter of their right to apply to the Director under section 45 to investigate and report on a proposed rent increase. Section 45(1) entitles a renter to apply to the Director within 30 days after the notice is given for an investigation into whether the proposed rent is excessive. Section 46(1) provides that after receiving the Director's report, the renter may apply to the Tribunal about the excessive rent. Section 47(1) empowers the Tribunal to make orders including reducing the proposed rent, directing that the rent not be increased for a specified period, or other orders. Section 48 further empowers the Tribunal to order a refund of rent if it makes an order under section 47.\n\nAPPLICATION: The tenant in Prahran received a rent increase from $380 to $450 per week \u2014 a $70 increase (approximately 18.4%). The tenant observed that comparable apartments in the same area are priced between $350 and $400 per week. The notice was received 2 weeks ago, which is within the 30-day window to apply to the Director under section 45. The tenant can argue that the proposed rent exceeds market rates for comparable premises in the same area, which is a relevant consideration for the Director's investigation.\n\nCONCLUSION: The tenant should immediately apply to the Director under section 45 of the Residential Tenancies Act 1997 (VIC) for an investigation into whether the proposed increase is excessive. The application must be made within 30 days of receiving the notice, so the tenant has approximately 2 weeks remaining. After receiving the Director's report, if the Director finds the rent is excessive, the tenant may apply to the Tribunal under section 46 for orders under section 47, which could include reducing the rent to market levels. Under section 48, the Tribunal may also order a refund of any excess rent already paid."
+  },
+  {
+    "question": "I'm about 12 days behind on rent for the first time ever \u2014 my pay came in late this month. The landlord just slid a 'Notice to Vacate' under my door in North Melbourne. If I pay the overdue rent today, does the notice become void?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": [
+        "91ZM(1)",
+        "91ZM(5)",
+        "91ZM(7)"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "North Melbourne, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a notice to vacate for the first occasion of non-payment of rent becomes void if the renter pays the unpaid rent before the termination date specified in the notice.\n\nRULE: Under section 91ZM of the Residential Tenancies Act 1997 (VIC), on the first, second, third, and fourth occasion of non-payment of rent, the residential rental provider may give a notice to vacate to the renter (s 91ZM(1)(a)). An 'occasion of non-payment of rent' is defined in section 91ZM(7) as an occasion where the renter owes at least 14 days' rent within a 12-month period of the residential rental agreement. Section 91ZM(1)(b) provides that if the renter pays the unpaid rent on or before the termination date in the notice, the notice is of no effect. Section 91ZM(5) requires the notice to specify a termination date that is not less than 14 days after the date on which the notice is given. Importantly, section 91ZM(2) provides that on the fifth occasion of non-payment, the notice remains in effect despite the renter paying the unpaid rent.\n\nAPPLICATION: This is the renter's first-ever occasion of being behind on rent. The arrears are 12 days \u2014 which does NOT meet the threshold of 'at least 14 days' rent' required by section 91ZM(7) for an 'occasion of non-payment.' Even if the arrears were 14 days or more, as a first occasion under section 91ZM(1), paying the unpaid rent by the termination date would render the notice of no effect under section 91ZM(1)(b). As the renter intends to pay today, and the termination date cannot be less than 14 days after the notice was given (s 91ZM(5)), the renter has ample time to pay.\n\nCONCLUSION: If the renter pays the unpaid rent on or before the termination date specified in the notice, the notice to vacate is of no effect under section 91ZM(1)(b) of the Residential Tenancies Act 1997 (VIC). Additionally, if the arrears do not yet amount to 14 days' rent, the notice may be invalid from the outset since the statutory threshold for an 'occasion of non-payment' has not been met. The renter should pay immediately and keep proof of payment. The tenancy continues uninterrupted."
+  },
+  {
+    "question": "My landlord gave me a 14-day notice saying they're moving back into the house. I still have 3 months left on my fixed-term lease in Brunswick, and the lease does say it was their home before we moved in. Is this legal? I thought a lease meant I had the place for the full term.",
+    "metadata": {
+      "domain": "terminations",
+      "sections": [
+        "91ZW",
+        "91ZZO",
+        "91ZZS"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Brunswick, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider can terminate a fixed-term residential rental agreement before its expiry on the ground that they intend to resume occupation as their principal place of residence.\n\nRULE: Under section 91ZW of the Residential Tenancies Act 1997 (VIC), a residential rental provider under a fixed-term residential rental agreement may, before the end of the term, give the renter a notice to vacate if: the rented premises were the provider's principal place of residence immediately before the residential rental agreement was entered into (or, for a second agreement, immediately before the first agreement was entered into) (s 91ZW(1)(a)); the agreement states that the premises were the provider's principal place of residence immediately before the agreement (s 91ZW(1)(b)); and the agreement states that the provider intends to resume occupancy on termination (s 91ZW(1)(c)). Section 91ZW(3) requires the notice to specify a termination date not less than 14 days after the notice is given. Section 91ZW(2) provides that the notice may specify a termination date that is the date of the end of the term or a later date. Section 91ZW(4) prohibits the provider from giving notice under this section if they have entered into more than 2 residential rental agreements since the premises were their principal place of residence. Section 91ZZO requires the notice to be in the prescribed form, signed, and specify the reason.\n\nAPPLICATION: The tenancy is a fixed-term agreement in Brunswick with 3 months remaining. The lease includes a statement that the premises were the landlord's home before the agreement was entered into, which satisfies section 91ZW(1)(b). The notice provides 14 days, satisfying the minimum under section 91ZW(3). However, the validity also depends on whether the conditions in section 91ZW(1) are fully met, including whether the agreement states the landlord's intent to resume occupancy (s 91ZW(1)(c)), whether this is the first or second rental agreement since it was their residence under section 91ZW(4), and whether the notice complies with the form requirements under section 91ZZO.\n\nCONCLUSION: If all conditions in section 91ZW(1) of the Residential Tenancies Act 1997 (VIC) are satisfied \u2014 the agreement properly states the premises were the landlord's principal place of residence and that the landlord intends to resume occupancy, and the landlord has not entered into more than 2 agreements since \u2014 the 14-day notice to vacate may be valid despite the remaining fixed term. The renter should carefully check the lease for the required statements, and if either is missing or if the landlord has leased the property more than twice since living there, the notice is invalid and the renter can challenge it at VCAT under section 91ZZS within 30 days of receiving the notice."
+  },
+  {
+    "question": "My 12-month lease in Glen Waverley ended last week. I'm still living here and paying rent as usual. The landlord just texted me 'lease is over, you need to be out by the end of this month'. Nothing formal, just a text. Do I actually have to leave?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": [
+        "91E(1)",
+        "91ZZO"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Glen Waverley, VIC"
+    },
+    "ground_truth": "ISSUE: Whether an unsigned text message constitutes a valid notice to vacate capable of terminating a residential rental agreement, and what rights a tenant has when a fixed-term agreement expires without a valid notice to vacate being served.\n\nRULE: Under section 91E(1) of the Residential Tenancies Act 1997 (VIC), a residential rental agreement terminates if the residential rental provider gives a notice to vacate under the relevant Division and the renter vacates on or after the termination date. Section 91ZZO provides that a notice to vacate is not valid unless it is in the relevant prescribed form, is addressed to the renter, is signed by the person giving the notice, and specifies the reason or reasons for giving the notice. A text message does not satisfy any of these formal requirements. When a fixed-term agreement expires and the tenant remains in possession paying rent, the agreement typically converts to a periodic (month-to-month) tenancy. Under a periodic tenancy, the landlord may issue a notice to vacate under relevant grounds in Subdivision 5 of Division 9, but the notice must satisfy the procedural requirements of the relevant section and section 91ZZO.\n\nAPPLICATION: The landlord's text message is not in the prescribed form required by section 91ZZO, is not signed, and does not comply with the formal notice requirements. It fails to meet the basic validity requirements for a notice to vacate.\n\nCONCLUSION: The text message does not constitute a valid notice to vacate under the Residential Tenancies Act 1997 (VIC). The tenant does not have to vacate by the end of the month. The tenancy has likely converted to a periodic agreement. The landlord may issue a valid notice to vacate by complying with the formal requirements under the Act, including providing a notice in the prescribed form that is signed, specifies a valid statutory ground and reason, and provides the required notice period (typically 60-90 days depending on the ground). If the landlord subsequently issues a formal notice, the tenant may challenge its validity at VCAT under section 91ZZS within 30 days."
+  },
+  {
+    "question": "I need to break my 12-month lease 4 months early because I got a new job in Sydney. The house is in Richmond. How much notice do I legally have to give the landlord, and can they charge me a lease break fee?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": [
+        "91Z(1)",
+        "91Z(2)"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Richmond, VIC"
+    },
+    "ground_truth": "ISSUE: What notice period a tenant must give when terminating a fixed-term residential rental agreement early, and whether the landlord can impose a lease break penalty.\n\nRULE: Under section 91Z of the Residential Tenancies Act 1997 (VIC), a renter may give a residential rental provider a notice of intention to vacate rented premises. Section 91Z(2) provides that the notice must specify a termination date that is not less than 28 days after the date on which the notice is given. Section 91ZZO requirements regarding the form of the notice apply equally to the renter's notice of intention to vacate \u2014 it should be in writing. While the Act does not expressly prohibit a landlord from claiming compensation for early termination, the landlord's loss (such as lost rent during a vacancy period and reasonable re-letting costs) must be reasonable and the landlord has a duty to mitigate their loss by taking reasonable steps to re-let the premises promptly. Any lease break fee must be a genuine pre-estimate of the landlord's loss and not a penalty.\n\nAPPLICATION: The tenant in Richmond is 4 months into a 12-month fixed-term lease and needs to relocate to Sydney for work. The tenant must provide at least 28 days' written notice under section 91Z(2). The tenant should provide the notice in writing with a specified termination date at least 28 days in the future.\n\nCONCLUSION: The tenant must give at least 28 days' written notice under section 91Z(2) of the Residential Tenancies Act 1997 (VIC). Regarding a lease break fee, the tenant may be liable for the landlord's reasonable losses, including rent for any period the property remains vacant and reasonable advertising or re-letting costs incurred by the landlord. However, the landlord has a duty to mitigate their loss by promptly seeking a new tenant. Any fee must be proportionate to the actual loss suffered, not punitive. If the landlord demands an unreasonable amount, the tenant can apply to VCAT under section 452 to challenge the quantum."
+  },
+  {
+    "question": "I got a notice to vacate from my landlord saying they're going to do major renovations. It says I have 60 days to leave. I've been a perfect tenant in St Kilda for 3 years and this feels like a way to kick me out to raise the rent. Can I challenge this at VCAT?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": [
+        "91ZZS",
+        "91ZZT",
+        "91ZZO"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "St Kilda, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter can challenge the validity of a notice to vacate given on the grounds of repairs or renovations, and what the procedural requirements are for doing so.\n\nRULE: Under section 91ZZS of the Residential Tenancies Act 1997 (VIC), on or before the hearing of an application for a possession order in respect of certain notices to vacate (including those given under section 91ZX for repairs), the renter may apply to the Tribunal challenging the validity of the notice to vacate. Under section 91ZZT(1), on an application under section 91ZZS, the Tribunal may determine whether or not the notice to vacate is valid. Section 91ZZT(2) provides that if the Tribunal determines the notice is valid, the renter is not entitled to further apply to challenge its validity unless exceptional circumstances exist. An application under section 91ZZS must be made within 30 days after the notice to vacate is given. Section 91ZZO also requires that a notice to vacate must be in the prescribed form, signed, and specify the reason for giving the notice. If the notice fails these formal requirements, it is invalid.\n\nAPPLICATION: The renter in St Kilda received a 60-day notice to vacate on grounds of renovations. The renter has 3 years of good tenancy history. The notice may be invalid if it does not comply with the form requirements in section 91ZZO, or if the renovation claim is pretextual or retaliatory. The renter should promptly apply to VCAT within 30 days of receiving the notice.\n\nCONCLUSION: Yes, the renter can and should challenge the notice to vacate at VCAT. The renter must apply to the Tribunal under section 91ZZS of the Residential Tenancies Act 1997 (VIC) within 30 days of receiving the notice. The Tribunal will determine the validity of the notice under section 91ZZT. The renter should gather evidence including proof of their good tenancy history, any communications with the landlord, and evidence that the renovations may be pretextual (such as recent advertising of the property at a higher rent). If the Tribunal finds the notice is invalid, it cannot be enforced."
+  },
+  {
+    "question": "Our hot water system died completely 3 days ago in the middle of July in Ballarat. It's freezing. I've called the real estate agent three times and left messages but they're completely ignoring me. What can I do \u2014 is a broken hot water system even considered 'urgent' legally?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "72(1)",
+        "72(2)"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Ballarat, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a broken hot water system in winter constitutes an urgent repair, and what steps a renter can take when the residential rental provider fails to respond.\n\nRULE: Under section 72(1) of the Residential Tenancies Act 1997 (VIC), a renter may arrange for urgent repairs to be carried out to the rented premises if the renter has taken reasonable steps to arrange for the residential rental provider or their agent to immediately carry out the repairs, and the renter is unable to get the residential rental provider or agent to carry out the repairs. The Act does not exhaustively define 'urgent repairs', but the prescribed form and the Residential Tenancies Regulations identify failure of the hot water service as an urgent repair. An urgent repair is generally one that makes the premises unsafe or insecure or that causes a risk to health, safety, or significant inconvenience.\n\nAPPLICATION: The hot water system failed 3 days ago during winter in Ballarat. The renter called the agent three times and left messages \u2014 this constitutes 'reasonable steps to arrange for the residential rental provider to immediately carry out the repairs' under section 72(1)(a). The agent has not responded, satisfying the condition in section 72(1)(b) that the renter is unable to get the provider to carry out the repairs. A broken hot water system, particularly in winter, is a recognised category of urgent repair as it affects the habitability and sanitation of the premises.\n\nCONCLUSION: The broken hot water system constitutes an urgent repair under the Residential Tenancies Act 1997 (VIC). The renter has satisfied the preconditions under section 72(1). The renter may now organise the repairs themselves. Under section 72(2)(b), the residential rental provider is liable to reimburse the renter for the reasonable cost of the repairs, up to the prescribed amount (approximately $2,500 under the Residential Tenancies Regulations 2021). The renter must, under section 72(2)(a), give the residential rental provider 7 days' written notice of the repairs carried out and the cost. Under section 72(2)(c), the provider must reimburse the renter within 7 days after receiving that written notice."
+  },
+  {
+    "question": "The ceiling in my bedroom started leaking badly during that massive storm last week in Box Hill. I called the agent \u2014 no answer. The water was coming through the light fitting so it was dangerous. I paid a plumber $2,200 to fix it as an emergency. Now the landlord is refusing to pay me back saying I should have waited. I still have the receipt. What are my rights?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "72(1)",
+        "72(2)",
+        "68(1)",
+        "73(1)(c)"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Box Hill, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter who arranged urgent repairs costing $2,200 after the residential rental provider failed to respond is entitled to reimbursement, and what the reimbursement obligations of the provider are.\n\nRULE: Section 72(1) of the Residential Tenancies Act 1997 (VIC) permits a renter to arrange urgent repairs if the renter has taken reasonable steps to arrange for the provider to immediately carry out the repairs and is unable to get the provider to do so. Section 72(2)(b) provides that the residential rental provider is liable to reimburse the renter for the reasonable cost of the repairs, or the prescribed amount (whichever is less). The prescribed amount under the Residential Tenancies Regulations 2021 is approximately $2,500 for urgent repairs. Section 72(2)(a) requires the renter to give the provider 7 days' written notice of the repairs carried out and the cost. Section 72(2)(c) requires the provider to reimburse the renter within 7 days after receiving written notice of the repairs and the cost. Additionally, section 68(1) imposes a duty on the residential rental provider to ensure the rented premises are maintained in good repair.\n\nAPPLICATION: The ceiling leak through a light fitting in Box Hill created both water damage and an electrical hazard, making this an urgent repair. The renter called the agent but received no response, satisfying section 72(1)(a) and (b). The plumber cost $2,200, which is within the prescribed amount. The renter has the receipt as evidence of the cost.\n\nCONCLUSION: The renter is entitled to full reimbursement of the $2,200 under section 72(2)(b) of the Residential Tenancies Act 1997 (VIC), as the amount is within the prescribed amount and the repair was clearly urgent (ceiling leak causing electrical danger). The landlord's claim that the renter 'should have waited' is not supported by the Act \u2014 the renter satisfied the precondition of taking reasonable steps to contact the agent. The renter must now provide the landlord with 7 days' written notice of the repair details and cost under section 72(2)(a). If the landlord still refuses to reimburse within 7 days of receiving that notice, the renter can apply to VCAT for an order compelling reimbursement under section 73(1)(c)."
+  },
+  {
+    "question": "There's black mould spreading across my bathroom ceiling and wall in my apartment in South Yarra. I sent the agent a written email about it 22 days ago with photos, and they still haven't done anything. My daughter has asthma and it's making her worse. What can I do legally?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "68(1)",
+        "68(1A)",
+        "74(1)",
+        "75(1)",
+        "76(1)",
+        "72"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "South Yarra, VIC"
+    },
+    "ground_truth": "ISSUE: What remedies are available to a renter when the residential rental provider fails to carry out non-urgent repairs within a reasonable time after being notified in writing.\n\nRULE: Section 68(1) of the Residential Tenancies Act 1997 (VIC) requires the residential rental provider to ensure the rented premises are provided and maintained in good repair. This duty applies regardless of the tenant's awareness of disrepair before entering, the rent amount, or the age of the premises (s 68(1A)). Section 74(1) provides that a renter may apply to the Director to investigate whether the provider is in breach of the duty to maintain the premises in good repair if the renter has given the provider written notice advising that repairs (other than urgent repairs) are required, and the provider has not carried out the repairs within 14 days after being given the notice. Section 74(2) requires the application to be in writing. The Director will then investigate and issue a report (s 74(3)). Following the Director's report, the renter may apply to the Tribunal under section 75(1) for an order requiring the provider to carry out the repairs. Section 76(1) empowers the Tribunal to order the provider to carry out specified repairs. If the mould constitutes an urgent repair (where it poses a health risk, as with an asthmatic occupant), the renter may alternatively proceed under section 72.\n\nAPPLICATION: The renter in South Yarra gave the agent written notice (email with photos) 22 days ago \u2014 well over the 14-day threshold in section 74(1)(b). The agent has not carried out the repairs. The mould is affecting the renter's daughter with asthma, which may elevate its urgency due to health implications.\n\nCONCLUSION: The renter can now apply to the Director of Consumer Affairs Victoria under section 74(1) of the Residential Tenancies Act 1997 (VIC) to investigate the breach of the provider's duty to maintain the premises in good repair. If the Director's report supports the renter, the renter may then apply to the Tribunal under section 75 for an order under section 76 requiring the landlord to remedy the mould. Alternatively, given the health impact on a child with asthma, the renter could argue the mould is an urgent repair affecting health and proceed under section 72 to arrange remediation and seek reimbursement."
+  },
+  {
+    "question": "The heater in my rental in Geelong has been broken for 3 weeks now, and it's the middle of winter. I told the landlord two weeks ago and they just said 'I'll get to it next month'. Can they just leave me without heating indefinitely? What are their obligations?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "68(1)",
+        "68(1A)",
+        "74(1)",
+        "72",
+        "75",
+        "76"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Geelong, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider's duty to maintain rented premises in good repair requires them to fix a broken heater within a reasonable timeframe, and what remedies are available when they fail to do so.\n\nRULE: Section 68(1) of the Residential Tenancies Act 1997 (VIC) imposes a positive duty on the residential rental provider to ensure the rented premises are provided and maintained in good repair. This duty is absolute and is not diminished by the renter's knowledge of disrepair, the rent amount, or the age of the premises (s 68(1A)). While the Act does not prescribe a specific timeframe for non-urgent repairs, the duty must be discharged within a reasonable time, taking into account the nature and severity of the defect. A broken heater in winter affects the habitability of the premises and may reasonably be classified as urgent where it causes the premises to be unsafe or creates a significant health risk, particularly for vulnerable occupants. Under section 74(1), if the provider has not carried out non-urgent repairs within 14 days of receiving written notice, the renter may apply to the Director for an investigation. Under section 72, if the heater failure makes the premises unsafe or unhealthy (particularly in winter), the renter may arrange urgent repairs and seek reimbursement.\n\nAPPLICATION: The heater has been broken for 3 weeks during winter in Geelong. The landlord has been notified but has indicated they will not act for at least another month. This is unreasonable, particularly given the winter conditions and the 3-week delay already experienced. The 14-day threshold under section 74(1) has been exceeded.\n\nCONCLUSION: The landlord cannot leave the renter without heating indefinitely. The renter should immediately send written notice to the landlord formally requesting repairs, as this triggers the 14-day period under section 74(1) of the Residential Tenancies Act 1997 (VIC). Since the repair has already been delayed beyond what is reasonable, the renter may also apply to the Director immediately under section 74. If the Director's investigation confirms the breach, the renter may apply to the Tribunal under section 75 for an order under section 76 requiring the landlord to carry out the repair. Alternatively, if the renter considers the lack of heating in winter an urgent repair, they may proceed under section 72 to arrange the repair themselves and seek reimbursement of the reasonable cost."
+  },
+  {
+    "question": "A water pipe burst in the wall of my apartment in the CBD and flooded the carpet. It wasn't my fault \u2014 it just happened. The landlord says I have to pay for the carpet replacement because it happened during my tenancy. Is that right?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "68(1)",
+        "68(2)",
+        "78",
+        "79"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Melbourne CBD, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter is liable for the cost of repairing damage to rented premises caused by a burst water pipe that was not the fault of the renter.\n\nRULE: Section 68(1) of the Residential Tenancies Act 1997 (VIC) imposes a duty on the residential rental provider to ensure that the rented premises are maintained in good repair. Section 68(2) provides that the residential rental provider is not in breach of the duty to maintain the premises in good repair if the damage to the rented premises is caused by the renter's failure to ensure that care was taken to avoid damaging the premises, and the provider has given the renter a notice under section 78 requiring the renter to repair the damage. Section 78 enables the residential rental provider to give the renter a repair notice if the renter has caused damage to the premises (other than fair wear and tear). If the damage is not caused by the renter's failure to take care, the responsibility lies with the residential rental provider. A burst water pipe is, in the absence of negligence by the renter, a structural failure and part of the provider's duty to maintain the premises. Section 79 further provides that if the residential rental provider carries out repairs to damage not caused by the renter's failure to take care, the renter is not liable for the cost.\n\nAPPLICATION: The burst pipe occurred without fault on the renter's part. The water pipe is a structural element of the premises. The resulting carpet damage is a direct consequence of the structural failure. The landlord's claim that the renter is liable simply because it happened during the tenancy is not supported by the Act.\n\nCONCLUSION: The renter is not liable for the cost of the carpet replacement. Under sections 68(1) and 68(2) of the Residential Tenancies Act 1997 (VIC), the repair of damage caused by a burst water pipe falls within the residential rental provider's duty to maintain the premises in good repair, as the damage was not caused by the renter's failure to take care. The renter should inform the landlord in writing that the damage resulted from a structural failure for which the provider is responsible. If the landlord withholds the bond or commences proceedings seeking payment, the renter can defend the claim at VCAT, citing sections 68 and 79. If the landlord has failed to carry out the repairs to the pipe or carpet, the renter may proceed under sections 74-76 to seek orders requiring the landlord to carry out the repairs."
+  },
+  {
+    "question": "I'm moving out of my apartment in Doncaster next week and the landlord is already saying they'll keep part of my bond for marks on the wall. But those marks were there when I moved in! The problem is, I was never given a condition report \u2014 nothing was signed at the start. What can I do?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "35(1)",
+        "36(1)",
+        "36(2)",
+        "419A"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Doncaster, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider can make deductions from a bond for alleged damage to the premises when no condition report was provided to the renter at the commencement of the tenancy.\n\nRULE: Section 35(1) of the Residential Tenancies Act 1997 (VIC) requires the residential rental provider to give the renter 2 copies of a condition report signed by or on behalf of the residential rental provider, specifying the state of repair and general condition of the premises before the renter enters into occupation. The penalty for non-compliance is 25 penalty units. Section 36(1) provides that a statement in a condition report under section 35 is conclusive evidence, for the purposes of the Act, of the state of repair or general condition of the rented premises on the day specified in the report, if the condition report is signed by or on behalf of both the residential rental provider and the renter. Section 36(2) provides that this conclusiveness does not apply to a state of repair that could not reasonably have been discovered on a reasonable inspection, or any statement about which the renter has noted disagreement. Without a condition report, the residential rental provider has no evidentiary basis to claim that the damage was not pre-existing. Section 419A provides that a person with an interest in a bond claim may apply to the Tribunal within 14 days of the tenancy ending for an order requiring the Authority to repay the bond.\n\nAPPLICATION: The landlord failed to provide a condition report under section 35(1). Without a condition report, the landlord cannot establish that the wall marks were not pre-existing. The tenant asserts the marks were there at move-in.\n\nCONCLUSION: The landlord has no valid evidentiary basis to deduct from the bond for the wall marks. The failure to provide a condition report under section 35(1) of the Residential Tenancies Act 1997 (VIC) is itself a breach attracting a penalty of up to 25 penalty units. Without the conclusive evidence provided by a signed condition report under section 36(1), the landlord cannot prove that the damage occurred during the tenancy. The tenant should assert their right to full bond repayment with the Residential Tenancies Bond Authority (RTBA) and, if the landlord disputes it, apply to VCAT under section 419A within 14 days of the tenancy ending for a bond repayment order."
+  },
+  {
+    "question": "My landlord is demanding a bond equal to 2 months' rent for an apartment in Richmond that's $420 per week. That's $3,640 \u2014 seems really high. Is this even legal?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "31(1)",
+        "32",
+        "33",
+        "34"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Richmond, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider can lawfully demand a bond exceeding the equivalent of one month's rent under the Residential Tenancies Act 1997 (VIC).\n\nRULE: Section 31(1) of the Residential Tenancies Act 1997 (VIC) provides that a person must not demand or accept in relation to a residential rental agreement a bond the total of which exceeds the amount of rent payable under the agreement for one month, unless an order is in force under section 33. The penalty for contravention is 60 penalty units. Section 32 provides that a residential rental provider who wishes to demand a bond exceeding one month's rent may apply to the Tribunal for an order. Section 33 provides that on an application under section 32, the Tribunal may make an order determining the maximum amount of bond not exceeding the amount applied for. Section 34 further provides that not more than one bond is payable in respect of continuous occupation, subject to exceptions for fixed terms over 5 years and additional bonds for modifications under section 64.\n\nAPPLICATION: The weekly rent is $420. One month's rent is calculated as $420 \u00d7 52 weeks / 12 months = $1,820. The landlord is demanding $3,640, which is exactly 2 months' rent \u2014 double the statutory maximum. Unless the landlord has obtained an order from the Tribunal under section 33 authorising a higher bond, this demand is unlawful.\n\nCONCLUSION: The demand for a bond of 2 months' rent is unlawful under section 31(1) of the Residential Tenancies Act 1997 (VIC). The maximum bond the landlord may lawfully demand is $1,820 (one month's rent at $420/week), unless the Tribunal has made an order under section 33 permitting a higher amount. The tenant should inform the landlord that the demand exceeds the statutory maximum and request compliance. If the landlord persists, the tenant can apply to VCAT or report the matter to Consumer Affairs Victoria, as the contravention carries a penalty of up to 60 penalty units."
+  },
+  {
+    "question": "I moved out of my rental in Essendon 7 weeks ago and still haven't got my bond back. I checked with the RTBA and the landlord hasn't even lodged a claim yet. How long do they have to do this and what can I do to get my money back?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "406",
+        "408",
+        "409",
+        "411",
+        "419A"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Essendon, VIC"
+    },
+    "ground_truth": "ISSUE: What are the timeframes within which a residential rental provider must lodge a bond with the Residential Tenancies Bond Authority, and what remedies are available to a renter when their bond is not returned after the tenancy ends.\n\nRULE: Section 406 of the Residential Tenancies Act 1997 (VIC) requires a residential rental provider who receives an amount of bond from a renter to, within 10 business days after the amount is received, give the amount of bond to the Authority together with the completed bond lodgment form. The penalty for non-compliance is 150 penalty units. Section 408 provides that the residential rental provider holds the bond on trust for the renter until it is paid to the Authority. Section 409(1) entitles the renter to notify the Authority if the renter does not receive a receipt from the Authority within 15 business days after giving the bond to the provider. Section 411(1)(a)(i) allows the renter to make a claim to the Authority for repayment of the bond. Section 419A(1) entitles a renter who has an interest in a claim for a bond to apply to the Tribunal for an order requiring the Authority to repay the bond, and section 419A(2) requires that application be made within 14 days after the residential rental agreement has terminated.\n\nAPPLICATION: The tenancy ended 7 weeks ago \u2014 well beyond the 14-day period for making a Tribunal application under section 419A(2). However, the 14-day period runs from termination, and the renter may still file a claim with the Authority directly under section 411(1)(a)(i). The landlord has not lodged a claim with the RTBA, and no bond repayment has been processed. Depending on when the bond was originally paid, the landlord may also have been in breach of section 406 by failing to lodge it within 10 business days of receipt.\n\nCONCLUSION: Under section 411(1)(a) of the Residential Tenancies Act 1997 (VIC), the renter may immediately make a claim directly to the Residential Tenancies Bond Authority for repayment of the bond. The RTBA will notify the landlord of the claim, and if the landlord does not dispute it within 14 days, the bond will be repaid to the renter. If the landlord disputes it, the matter proceeds to VCAT. The renter should also check whether the landlord originally lodged the bond with the RTBA within the 10 business days required by section 406. If the landlord failed to do so, this is an offence carrying a penalty of 150 penalty units and may be reported to Consumer Affairs Victoria. Although the 14-day window under section 419A(2) has likely passed, a direct claim to the Authority under section 411 remains available at any time."
+  },
+  {
+    "question": "The landlord is trying to deduct $800 from my bond for 'general cleaning and minor touch-ups' after I moved out of my place in Coburg. I left the place spotless \u2014 I even hired professional cleaners! How do I dispute this and get my full bond back?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "411",
+        "419A",
+        "420",
+        "36(1)"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Coburg, VIC"
+    },
+    "ground_truth": "ISSUE: How a renter can dispute a landlord's claim for bond deductions allegedly for cleaning and touch-ups that the renter contends are unwarranted.\n\nRULE: Section 411(1) of the Residential Tenancies Act 1997 (VIC) permits a renter to make a claim to the Residential Tenancies Bond Authority for repayment of the bond. If a claim is made under section 411(1)(c) for an amount to be repaid to the landlord, the claim form must be signed by the renters no earlier than 14 days before the termination date (s 411(4)). Section 419A(1) entitles a renter who has an interest in a claim for a bond to apply to the Tribunal for an order requiring the Authority to repay the bond. Section 420 provides that the Tribunal must determine any application made to it under section 419A. Section 36(1) provides that a condition report signed by both parties is conclusive evidence of the state of repair at the commencement of the tenancy. If the condition report shows the premises were in good condition at the start and the renter returned them in the same condition (accounting for fair wear and tear), the landlord has no basis for deductions. Additionally, the Victorian legislation prohibits landlords from requiring professional cleaning as a condition of a tenancy (section 27C makes prescribed terms about professional cleaning void), though renters remain obliged to return the premises in a reasonably clean condition.\n\nAPPLICATION: The renter in Coburg left the premises spotless and hired professional cleaners. Without evidence of specific damage beyond fair wear and tear, deductions for 'general cleaning and touch-ups' are unjustified. The condition report (if completed) serves as the benchmark for the condition at the start of the tenancy.\n\nCONCLUSION: The renter should make a claim to the RTBA under section 411(1)(a)(i) of the Residential Tenancies Act 1997 (VIC) for full repayment of the bond. The RTBA will notify the landlord, who must either agree or dispute the claim. If the landlord disputes it and the matter goes to VCAT, the renter should present evidence including the move-in condition report, the move-out condition report, photos from both dates, and the professional cleaning receipt. At the hearing, the Tribunal will determine the bond repayment under section 420. If the renter's evidence demonstrates the premises were returned in the same condition (less fair wear and tear) as recorded in the condition report, the Tribunal will order full repayment of the bond to the renter."
+  },
+  {
+    "question": "My ex-flatmate and I both signed the lease and the condition report in our apartment in Fitzroy. The condition report clearly says the blinds were in 'good condition'. Now the RTBA is holding our bond because the landlord claims one set of blinds is damaged and wants to deduct $400. The blinds look the same as when we moved in \u2014 just normal wear. How do I prove my case?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "35",
+        "36(1)",
+        "36(2)",
+        "411",
+        "419A",
+        "420"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Fitzroy, VIC"
+    },
+    "ground_truth": "ISSUE: What evidentiary weight a condition report carries in a bond dispute at the RTBA, and how a renter can rely on it to resist a landlord's claim for deductions based on alleged damage.\n\nRULE: Section 36(1) of the Residential Tenancies Act 1997 (VIC) provides that a statement in a condition report under section 35 is conclusive evidence, for the purposes of the Act, of the state of repair or general condition of the rented premises on the day specified in the report, if the condition report is signed by or on behalf of both the residential rental provider and the renter. This means that the condition report is legally determinative of the condition of the premises at the start of the tenancy. Section 36(2) provides an exception: subsection (1) does not apply to a state of repair that could not reasonably have been discovered on a reasonable inspection, or any statement in the report about which the renter has noted in the report that the renter disagrees. Section 411(1)(a)(i) permits a renter to claim to the Authority for repayment of the bond. Under section 419A, either party may apply to the Tribunal within 14 days of termination for a bond repayment order, and under section 420, the Tribunal must determine the application. The landlord bears the burden of proving that the damage occurred during the tenancy and exceeds fair wear and tear.\n\nAPPLICATION: The condition report signed by both the renter and landlord states the blinds were in 'good condition' at the start of the tenancy. The renter asserts no change beyond normal wear and tear. The landlord seeks $400 for alleged damage but must prove that the current condition differs from the 'good condition' recorded in the condition report in a manner that exceeds fair wear and tear.\n\nCONCLUSION: The signed condition report serves as conclusive evidence under section 36(1) of the Residential Tenancies Act 1997 (VIC) that the blinds were in 'good condition' at the start of the tenancy. The renter should file a claim with the RTBA under section 411(1)(a)(i) for full bond repayment. If the dispute proceeds to VCAT under section 419A, the renter should present the signed condition report as conclusive evidence of the original condition, supported by move-out photos showing the blinds remain in substantially the same condition. The landlord must prove damage beyond mere assertions. Fair wear and tear is not a valid basis for bond deductions. If, after the 14-day period under section 419A(2), the landlord has not applied to the Tribunal and the renter has filed a claim, the RTBA will release the bond to the renter."
+  }
+]

@@ -11,6 +11,12 @@ dependencies = [
     "openai",
     "python-dotenv",
 ]
+[project.optional-dependencies]
+eval = [
+    "ragas==0.1.22",
+    "datasets",
+    "tqdm",
+]
 
 [tool.ruff]
 target-version = "py312"

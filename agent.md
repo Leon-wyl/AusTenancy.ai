@@ -18,19 +18,35 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | LLM (prod target) | Claude 3.5 Sonnet (via AWS Bedrock) |
 | LLM (classifier) | Amazon Nova Lite — planned |
 | Evaluation | RAGAS (faithfulness, context precision, answer relevance) |
-| Monitoring | LangSmith tracing — planned (post-LangGraph) |
-| Deployment | AWS Lambda + API Gateway (Docker container) — planned |
+| Auth + DB + Realtime | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E) |
+| Backend API | FastAPI on AWS Lambda (CRUD + RAG) — planned (Phase E) |
+| ORM | SQLAlchemy 2.0 + asyncpg — planned (Phase E) |
+| Migrations | Alembic — planned (Phase E) |
+| Frontend | Next.js App Router + Tailwind + shadcn/ui — planned (Phase E) |
+| Frontend Deploy | OpenNext → CloudFront + Lambda@Edge + S3 — planned (Phase E) |
+| E2E Testing | Playwright — planned (Phase E) |
+| Monitoring | LangSmith tracing + Sentry + CloudWatch |
+| Deployment | AWS Lambda + API Gateway (Docker container) |
+| CI/CD | GitHub Actions |
 | Language | Python 3.12+ |
 | Lint/Format | Ruff |
 
 ## Setup
 
 ```bash
+# Core RAG pipeline
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 # Set DEEPSEEK_API_KEY in .env
+```
+
+```bash
+# Full-stack dev env (Phase E)
+docker compose up          # Supabase local + Qdrant + FastAPI + Next.js
+cd backend && alembic upgrade head  # Run DB migrations
+cd frontend && npm install           # Install frontend deps
 ```
 
 ## Run
@@ -40,6 +56,12 @@ python src/data_processing/parser.py          # Parse VIC RTA PDF → chunks
 python src/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/generation/generator.py            # Run RAG compliance pipeline
 pytest tests/ -m "not slow"                   # Run tests
+```
+
+```bash
+# Full-stack (Phase E)
+cd backend && uvicorn main:app --reload       # FastAPI CRUD API
+cd frontend && npm run dev                     # Next.js dev server
 ```
 
 ## Architecture
@@ -62,7 +84,58 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 - **LLM prompt:** IRAC format (Issue → Rule → Application → Conclusion)
 - **Tools (Converse API toolConfig):** `rag_retriever`, `date_calculator`, `rent_increase_validator`, `get_suburb_price_stats` (HTAG AI, planned)
 - **Cross-session memory:** Mem0 for jurisdiction/role persistence
-- **Multi-agent supervisor:** Route legislation vs pricing queries (Phase E, planned)
+- **Multi-agent supervisor:** Route legislation vs pricing queries (Phase F, planned)
+
+### Planned (Phase E — Full-Stack Deployment Architecture)
+
+```
+                          CloudFront
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+               ┌────▼────┐          ┌─────▼─────┐
+               │   S3    │          │  Lambda@Edge│
+               │ (static │          │  (SSR/ISR) │
+               │  assets)│          │  Next.js    │
+               └─────────┘          └────────────┘
+                                         │ Next.js API routes
+                                         │ (proxy to API Gateway)
+                                         │
+                                    API Gateway
+                                    (rate-limited)
+                                         │
+                              ┌──────────┴──────────┐
+                              │                     │
+                         ┌────▼────┐          ┌─────▼─────┐
+                         │  CRUD   │──Invoke──→  RAG API  │
+                         │  Lambda │   (async)  │  Lambda  │
+                         │ (NEW)   │            │ (Step 12)│
+                         │ 128MB   │            │ 1024MB+  │
+                         │ 3s      │            │ 60s      │
+                         └───┬─────┘            │ Bedrock  │
+                             │                  │ Qdrant   │
+            ┌────────────────┼──────┐           └─────┬─────┘
+            │                │      │                 │
+       ┌────▼────┐     ┌─────▼──────▼──┐       ┌─────▼─────┐
+       │Supabase │     │   Supabase    │       │    S3     │
+       │  Auth   │     │  PostgreSQL   │       │ (large    │
+       │ + RLS   │     │ (service_role │       │  state    │
+       │(anon_key)│     │     key)     │       │snapshots) │
+       └────┬────┘     └──────┬───────┘       └───────────┘
+            │                 │
+       ┌────▼────┐            │
+       │Supabase │            │
+       │Realtime │            │
+       │ (WSS)   │            │
+       └────┬────┘            │
+            │                 │
+       ┌────▼─────────────────▼────┐
+       │         Client            │
+       │ Auth reads → Supabase     │
+       │ Realtime → Supabase       │
+       │ CRUD writes → API Gateway │
+       └───────────────────────────┘
+```
 
 ## Critical Rules
 
@@ -77,9 +150,11 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 ### ✅ Phase A: Quality Foundation
 | Step | Status | What |
 |------|--------|------|
-| 1 | ⬜ | RAGAS evaluation on VIC (20 golden QA pairs) |
-| 2 | ⬜ | Embedding fine-tuning on legal contrastive pairs |
-| 3 | ⬜ | Re-evaluate with fine-tuned embeddings |
+| 1 | ✅ | RAGAS evaluation on VIC (20 golden QA pairs) |
+| 2 | ⏸️ | Embedding fine-tuning on legal contrastive pairs |
+| 3 | ⏸️ | Re-evaluate with fine-tuned embeddings |
+
+Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps that a better embedding model would address.
 
 ### Phase B: Scale to All 8 Jurisdictions
 | Step | Status | What |
@@ -100,22 +175,29 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 |------|--------|------|
 | 10 | ⬜ | Migrate to AWS Bedrock |
 | 11 | ⬜ | Containerize (Docker + ECR) |
-| 12 | ⬜ | Deploy Lambda + API Gateway |
+| 12 | ⬜ | Deploy Lambda + API Gateway (FastAPI + Mangum, RAG endpoint) |
 | 12a | ⬜ | File upload & contract analysis (PDF/JPG parsing, clause extraction, dual-source citations) |
-| 13 | ⬜ | Safety guardrails |
+| 13 | ⬜ | Safety guardrails (PII detection, off-topic filter, jailbreak defense, citation grounding alert) |
 
-### Phase F: Frontend
+### Phase E: Full-Stack Chat Application
 | Step | Status | What |
 |------|--------|------|
-| 18 | ⬜ | Chat box frontend |
+| 14 | ⬜ | **Local Dev & DB Foundation** — Docker Compose (Supabase local + Qdrant + FastAPI + Next.js). Schema via SQLAlchemy 2.0 + asyncpg (users, conversations, messages with status CHECK constraint, citations JSONB). Alembic migrations. Supabase cloud project. Auth (email/password + Google OAuth). JWT middleware with credential scoping (anon_key for CRUD + client, service_role_key for RAG). RLS policies. Rate limiting middleware (per-user 60 RPM, per-IP 30 RPM) with PostgreSQL counters. Correlation ID middleware (X-Request-ID → CloudWatch). Client boundary docs (auth reads → Supabase, CRUD writes → API Gateway, Realtime → Supabase). |
+| 15 | ⬜ | **CRUD Lambda** — FastAPI 128MB/3s Lambda. REST: `GET/POST/DELETE /api/conversations`, `POST /api/conversations/{id}/messages`, `GET /api/conversations/{id}/messages?cursor=&limit=50` (cursor-based pagination), `PATCH title`. Title from first 50 chars of user message. API Gateway rate limit config. Integration tests (CRUD happy-path, JWT 401/403, Realtime subscription contract, rate limit enforcement). |
+| 16 | ⬜ | **Wire CRUD → RAG (Supabase Realtime)** — Client POSTs message → CRUD creates placeholder (`status='generating'`) → fires Step 12 RAG Lambda via `Lambda.Invoke(InvocationType='Event')` (async, fire-and-forget) → returns immediately. RAG Lambda writes tokens to Supabase `messages.content` in ~1s batches, sets `status='complete'` on finish. Error: try/except → `status='error'` with error text, client shows toast. 120s client timeout if no status change. Client subscribes to Supabase Realtime WSS (`messages` table, filtered by conversation_id) → receives tokens with zero additional cost. RAG Lambda 60s timeout. Citation persistence: parse `[VIC RTA 1997 Sec X]` → `messages.citations` JSONB. LangGraph state as JSONB in conversations; >256KB → S3 snapshot with DB reference. Realtime sends full content per batch (not deltas) — <50KB total, acceptable. Real streaming (Function URL) documented as future enhancement. |
+| 17 | ⬜ | **Frontend — Auth & Shell** — Next.js App Router + Tailwind + shadcn/ui. Supabase Auth React SDK (login, signup, logout). Supabase Realtime client (channel subscription). Protected route middleware. Layout shell: collapsible sidebar + main area. Session refresh on focus. SSR/Realtime split: Server Components fetch via Supabase SQL; Client Components subscribe to Realtime post-hydration. |
+| 18 | ⬜ | **Frontend — Chat UI** — Conversation sidebar (history by recency, search/filter, delete with confirmation, inline rename). Chat view (message bubbles, auto-scroll, loading skeleton, error toast on generation failure). Markdown rendering: react-markdown + remark-gfm. Citation badges: styled link badges for `[VIC RTA 1997 Sec X]` (no excerpts). New chat: auto-create conversation on first message. Title sync: POST response body includes auto-generated title. Timeout handling: error toast if status stays 'generating' past 120s. |
+| 19 | ⬜ | **Core CI/CD** — GitHub Actions parallel jobs: Python (Ruff → mypy → CRUD Lambda integration tests) + Node (ESLint → tsc → Next.js build). Pre-deploy: `alembic upgrade head` against Supabase (schema matches code before Lambda update). Package CRUD Lambda Docker image → push ECR → update Lambda. **E2E Playwright gate:** signup → login → session persists → create conversation → send message → receive token stream via Realtime → citations rendered → completion → conversation rename → delete → confirmed gone. Phase E not complete until gate passes. |
+| 20 | ⬜ | **OpenNext Deployment** — OpenNext: Next.js → Lambda@Edge (SSR/ISR) + CloudFront (CDN) + S3 (static). Route53 custom domain + ACM SSL. CI/CD: deploy frontend on push to main + CloudFront cache invalidation. Env: SUPABASE_URL/ANON_KEY → Next.js + CRUD Lambda. SUPABASE_SERVICE_ROLE_KEY → RAG Lambda only. BEDROCK creds → RAG Lambda only. Never client-side. |
+| 21 | ⬜ | **Polish & Observability** — Empty/error/rate-limited states. Toast notifications. Responsive (mobile sidebar drawer). Dark mode + system preference. Sentry SDK (CRUD + RAG Lambda + Next.js). CloudWatch dashboard (Lambda invocations/errors/duration, API Gateway 4xx/5xx). Optional: Vercel Analytics. |
 
-### Phase E: Market Intelligence
+### Phase F: Market Intelligence
 | Step | Status | What |
 |------|--------|------|
-| 14 | ⬜ | HTAG AI client |
-| 15 | ⬜ | Pricing specialist agent |
-| 16 | ⬜ | Multi-agent supervisor |
-| 17 | ⬜ | Final evaluation + red-teaming |
+| 22 | ⬜ | HTAG AI client (suburb-level rent/sale price data, in-memory cache) |
+| 23 | ⬜ | Pricing specialist agent (separate LangGraph sub-graph, market guide system prompt) |
+| 24 | ⬜ | Multi-agent supervisor (create_supervisor, route legislation vs pricing, cross-agent delegation) |
+| 25 | ⬜ | Final multi-agent evaluation + red-teaming report |
 
 ### ✅ Completed
 | Phase | What |
@@ -124,29 +206,44 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 | 0 | Qdrant vector store (BGE-small + BM25, RRF fusion) |
 | 0 | RAG pipeline (query rewrite → hybrid retrieve → LLM → citation verify) |
 | 0 | Citation verification with subsection support |
+| Phase A | RAGAS evaluation suite (20 golden QA pairs, faithfulness/context_precision/answer_relevancy, ablation study, golden-context diagnostic) |
+| Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
+| Phase A | IRAC format retained over two-section alternative (industry standard for legal analysis; faithfulness ceiling is a metric problem, not a format problem) |
 
-**Timeline:** ~17 steps, ~27-43 hours with AI assistance. Critical path: 1→7→12→18.
+**Timeline:** ~25 steps, ~50-70 hours with AI assistance. Critical path: 1→7→12→16→20→25.
 
 ## Project Structure
 
 ```
-src/                          # Source code
+src/                          # RAG pipeline (Python)
   data_processing/            # PDF parsing → hierarchical chunks
     parser.py                 #   VIC RTA PDF parser (PyMuPDF + regex)
   retrieval/                  # Vector store indexing + hybrid search
     vector_store.py           #   Qdrant ingestion with dense + BM25
   generation/                 # RAG compliance pipeline
     generator.py              #   Query rewrite → retrieve → LLM → citation verify
-  pricing/                    # Market intelligence (planned)
+  evaluation/                 # RAGAS evaluation scripts + golden dataset
+  pricing/                    # Market intelligence (Phase F)
     htag_client.py            #   HTAG AI API client
   processing/                 # Document parsing (planned)
     document_parser.py        #   PDF/JPG extraction, clause metadata
+backend/                      # FastAPI CRUD Lambda (Phase E)
+  alembic/                    # Alembic migrations
+  app/
+    api/                      # REST endpoints
+    middleware/                # JWT, rate limiting, correlation ID
+    models/                   # SQLAlchemy models
+    schemas/                  # Pydantic schemas
+frontend/                     # Next.js app (Phase E)
+  app/                        # App Router pages + layouts
+  components/                 # React components (sidebar, chat, citations)
+  lib/                        # Supabase client, auth helpers, SSE client
 api/                          # FastAPI + Lambda handler (planned)
-eval/                         # RAGAS evaluation scripts (planned)
 tests/                        # Pytest suite
 docs/                         # Design docs, PRD, workflows
 data/raw/                     # PDF legislation files (gitignored)
 data/processed/               # Generated hierarchical chunks (gitignored)
 qdrant_storage/               # Local Qdrant database (gitignored)
+docker-compose.yml            # Phase E: local dev env (Supabase + Qdrant + FastAPI + Next.js)
 agent.md                      # This file
 ```
