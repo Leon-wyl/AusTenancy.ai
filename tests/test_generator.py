@@ -6,7 +6,6 @@ import pytest
 
 from src.generation import generator
 
-
 # ── Unit: build_legal_prompt ───────────────────────────────────────────
 
 
@@ -112,11 +111,9 @@ class TestSystemPrompt:
         assert len(generator.SYSTEM_PROMPT) > 0
 
     def test_contains_uncertainty_fallback(self):
-        expected = (
-            "Based on the available statutory database, "
-            "no definitive compliance conclusion can be drawn."
-        )
-        assert expected in generator.SYSTEM_PROMPT
+        assert (
+            "If any aspect of the question cannot be answered from the provided context"
+        ) in generator.SYSTEM_PROMPT
 
 
 # ── Integration: rerank_context (uses real FlashRank model) ────────────

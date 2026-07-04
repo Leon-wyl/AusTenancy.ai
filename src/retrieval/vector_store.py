@@ -31,13 +31,15 @@ PREFETCH_LIMIT = 20
 def ingest_chunks_to_qdrant(
     json_path: str,
     recreate: bool = True,
+    start_id: int = 0,
 ) -> int:
     """
     Load chunked JSON, embed with dense + sparse models, and upsert into Qdrant.
 
     Args:
-        json_path: Path to vic_rta_chunks.json.
+        json_path: Path to a *_chunks.json file.
         recreate: If True, delete and recreate the collection (idempotent re-runs).
+        start_id: First point ID to use (use non-zero for multi-file ingestion).
 
     Returns:
         Number of points upserted.
@@ -100,7 +102,7 @@ def ingest_chunks_to_qdrant(
 
         points.append(
             models.PointStruct(
-                id=i,
+                id=start_id + i,
                 vector={
                     DENSE_VECTOR_NAME: dense_vec,
                     SPARSE_VECTOR_NAME: models.SparseVector(
@@ -227,36 +229,43 @@ def hybrid_retrieve(
 if __name__ == "__main__":
     import time
 
-    # ── Step 1: Ingestion ──
     logger.info("=" * 60)
     logger.info("PHASE 2: Vector DB Ingestion & Hybrid Retrieval")
     logger.info("=" * 60)
 
-    json_file = "data/processed/vic_rta_chunks.json"
+    chunk_files = sorted(Path("data/processed").glob("*_chunks.json"))
+    if not chunk_files:
+        raise FileNotFoundError("No *_chunks.json found in data/processed/")
 
-    t0 = time.perf_counter()
-    count = ingest_chunks_to_qdrant(json_file)
-    elapsed = time.perf_counter() - t0
-    logger.info("Ingested %d points in %.1fs", count, elapsed)
+    total = 0
+    for i, f in enumerate(chunk_files):
+        t0 = time.perf_counter()
+        count = ingest_chunks_to_qdrant(str(f), recreate=(i == 0), start_id=total)
+        elapsed = time.perf_counter() - t0
+        total += count
+        logger.info("%s: %d points in %.1fs", f.name, count, elapsed)
+    logger.info("Total points: %d", total)
 
-    # ── Step 2: Test Query ──
-    logger.info("=" * 60)
-    logger.info("TEST QUERY: Hybrid Retrieval")
-    logger.info("=" * 60)
+    test_queries = {
+        "VIC": "How many days notice for unpaid rent in VIC?",
+        "NSW": "How many days notice for unpaid rent in NSW?",
+    }
 
-    test_query = "How many days notice for unpaid rent in VIC?"
-    logger.info("Query: %s", test_query)
+    for state, query in test_queries.items():
+        logger.info("=" * 60)
+        logger.info("TEST QUERY [%s]: %s", state, query)
 
-    results = hybrid_retrieve(
-        query_text=test_query,
-        state_filter={"state": "VIC"},
-        top_k=3,
-    )
-
-    logger.info("Top %d results:", len(results))
-    for i, r in enumerate(results, 1):
-        logger.info(
-            "  #%d [score=%.4f] Section %s — %s", i, r["score"], r["section_id"], r["section_title"]
+        results = hybrid_retrieve(
+            query_text=query,
+            state_filter={"state": state},
+            top_k=3,
         )
-        preview = r["text"].replace("\n", " ")[:150]
-        logger.info("    Preview: %s...", preview)
+
+        logger.info("Top %d results:", len(results))
+        for i, r in enumerate(results, 1):
+            logger.info(
+                "  #%d [score=%.4f] Section %s — %s",
+                i, r["score"], r["section_id"], r["section_title"],
+            )
+            preview = r["text"].replace("\n", " ")[:150]
+            logger.info("    Preview: %s...", preview)

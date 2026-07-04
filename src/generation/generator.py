@@ -3,9 +3,11 @@ Phase 3: Prompt Engineering & LLM Generation.
 Chains hybrid retrieval → LLM generation → citation verification.
 
 Usage:
-    python src/generation/generator.py
+    python src/generation/generator.py --state VIC
+    python src/generation/generator.py --state NSW
 """
 
+import argparse
 import logging
 import os
 import re
@@ -332,22 +334,40 @@ def generate_compliance_answer(
 # ── Main ──────────────────────────────────────────────────────────────
 
 
-def main():
-    """Run a realistic VIC compliance scenario end-to-end."""
-    query = (
+DEFAULT_QUERIES = {
+    "VIC": (
         "My landlord wants to evict me because I am 10 days behind on rent "
         "at my standard residential rental apartment in Melbourne"
+    ),
+    "NSW": (
+        "My landlord wants to evict me because I am 14 days behind on rent "
+        "at my apartment in Sydney"
+    ),
+}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run RAG compliance scenario")
+    parser.add_argument(
+        "--state", choices=["VIC", "NSW"], default="VIC",
+        help="Jurisdiction (default: VIC)",
     )
-    state = "VIC"
+    parser.add_argument(
+        "--query", type=str, default=None,
+        help="Custom query (overrides built-in scenario)",
+    )
+    args = parser.parse_args()
+
+    query = args.query or DEFAULT_QUERIES[args.state]
 
     result = generate_compliance_answer(
         query=query,
-        state_filter=state,
+        state_filter=args.state,
         top_k_retrieve=10,
     )
 
     print("\n" + "=" * 60)
-    print("FINAL COMPLIANCE ANSWER")
+    print(f"COMPLIANCE ANSWER — {args.state}")
     print("=" * 60)
     print(result["answer"])
 

@@ -52,7 +52,7 @@ cd frontend && npm install           # Install frontend deps
 ## Run
 
 ```bash
-python src/data_processing/parser.py          # Parse VIC RTA PDF → chunks
+python src/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
 python src/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/generation/generator.py            # Run RAG compliance pipeline
 pytest tests/ -m "not slow"                   # Run tests
@@ -217,7 +217,9 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ```
 src/                          # RAG pipeline (Python)
   data_processing/            # PDF parsing → hierarchical chunks
-    parser.py                 #   VIC RTA PDF parser (PyMuPDF + regex)
+    vic_parser.py             #   VIC RTA PDF parser (PyMuPDF + regex)
+    nsw_parser.py             #   NSW RTA PDF parser
+    base_parser.py            #   Abstract BaseParser (shared pipeline)
   retrieval/                  # Vector store indexing + hybrid search
     vector_store.py           #   Qdrant ingestion with dense + BM25
   generation/                 # RAG compliance pipeline

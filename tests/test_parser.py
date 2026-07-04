@@ -2,7 +2,8 @@
 
 import re
 
-from src.data_processing import parser
+from src.data_processing import vic_parser as parser
+from src.data_processing.vic_parser import VICParser
 
 # ── Unit tests: regex patterns ────────────────────────────────────────
 
@@ -328,3 +329,87 @@ class TestSubsectionSplitting:
                     r"^[\dA-Za-z]+\([\dA-Za-z?]+\)-[\dA-Za-z]+\([\dA-Za-z?]+\)$",
                     c["subsection_range"],
                 ), f"Bad subsection_range: {c['subsection_range']}"
+
+
+# ── VICParser class-based tests (methods match module-level functions) ──
+
+
+class TestVICParserInstantiation:
+    def test_creates_with_correct_attrs(self):
+        p = VICParser()
+        assert p.state == "VIC"
+        assert p.act_name == "Residential Tenancies Act 1997"
+        assert p.act_year == "1997"
+        assert p.token_threshold == 2048
+
+    def test_build_chunk_format(self):
+        p = VICParser()
+        hierarchy = {
+            "part": "2",
+            "part_title": "Residential tenancies",
+            "division": "3",
+            "division_title": "Rent Increases",
+            "subdivision": None,
+            "subdivision_title": None,
+        }
+        chunk = p._build_chunk("44", "Rent increases", "[Part 2 - Division 3] 44 Rent increases\nBody text", hierarchy)
+        assert chunk["chunk_id"] == "VIC-RTA1997-s44"
+        assert chunk["state"] == "VIC"
+        assert chunk["year"] == "1997"
+        assert chunk["section_id"] == "44"
+        assert chunk["section_title"] == "Rent increases"
+        assert chunk["part"] == "2"
+        assert chunk["division"] == "3"
+        assert chunk["subdivision"] is None
+
+    def test_build_chunk_with_subsection_range(self):
+        p = VICParser()
+        hierarchy = {
+            "part": "1",
+            "part_title": "Preliminary",
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+        }
+        chunk = p._build_chunk(
+            "3", "Definitions", "[Part 1] 3 Definitions\nBody...",
+            hierarchy, "3(1)-3(10)",
+        )
+        assert chunk["subsection_range"] == "3(1)-3(10)"
+
+    def test_run_pipeline_produces_chunks(self, chunks, tmp_path):
+        p = VICParser()
+        tmp_out = tmp_path / "vic_test.json"
+        out = p.run(parser.INPUT_PDF, str(tmp_out))
+        assert len(out) >= 900
+        assert len(out) == len(chunks)
+        for c in out:
+            assert c["chunk_id"].startswith("VIC-RTA1997-s")
+            assert c["state"] == "VIC"
+
+
+class TestVICParserMethodsVsFunctions:
+    """Verify VICParser methods produce identical results to module-level helpers."""
+
+    def test_estimate_tokens_match(self):
+        p = VICParser()
+        for text in ("", "hello", "word " * 200):
+            assert p.estimate_tokens(text) == parser.estimate_tokens(text)
+
+    def test_build_parent_prefix_match(self):
+        p = VICParser()
+        for h in (
+            {"part": "2", "division": "3", "subdivision": "1"},
+            {"part": "1", "division": "2", "subdivision": None},
+            {"part": "5", "division": None, "subdivision": None},
+            {"part": None, "division": None, "subdivision": None},
+        ):
+            assert p._build_parent_prefix(h) == parser._build_parent_prefix(h)
+
+    def test_make_text_match(self):
+        p = VICParser()
+        result = p._make_text("44", "Rent increases", "Body here.", "[Part 2]")
+        assert result == "[Part 2] 44 Rent increases\nBody here."
+        result2 = p._make_text("1", "Purposes", "Body.", "")
+        assert result2 == "1 Purposes\nBody."
