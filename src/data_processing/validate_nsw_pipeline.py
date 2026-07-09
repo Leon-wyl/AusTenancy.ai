@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.data_processing.base_parser import BaseParser
-from src.data_processing.nsw_parser import NSWParser
+from src.data_processing.parser_factory import GenericParser, JURISDICTION_CONFIGS
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -120,7 +120,7 @@ def main() -> int:
         return 1
 
     logger.info("Starting NSW pipeline validation...")
-    parser = NSWParser()
+    parser = GenericParser(JURISDICTION_CONFIGS["NSW"])
 
     try:
         chunks = parser.run(str(pdf_path), OUTPUT_JSON)
