@@ -24,6 +24,30 @@ SPARSE_VECTOR_NAME = "sparse"
 BATCH_SIZE = 32
 PREFETCH_LIMIT = 20
 
+# Parts that are NOT standard residential tenancy and should be excluded
+# from general-purpose queries (rooming houses, caravan parks, boarding
+# premises, social housing, etc.).  Use ``include_parts`` to carve back
+# specific Parts or ``["*"]`` to disable exclusion entirely.
+DEFAULT_EXCLUDE_PARTS: dict[str, list[str]] = {
+    "VIC": ["3", "4", "4A", "12A"],
+    "NSW": ["7"],
+    "QLD": ["4.1", "4.1A", "4.2", "4.3", "4.4", "5.2"],
+    "SA":  ["7"],
+    "WA":  [],
+    "TAS": ["4A"],
+    "ACT": ["5A", "5B"],
+    "NT":  [],
+}
+
+# Chapters that are NOT standard residential tenancy (e.g. moveable
+# dwelling parks / manufactured homes).  Use ``include_chapters`` to
+# carve back specific Chapters or ``["*"]`` to disable exclusion
+# entirely.  Only applies to states that have chapter-level organisation
+# (currently just QLD).
+DEFAULT_EXCLUDE_CHAPTERS: dict[str, list[str]] = {
+    "QLD": ["8"],
+}
+
 
 # ── Ingestion ─────────────────────────────────────────────────────────
 
@@ -130,7 +154,8 @@ def hybrid_retrieve(
     query_text: str,
     state_filter: dict | None = None,
     top_k: int = 5,
-    exclude_parts: list[str] | None = None,
+    include_parts: list[str] | None = None,
+    include_chapters: list[str] | None = None,
 ) -> list[dict]:
     """
     Hybrid search combining dense (cosine) and sparse (BM25) retrieval
@@ -140,9 +165,17 @@ def hybrid_retrieve(
         query_text: Natural language query (e.g. "notice period for unpaid rent").
         state_filter: Metadata must-match filter (e.g. {"state": "VIC"}).
         top_k: Number of top-ranked chunks to return.
-        exclude_parts: Optional list of Part numbers to exclude from results
-            (e.g. ["3", "4", "4A", "12A"] excludes rooming houses, caravan parks,
-            site agreements, and SDA dwellings).
+        include_parts: Optional list of non-standard Part IDs to include
+            alongside standard residential Parts.  When ``None`` (default),
+            the per-state default exclusion list is applied (rooming houses,
+            caravan parks, boarding premises, etc. are excluded).
+            Pass ``["*"]`` to disable all exclusions.  Pass ``["4A"]`` to
+            carve a specific Part back in.
+        include_chapters: Optional list of non-standard Chapter IDs to
+            include alongside standard residential Chapters.  Same semantics
+            as ``include_parts``.  Currently only applies to QLD (Chapter 8
+            = moveable dwelling parks).  ``None`` = per-state defaults,
+            ``["*"]`` = disable all exclusions, ``["8"]`` = carve back in.
 
     Returns:
         List of dicts with keys: chunk_id, text, score, section_id,
@@ -175,11 +208,31 @@ def hybrid_retrieve(
                 models.FieldCondition(key=key, match=models.MatchValue(value=value))
             )
 
-    if exclude_parts:
-        for part in exclude_parts:
-            must_not_conditions.append(
-                models.FieldCondition(key="part", match=models.MatchValue(value=part))
-            )
+    # Per-state default exclusions
+    state = state_filter.get("state") if state_filter else None
+    excluded: list[str] = list(DEFAULT_EXCLUDE_PARTS.get(state, []))
+
+    if include_parts == ["*"]:
+        excluded = []
+    elif include_parts is not None:
+        excluded = [p for p in excluded if p not in include_parts]
+
+    for part in excluded:
+        must_not_conditions.append(
+            models.FieldCondition(key="part", match=models.MatchValue(value=part))
+        )
+
+    # Per-state default chapter exclusions
+    excluded_chapters: list[str] = list(DEFAULT_EXCLUDE_CHAPTERS.get(state, []))
+    if include_chapters == ["*"]:
+        excluded_chapters = []
+    elif include_chapters is not None:
+        excluded_chapters = [c for c in excluded_chapters if c not in include_chapters]
+
+    for chapter in excluded_chapters:
+        must_not_conditions.append(
+            models.FieldCondition(key="chapter", match=models.MatchValue(value=chapter))
+        )
 
     if must_conditions or must_not_conditions:
         prefetch_filter = models.Filter(
@@ -233,7 +286,10 @@ if __name__ == "__main__":
     logger.info("PHASE 2: Vector DB Ingestion & Hybrid Retrieval")
     logger.info("=" * 60)
 
-    chunk_files = sorted(Path("data/processed").glob("*_chunks.json"))
+    chunk_files = sorted(
+        f for f in Path("data/processed").glob("*_chunks.json")
+        if f.name not in {"all_australia_chunks.json", "vic_rta_chunks.json"}
+    )
     if not chunk_files:
         raise FileNotFoundError("No *_chunks.json found in data/processed/")
 
@@ -249,6 +305,12 @@ if __name__ == "__main__":
     test_queries = {
         "VIC": "How many days notice for unpaid rent in VIC?",
         "NSW": "How many days notice for unpaid rent in NSW?",
+        "QLD": "How many days notice for unpaid rent in QLD?",
+        "SA":  "How many days notice for unpaid rent in South Australia?",
+        "WA":  "How many days notice for unpaid rent in Western Australia?",
+        "TAS": "What is the notice period for unpaid rent in Tasmania?",
+        "ACT": "How many days notice for non-payment of rent in the ACT?",
+        "NT":  "How many days notice for unpaid rent in Northern Territory?",
     }
 
     for state, query in test_queries.items():

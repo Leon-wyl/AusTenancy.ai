@@ -107,13 +107,28 @@ class TestVerifyCitations:
 
 class TestSystemPrompt:
     def test_not_empty(self):
-        assert isinstance(generator.SYSTEM_PROMPT, str)
-        assert len(generator.SYSTEM_PROMPT) > 0
+        prompt = generator._build_system_prompt("VIC")
+        assert isinstance(prompt, str)
+        assert len(prompt) > 0
 
     def test_contains_uncertainty_fallback(self):
+        prompt = generator._build_system_prompt("VIC")
         assert (
             "If any aspect of the question cannot be answered from the provided context"
-        ) in generator.SYSTEM_PROMPT
+        ) in prompt
+
+    def test_injects_state_context(self):
+        vic_prompt = generator._build_system_prompt("VIC")
+        nsw_prompt = generator._build_system_prompt("NSW")
+        assert "VCAT" in vic_prompt
+        assert "NCAT" in nsw_prompt
+        assert "Residential Tenancies Act 1997 (VIC)" in vic_prompt
+        assert "Residential Tenancies Act 2010 (NSW)" in nsw_prompt
+
+    def test_none_state_fallback(self):
+        prompt = generator._build_system_prompt(None)
+        assert "the relevant state legislation" in prompt
+        assert "your local tenancy tribunal" in prompt
 
 
 # ── Integration: rerank_context (uses real FlashRank model) ────────────
