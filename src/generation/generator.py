@@ -287,12 +287,13 @@ def verify_citations(answer: str, chunks: list[dict]) -> dict:
 _REWRITE_PROMPT_TEMPLATE = """Rewrite the user's conversational tenancy law question into a concise legal keyword search query.
 
 Rules:
+- CRITICAL: Use the EXACT statutory phrase from the "Terminology note" in the user's message — do NOT use the original colloquial wording.
+- Preserve the key distinguishing facts (timeframes, reasons, specific numbers) even when using statutory phrases
 - Extract the core legal question (e.g., "notice to vacate for non-payment of rent")
 - Include the jurisdiction as a state abbreviation ONLY if the user specified one (e.g., VIC, NSW, QLD)
 - Use jurisdiction-correct terminology: "{landlord_term}" (landlord), "{tenant_term}" (tenant), "rented premises"
-- Remove conversational filler (pronouns, emotions, extra details, greetings)
+- Remove conversational filler (pronouns, emotions, greetings) but keep ALL legal details (notice periods, fixed-term dates, reasons)
 - Preserve specific numbers (e.g., "10 days", "60 days notice")
-- Preserve factual details that distinguish the legal situation (e.g., "fixed term lease", "landlord wants to move back in", "condition report never provided")
 - Return ONLY the rewritten query — no explanation, no extra text, no punctuation at the end"""
 
 
@@ -308,7 +309,16 @@ def _build_rewrite_prompt(state: str | None) -> str:
 def _rewrite_query(query: str, state_filter: str | None = None) -> str:
     """Use the LLM to rewrite a conversational query into a concise legal search query."""
     state_hint = f" The jurisdiction is {state_filter}." if state_filter else ""
-    user_prompt = f"User question: {query}{state_hint}"
+
+    synonyms = (
+        "\n\nTerminology note — use EXACT statutory phrases instead of these colloquial words:"
+        '\n  "break lease" → "notice of intention to vacate"'
+        '\n  "evict" → "possession order"'
+        '\n  "rent increase" → "notice of rent increase"'
+        '\n  "repair" → "duty to maintain" or "urgent repairs"'
+        '\n  "bond" → "bond claim" or "security deposit"'
+    )
+    user_prompt = f"User question: {query}{state_hint}{synonyms}"
 
     try:
         llm = DeepSeekLLMProvider()

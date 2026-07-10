@@ -1,0 +1,112 @@
+[
+  {
+    "question": "My lessor in Braddon, ACT just sent me a WhatsApp message saying my rent goes up $50/week starting in 3 weeks. They increased my rent 8 months ago already. No formal letter \u2014 just the chat message. I feel trapped. Can they do this?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": ["64AAA", "64AE"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Braddon, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a WhatsApp message constitutes a valid notice of rent increase under the Residential Tenancies Act 1997 (ACT), and whether the frequency and notice period requirements are met.\n\nRULE: Under the Residential Tenancies Act 1997 (ACT), a lessor may increase the rent only by giving the tenant written notice of the proposed increase. Section 64AAA limits rent increases to no more than once in any 12-month period, measured from the date of the last increase. The notice must be in writing and give at least 8 weeks' notice (for standard residential tenancies). Section 64AE defines 'rental rate increase'. A WhatsApp message does not constitute formal written notice as required by the Act.\n\nAPPLICATION: The lessor's WhatsApp message is not formal written notice. Only 3 weeks' notice was given instead of 8 weeks. The last increase was 8 months ago, less than the 12-month minimum. The increase fails on all grounds.\n\nCONCLUSION: The rent increase is invalid under the Residential Tenancies Act 1997 (ACT) because: the notice was not formal written notice, the notice period was inadequate (3 weeks instead of 8 weeks), and the 12-month frequency limit under section 64AAA was not respected. The tenant should inform the lessor in writing that the increase is invalid and continue paying the current rent. If the lessor insists, the tenant may apply to ACAT."
+  },
+  {
+    "question": "My rent in Kingston, ACT went from $450 to $580 per week \u2014 29% increase. The lessor gave proper 8 weeks' notice in the correct form, so procedure-wise it's fine. But $580 seems way above market \u2014 similar apartments in Kingston are $440-470. Can ACAT review the amount?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": ["64C", "68A"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Kingston, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a tenant can challenge a rent increase as excessive when the procedural requirements are satisfied under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Section 64C of the Residential Tenancies Act 1997 (ACT) allows a tenant to apply to ACAT for review of a proposed rent increase. ACAT may consider: the rent payable for comparable premises in the same area, the state of repair and general condition of the premises, the proposed increase compared to any Consumer Price Index increase, the value of any goods or services provided by the lessor, and any other relevant matter. Section 68A provides for ACAT's orders on rent matters. If ACAT finds the increase is excessive, it may order that the rent not be increased or be increased by a lesser amount.\n\nAPPLICATION: The increase of 29% ($450 to $580) significantly exceeds comparable market rents ($440-$470). The lessor complied with procedural requirements but the quantum is disproportionate to the market level for comparable premises.\n\nCONCLUSION: The tenant may apply to ACAT under section 64C of the Residential Tenancies Act 1997 (ACT) for a review of the rent increase. The tenant should gather: evidence of comparable rental listings in Kingston, the condition of the premises, and CPI data showing general rent movements. ACAT may order the increase be reduced to a reasonable level."
+  },
+  {
+    "question": "I've been renting in Belconnen, ACT for 2 years and I'm 2 weeks behind on rent for the first time. The lessor just served a notice to vacate giving me 14 days. If I pay the full arrears by the end of this week, can I stop the eviction?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["49A", "46AA"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Belconnen, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a termination notice for non-payment of rent becomes void if the tenant pays the arrears within the notice period under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Under section 49A of the Residential Tenancies Act 1997 (ACT), if a tenant fails to pay rent, the lessor may serve a notice to remedy the breach giving the tenant at least 14 days to pay the overdue rent. If the tenant pays the outstanding rent in full within the 14-day period, the notice ceases to have effect and the tenancy continues. Section 46AA provides for termination of agreement for failure to comply with a notice to remedy. If the tenant fails to pay within the notice period, the lessor may apply to ACAT for a termination and possession order. Importantly, the lessor cannot evict the tenant without an ACAT order.\n\nAPPLICATION: First-time arrears of 2 weeks. The notice gives 14 days. If the tenant pays the full arrears this week (within 14 days), the breach is remedied.\n\nCONCLUSION: If the tenant pays all outstanding rent within the 14-day notice period, the notice to remedy ceases to have effect under section 49A of the Residential Tenancies Act 1997 (ACT). The tenant should pay immediately, keep proof of payment, and confirm in writing to the lessor. If the lessor attempts to enforce the notice after payment, the tenant may apply to ACAT. The lessor cannot physically evict without an ACAT order."
+  },
+  {
+    "question": "I signed a 12-month lease in Gungahlin, ACT but I have to relocate to Sydney for a new job next month. I'm 4 months into the lease. What notice do I need to give and what fees can the lessor claim?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["46AA", "106A"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Gungahlin, ACT"
+    },
+    "ground_truth": "ISSUE: What notice obligations and potential compensation a tenant faces when breaking a fixed-term tenancy early under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Under the Residential Tenancies Act 1997 (ACT), a tenant who wishes to end a fixed-term agreement early must give the lessor written notice. The minimum notice period is 3 weeks (21 days). Section 46AA addresses termination where the tenant fails to comply with obligations, but where the tenant terminates voluntarily, they are breaching the fixed-term agreement. The lessor may claim compensation for loss suffered, including: reasonable advertising and re-letting costs, and loss of rent for any period the premises remain vacant until a new tenant is found. The lessor must take reasonable steps to mitigate their loss. ACT practice generally allows for the possibility of negotiating a break fee or compensation amount. Section 106A sets out additional provisions.\n\nAPPLICATION: The tenant is relocating for work. The tenant should give at least 3 weeks' written notice. The lessor must take reasonable steps to re-let.\n\nCONCLUSION: The tenant must give at least 3 weeks' written notice under the Residential Tenancies Act 1997 (ACT). The lessor may claim reasonable re-letting costs and loss of rent for any vacancy period, but must mitigate their loss. The tenant should pay rent until the termination date. If the lessor demands unreasonable compensation, the tenant may apply to ACAT."
+  },
+  {
+    "question": "I've rented an apartment in Woden, ACT for 3 years with no issues. The lessor just gave me a notice to vacate saying they want to renovate and then sell. They gave me 8 weeks. Can I challenge this at ACAT? I think they're just tired of getting less rent than the market rate now.",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["46B", "46AA"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Woden, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a tenant can challenge a notice to vacate given on grounds of sale or renovation under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Under section 46B of the Residential Tenancies Act 1997 (ACT), a lessor may terminate a fixed-term agreement if the lessor intends to sell the premises with vacant possession. The notice must be in writing and specify the grounds and a termination date not earlier than 8 weeks after the notice is given. Section 46AA provides for termination for failure to comply with a notice to remedy, but a lessor-initiated termination on sale/renovation grounds can be challenged at ACAT if the tenant believes the stated ground is not genuine or the notice is retaliatory. ACAT has the power to set aside a notice if it is satisfied the notice was not given in good faith or the stated ground is not genuine.\n\nAPPLICATION: The tenant has a 3-year exemplary tenancy record and believes the real motivation is to charge higher market rent. The tenant may apply to ACAT to challenge the genuineness of the stated ground.\n\nCONCLUSION: The tenant may apply to ACAT under the Residential Tenancies Act 1997 (ACT) to challenge the notice to vacate. The tenant should: gather evidence of their rental payment history, any recent repair requests (possible retaliation), evidence of higher market rents for comparable properties, and any communications with the lessor. ACAT may determine the notice is not genuine and set it aside if the lessor cannot demonstrate a real intention to sell or renovate."
+  },
+  {
+    "question": "My heating system completely broke 2 days ago in my rental in Tuggeranong, ACT and it's below zero at night. I've called the lessor's agent 5 times and sent 2 emails \u2014 nothing back. I have a young baby. Can I get an electrician in and make the lessor pay?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["53A", "74B"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Tuggeranong, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a tenant may arrange urgent repairs and recover the cost from the lessor under the Residential Tenancies Act 1997 (ACT) when the lessor fails to respond.\n\nRULE: Under section 53A and related provisions of the Residential Tenancies Act 1997 (ACT), the lessor has an obligation to maintain the premises in a reasonable state of repair. Where an urgent repair is required, the tenant must notify the lessor as soon as practicable. If the lessor does not arrange for the repair within a reasonable time, the tenant may arrange for a suitably qualified person to carry out the repair and recover the reasonable cost from the lessor, up to a prescribed amount (generally $2,500). Urgent repairs include: failure of heating during the colder months (particularly where this affects habitability), failure of hot water, serious roof leaks, dangerous electrical faults, and any fault that makes the premises unsafe. Section 74B addresses tenant responsibility for repairs, which does not extend to urgent repairs caused by equipment failure.\n\nAPPLICATION: The heating system failed during below-zero temperatures with a baby in the household. This is a recognised urgent repair. The tenant has made 5 calls and 2 emails without response over 2 days. The lessor has had reasonable time to respond.\n\nCONCLUSION: The tenant may arrange the urgent repair and recover the reasonable cost from the lessor under the Residential Tenancies Act 1997 (ACT). The tenant should: document all communication attempts, hire a licensed electrician, obtain a detailed receipt and invoice, and provide it to the lessor with a written request for reimbursement. If the cost is within $2,500 and the repair was reasonably necessary, the lessor must reimburse. If the lessor refuses, the tenant may apply to ACAT."
+  },
+  {
+    "question": "The bathroom ceiling in my rental in Dickson, ACT has been leaking for 8 weeks. I've lodged 3 formal maintenance requests through the agent's system and sent 2 follow-up emails. Nothing. There's now mould and the ceiling is visibly sagging. What can I legally do to force them to fix this?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["68A", "53A"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Dickson, ACT"
+    },
+    "ground_truth": "ISSUE: What remedies are available to a tenant when the lessor fails to carry out repairs after repeated notification under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Under the Residential Tenancies Act 1997 (ACT), the lessor has an obligation to maintain the premises in a reasonable state of repair. Section 53A is the primary provision regarding repairs. A leaking bathroom ceiling with mould and sagging is a clear breach of this duty. Where the lessor fails to carry out repairs within a reasonable time, the tenant may apply to ACAT under section 68A for orders including: requiring the lessor to carry out the repairs, reducing the rent until repairs are completed, compensating the tenant for loss or inconvenience, or terminating the tenancy.\n\nAPPLICATION: The tenant lodged 3 formal maintenance requests and sent 2 emails over 8 weeks, far exceeding a reasonable notification period. Mould is present and the ceiling is sagging. The tenant has given the lessor ample opportunity to respond.\n\nCONCLUSION: The tenant should apply to ACAT under the Residential Tenancies Act 1997 (ACT) for orders under section 68A requiring the lessor to carry out the repairs. The tenant should present: records of all maintenance requests (dates, reference numbers), copies of follow-up emails, photographs of the ceiling and mould, and any correspondence from the agent. The tenant may seek: repair orders, a rent reduction, and compensation. If the sagging ceiling now presents a safety risk, the tenant should cite this as an urgent matter in the ACAT application."
+  },
+  {
+    "question": "A hidden pipe inside the wall of my apartment in Civic, ACT burst and soaked the bedroom carpet. The lessor wants me to pay $2,600 for replacement, saying it's a tenant responsibility. The plumber said the pipe was ancient and corroded \u2014 purely age-related failure. Am I liable?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["53A", "74B"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Civic, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a tenant is liable for damage caused by a structural failure (aged corroded water pipe) under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Section 53A of the Residential Tenancies Act 1997 (ACT) requires the lessor to maintain the premises in a reasonable state of repair, including structural elements and plumbing. A pipe that fails from age and corrosion is a maintenance failure within the lessor's responsibility. Section 74B addresses tenant responsibilities for repairs and damage, providing that the tenant is responsible for damage they cause through negligence or misuse, but not for damage arising from ordinary deterioration or structural failures. The lessor bears the cost of maintaining the premises' fixtures and remedying consequential damage from their failure.\n\nAPPLICATION: The plumber confirmed the pipe failed from age and corrosion. The tenant did not cause or contribute to the failure. The carpet damage resulted directly from the plumbing failure, not from any tenant act.\n\nCONCLUSION: The tenant is not liable for the $2,600 carpet replacement cost. Under sections 53A and 74B of the Residential Tenancies Act 1997 (ACT), the lessor is responsible for maintaining the plumbing and bearing the cost of consequential damage from structural failures. The tenant should provide the plumber's report confirming the age-related cause. If the lessor insists or attempts to claim against the bond, the tenant should apply to ACAT."
+  },
+  {
+    "question": "I'm moving out of my rental in Turner, ACT after my lease ends. The lessor never gave me a condition report at the start of the tenancy \u2014 no inspection sheet, no photos, nothing was documented. Now they want to claim $450 from my bond for 'scratches on the floorboards'. The scratches were there when I moved in 2 years ago. Can they claim without a condition report?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": ["30A", "34B", "34F"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Turner, ACT"
+    },
+    "ground_truth": "ISSUE: Whether a lessor can make deductions from a bond when no condition report was completed at the start of the tenancy under the Residential Tenancies Act 1997 (ACT).\n\nRULE: The Residential Tenancies Act 1997 (ACT) requires a condition report to be completed at the start and end of the tenancy (section 30A). The report is the primary evidence of the premises' condition. Without an initial condition report, the lessor cannot establish the condition of the premises at the commencement of the tenancy and therefore cannot prove that any damage occurred during the tenancy. Section 34B allows a tenant to make a bond release application independently, and section 34F addresses bond release where there is a discrepancy. The tenant may apply to release the bond and, if the lessor disputes, ACAT will determine the matter.\n\nAPPLICATION: No condition report was prepared at the start. The tenant states the floorboard scratches were pre-existing. After 2 years of occupancy, minor floorboard scratching may also be fair wear and tear, which is not claimable. The lessor has no documentary evidence of the starting condition.\n\nCONCLUSION: The lessor has no valid claim against the bond for the $450 floorboard scratches. Under section 30A of the Residential Tenancies Act 1997 (ACT), the lack of an entry condition report makes it impossible for the lessor to prove the alleged damage occurred during the tenancy. The tenant should apply to the ACT Revenue Office (Bonds) under section 34B for full release of the bond. If the lessor disputes, ACAT will determine the matter. The lessor's failure to complete a condition report is a breach of the Act."
+  },
+  {
+    "question": "I'm about to rent a $490-per-week apartment in Narrabundah, ACT. The lessor wants a $1,960 bond \u2014 exactly 4 weeks' rent. Is that the maximum allowed in the ACT? Is there any exception for furnished apartments or pets?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": ["34B", "30A"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Narrabundah, ACT"
+    },
+    "ground_truth": "ISSUE: What is the maximum bond that can be required under the Residential Tenancies Act 1997 (ACT).\n\nRULE: Under the Residential Tenancies Act 1997 (ACT), the maximum bond that may be required is 4 weeks' rent. There is no higher maximum for furnished premises under ACT law. The bond must be lodged with the ACT Revenue Office (Rental Bonds) within 2 weeks of receipt. Section 30A addresses condition reports and deposits. Section 34B provides for bond release applications. A lessor who demands more than 4 weeks' rent as bond is acting unlawfully.\n\nAPPLICATION: The weekly rent is $490. Four weeks' rent at $490 = $1,960. The lessor is requesting exactly the statutory maximum. The amount is lawful.\n\nCONCLUSION: The bond of $1,960 (4 weeks' rent) is at the maximum permitted under the Residential Tenancies Act 1997 (ACT) and is lawful. The tenant should ensure the bond is properly lodged with the ACT Revenue Office and obtain a lodgment receipt. The tenant should also request a condition report at the start of the tenancy under section 30A."
+  }
+]

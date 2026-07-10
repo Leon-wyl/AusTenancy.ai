@@ -1,0 +1,112 @@
+[
+  {
+    "question": "My landlord sent me a text message saying my rent in Glenelg, SA is going up $40/week starting in 3 weeks. I've been here 18 months and they've never increased it before. I didn't get any formal written notice \u2014 just a message. Is a text message a valid rent increase notice in South Australia?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": ["55", "56"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Glenelg, SA"
+    },
+    "ground_truth": "ISSUE: Whether a text message constitutes a valid rent increase notice under the Residential Tenancies Act 1995 (SA), and whether the required notice period has been satisfied.\n\nRULE: Under section 55 of the Residential Tenancies Act 1995 (SA), a landlord may increase the rent payable under a residential tenancy agreement by giving the tenant written notice specifying the amount of the increase and the date from which it takes effect. The notice must be in writing \u2014 a text message is unlikely to satisfy this requirement as it may not be in the prescribed form. The landlord must give at least 60 days' notice of the increase. Additionally, rent may not be increased at intervals of less than 12 months for periodic tenancies, or during a fixed term unless the agreement provides for it. Section 56 provides that a tenant may apply to SACAT for an order declaring the rent excessive.\n\nAPPLICATION: The landlord sent a text message, which is not a formal written notice. Only 3 weeks' notice was given, far less than the 60-day minimum. While this is the first increase in 18 months (satisfying the 12-month interval), the notice form and period are both deficient.\n\nCONCLUSION: The rent increase is invalid under section 55 of the Residential Tenancies Act 1995 (SA) because the notice was not in the prescribed written form (a text message is insufficient) and the notice period was inadequate (3 weeks not 60 days). The tenant should inform the landlord in writing that the notice is invalid and continue paying the current rent. If the landlord insists, the tenant may apply to SACAT under section 56."
+  },
+  {
+    "question": "My rent in Prospect, SA went from $320 to $460 per week \u2014 a 44% jump. I got proper 60 days' written notice and everything. But the amount is insane \u2014 similar houses on my street are renting for $330-370. Can SACAT do anything about the amount of the increase?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": ["56"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Prospect, SA"
+    },
+    "ground_truth": "ISSUE: Whether a tenant can challenge a rent increase as excessive at SACAT under the Residential Tenancies Act 1995 (SA), even when the procedural requirements are satisfied.\n\nRULE: Section 56 of the Residential Tenancies Act 1995 (SA) provides that a tenant may apply to SACAT for an order declaring that the rent payable under a residential tenancy agreement is excessive. SACAT may have regard to: the rent payable for comparable premises in the same or a similar locality, the state of repair and general condition of the premises, the value of the chattels provided with the premises, the term of the tenancy, and any other factor it considers relevant. If SACAT finds the rent is excessive, it may order that the rent be reduced or that the increase not take effect.\n\nAPPLICATION: The 44% increase from $320 to $460 significantly exceeds the market range for comparable houses ($330-$370). The procedural requirements were met (written notice, 60 days), but the quantum is disproportionate to the general market level of rents for comparable premises.\n\nCONCLUSION: The tenant may apply to SACAT under section 56 of the Residential Tenancies Act 1995 (SA) for an order declaring the rent increase excessive. The tenant should gather evidence: comparable rental listings on the same street or nearby, the condition of the premises, and details of any chattels provided. SACAT may order the rent be reduced or the increase be limited to a reasonable amount."
+  },
+  {
+    "question": "I'm 10 days behind on rent for the first time in my 3-year tenancy in Unley, SA. The landlord just served me a 14-day notice to vacate for rent arrears. If I pay the overdue rent tomorrow, does the notice become void and I can stay?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["79", "80"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Unley, SA"
+    },
+    "ground_truth": "ISSUE: Whether a termination notice for rent arrears becomes void if the tenant pays the outstanding rent before the termination date under the Residential Tenancies Act 1995 (SA).\n\nRULE: Under section 79 and 80 of the Residential Tenancies Act 1995 (SA), a landlord may give a notice of termination on the ground of breach of the agreement, including non-payment of rent. The notice must specify the breach and allow a period for the tenant to remedy the breach \u2014 generally at least 14 days for non-payment of rent. If the tenant remedies the breach (by paying the outstanding rent in full) before the termination date specified in the notice, the notice of termination ceases to have effect and the tenancy continues. This applies to the first breach of this type. The landlord cannot proceed with an eviction based on a breach that has been remedied.\n\nAPPLICATION: The tenant is 10 days behind on rent for the first time in 3 years. The notice gives 14 days. If the tenant pays the full arrears tomorrow, this is within the 14-day remedy period. The breach would be remedied before the termination date.\n\nCONCLUSION: If the tenant pays all outstanding rent before the termination date specified in the notice, the termination notice is of no effect under section 80 of the Residential Tenancies Act 1995 (SA). The tenant should pay immediately and obtain written confirmation of payment. If the landlord proceeds with eviction despite payment, the tenant may apply to SACAT."
+  },
+  {
+    "question": "I signed a 12-month lease in Norwood, SA 4 months ago but my employer is transferring me to Melbourne indefinitely. I need to break the lease. What notice do I need to give and what can the landlord charge me?",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["85", "79"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Norwood, SA"
+    },
+    "ground_truth": "ISSUE: What obligations a tenant has when breaking a fixed-term residential tenancy agreement early under the Residential Tenancies Act 1995 (SA).\n\nRULE: Under section 85 of the Residential Tenancies Act 1995 (SA), a tenant may give a notice of termination on the ground that the landlord has breached the agreement, but where the tenant terminates voluntarily (without a breach by the landlord), they are terminating the fixed-term agreement early. The notice must be in writing and specify the termination date. While no specific statutory minimum notice period applies for tenant-initiated early termination of a fixed term, a reasonable period (such as 21-28 days) is appropriate. Breaking a fixed-term agreement gives the landlord a right to claim compensation for the loss suffered: reasonable re-letting costs, and loss of rent for any period the premises remain vacant until a new tenant is found. The landlord has a duty to mitigate their loss. Section 79 provides the framework for termination.\n\nAPPLICATION: The tenant is 4 months into a 12-month lease and must relocate for employment. The tenant should give written notice with a reasonable termination date. The landlord must make reasonable efforts to find a new tenant.\n\nCONCLUSION: The tenant should give written notice of the intended termination date under the Residential Tenancies Act 1995 (SA). The landlord may claim reasonable re-letting costs and loss of rent for any vacancy period, but must take reasonable steps to minimise the loss. The tenant should continue paying rent until a new tenant commences. If the landlord demands unreasonable compensation, the tenant may apply to SACAT."
+  },
+  {
+    "question": "I've rented the same house in Henley Beach, SA for 5 years without missing a single rent payment. The landlord just gave me a notice to vacate saying they intend to sell the property. They gave me 60 days. Is there any way to challenge this or get more time? I have a child in the local school.",
+    "metadata": {
+      "domain": "terminations",
+      "sections": ["84", "89", "91"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Henley Beach, SA"
+    },
+    "ground_truth": "ISSUE: Whether a tenant can challenge a notice to vacate given on grounds of sale under the Residential Tenancies Act 1995 (SA), and what protections apply.\n\nRULE: Under the Residential Tenancies Act 1995 (SA), a landlord may terminate a periodic tenancy by giving the tenant written notice in the prescribed form. Section 84 provides that certain terminations require SACAT approval. Section 89 allows SACAT to make orders on hardship grounds, including extending the period before possession is required. Section 91 sets out the form requirements for a notice of termination \u2014 it must be in the prescribed form, specify the grounds, and give the required notice period (generally at least 60 days for periodic tenancies). If the tenant believes the notice is retaliatory (e.g., given because the tenant enforced their rights), the tenant may apply to SACAT. Under section 89, if the tenant can demonstrate that the termination would cause undue hardship (e.g., disruption to a child's education), SACAT may suspend or refuse the termination order or extend the date of possession.\n\nAPPLICATION: The tenant has a 5-year exemplary tenancy record with a school-aged child. The notice is 60 days. The tenant may apply to SACAT on hardship grounds under section 89, citing the disruption to the child's education and the difficulty of finding alternative accommodation in the local school zone.\n\nCONCLUSION: The tenant should promptly apply to SACAT under section 89 of the Residential Tenancies Act 1995 (SA) seeking an order that the termination date be extended on hardship grounds. The tenant should present evidence of the 5-year tenancy, the school enrollment, and the likely difficulty of finding alternative accommodation in time. SACAT may extend the possession date. The tenant should also verify the notice complies with the formal requirements of section 91."
+  },
+  {
+    "question": "My hot water system died completely 4 days ago in my rental in Semaphore, SA. I've called the landlord 3 times and left voicemails \u2014 no response. It's winter and I have a baby. Can I call a plumber myself and make the landlord pay?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["68", "69"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Semaphore, SA"
+    },
+    "ground_truth": "ISSUE: Whether a tenant may arrange urgent repairs and recover the cost from the landlord under the Residential Tenancies Act 1995 (SA) when the landlord fails to respond.\n\nRULE: Section 68 of the Residential Tenancies Act 1995 (SA) imposes an obligation on the landlord to keep the premises in a reasonable state of repair, having regard to the age, character and prospective life of the premises. Where an urgent repair is needed \u2014 such as a failure of the hot water service \u2014 the tenant may arrange for the repair to be carried out if: (a) the tenant has taken reasonable steps to notify the landlord of the need for the repair, and (b) the landlord has failed to arrange for the repair within a reasonable time. The cost of the urgent repair must be reasonable, and the landlord must reimburse the tenant for the reasonable cost. Section 69 addresses the tenant's responsibility for damage, but here the failure is clearly within the landlord's repair obligations.\n\nAPPLICATION: The hot water system has been broken for 4 days in winter. The tenant has called 3 times without response. A baby is in the household, making the lack of hot water a health and hygiene concern. The tenant has made reasonable attempts to contact the landlord. This meets the threshold for tenant-arranged urgent repairs.\n\nCONCLUSION: The tenant may arrange the urgent repair and recover the reasonable cost from the landlord under section 68 of the Residential Tenancies Act 1995 (SA). The tenant should: document all attempts to contact the landlord, use a qualified plumber, obtain a detailed receipt, and provide it to the landlord with a written request for reimbursement. If the landlord refuses to reimburse, the tenant may apply to SACAT."
+  },
+  {
+    "question": "The ceiling in my bedroom in Magill, SA has been leaking during rain for 6 weeks. I've sent the landlord a formal repair request letter (certified mail) 4 weeks ago and followed up twice by email. They keep saying 'soon' but nothing happens. There's now water damage and mold. What else can I do?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["68", "56"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Magill, SA"
+    },
+    "ground_truth": "ISSUE: What remedies are available when a landlord fails to carry out non-urgent repairs after repeated written notification under the Residential Tenancies Act 1995 (SA).\n\nRULE: Section 68 of the Residential Tenancies Act 1995 (SA) requires the landlord to keep the premises in a reasonable state of repair. A leaking ceiling with water damage and mold growth indicates the landlord is in breach of this obligation. Where the landlord fails to carry out repairs within a reasonable time after being notified, the tenant may apply to SACAT for orders including: (a) requiring the landlord to carry out the repairs within a specified time, (b) reducing the rent until the repairs are completed, or (c) ordering the landlord to compensate the tenant for loss or inconvenience. Under section 56, if the premises are not in a reasonable state of repair, the tenant may also argue the rent is excessive for the condition of the premises.\n\nAPPLICATION: The tenant sent a formal repair request by certified mail 4 weeks ago and followed up twice by email. This far exceeds a reasonable notification period. Water damage and mold are present. The premises are not in a reasonable state of repair. The SACAT application can cite the sustained failure to act as evidence.\n\nCONCLUSION: The tenant should apply to SACAT under section 68 of the Residential Tenancies Act 1995 (SA) for orders requiring the landlord to carry out the repairs. The tenant should present: the certified mail receipt and delivery confirmation, copies of all emails, photographs of the damage and mold, and a record of any verbal communications. The tenant may also seek a rent reduction for the period the premises have been affected by the unrepaired leak."
+  },
+  {
+    "question": "A water pipe in the wall of my rental in Adelaide CBD burst and flooded the wooden floorboards. The landlord is demanding I pay $4,500 for new flooring, saying the damage happened 'on my watch'. The plumber confirmed it was a 30-year-old corroded pipe that failed from age. Am I liable?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": ["68", "69"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Adelaide CBD, SA"
+    },
+    "ground_truth": "ISSUE: Whether a tenant is liable for damage caused by a structural failure (aged corroded water pipe) under the Residential Tenancies Act 1995 (SA).\n\nRULE: Section 68 of the Residential Tenancies Act 1995 (SA) imposes on the landlord a duty to keep the premises in a reasonable state of repair. This includes the premises' structural elements and plumbing. A corroded water pipe that fails from age is a maintenance issue within the landlord's responsibility, not damage caused by the tenant. Section 69 provides that the tenant is responsible for keeping the premises in a reasonable state of cleanliness and must notify the landlord of any damage. However, the tenant is not liable for damage caused by defects in the premises' structure or fixtures that are the landlord's responsibility to maintain. The tenant's obligation is to not intentionally or negligently cause damage.\n\nAPPLICATION: The burst pipe was caused by 30 years of corrosion \u2014 a latent defect and maintenance failure, not any act or omission by the tenant. The plumber confirmed the cause was age-related. The damage to the floorboards is consequential to the structural failure.\n\nCONCLUSION: The tenant is not liable for the $4,500 flooring replacement cost. Under section 68 of the Residential Tenancies Act 1995 (SA), the landlord is responsible for maintaining the plumbing, and the consequential damage from its failure falls within the landlord's repair obligations. The tenant should provide the landlord with the plumber's report confirming the age-related failure. If the landlord persists or attempts to deduct from the bond, the tenant should apply to SACAT."
+  },
+  {
+    "question": "I'm leaving my rental in Port Adelaide after 2 years. The landlord never gave me an inspection report or condition report when I moved in \u2014 nothing was signed. Now they're saying they'll keep my bond for 'general wear and tear' on the carpet and walls. I left the place spotless. Can they do this without an entry report?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": ["61", "63", "62"],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Port Adelaide, SA"
+    },
+    "ground_truth": "ISSUE: Whether a landlord can claim against a bond for alleged damage when no inspection report was completed at the start of the tenancy under the Residential Tenancies Act 1995 (SA).\n\nRULE: Under the Residential Tenancies Act 1995 (SA), at the start of a tenancy, the landlord must complete an inspection report (condition report) and give a copy to the tenant. Section 61 provides that a person must not require more than one bond, and sets bond-related obligations. Section 62 requires the landlord to transmit the bond to the Commissioner within 48 hours of receipt. Section 63 provides the process for repayment of bond: the tenant and landlord may make a joint application for repayment, or either party may apply. If the landlord claims against the bond and the tenant disputes the claim, SACAT may determine the matter. Without an initial inspection report, the landlord has no baseline evidence of the premises' condition at the start of the tenancy and cannot prove the alleged damage occurred during the tenancy. 'General wear and tear' is not a valid ground for bond deductions.\n\nAPPLICATION: No inspection report was completed at the start. The landlord's claim is for wear and tear \u2014 which is specifically excluded as a valid deduction. Without a signed entry report, the landlord cannot establish the condition of the premises at commencement.\n\nCONCLUSION: The landlord has no valid claim against the bond for wear and tear under the Residential Tenancies Act 1995 (SA). The tenant should lodge a claim with the Commissioner of Consumer Affairs for full return of the bond. If the landlord disputes, SACAT will determine the matter. The tenant should note: (a) no entry inspection report was provided, (b) wear and tear is specifically not claimable, and (c) the premises were left clean. The landlord's failure to complete an inspection report is itself a breach of the Act."
+  },
+  {
+    "question": "I'm about to sign a lease for a $500-per-week apartment in North Adelaide, SA. The agent is asking for a $2,500 bond \u2014 they say it's standard to ask for 4 to 6 weeks' rent. I thought the maximum was 4 weeks in SA? Is $2,500 lawful?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": ["61"],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "North Adelaide, SA"
+    },
+    "ground_truth": "ISSUE: What is the maximum bond a landlord may require under the Residential Tenancies Act 1995 (SA).\n\nRULE: Section 61 of the Residential Tenancies Act 1995 (SA) provides that a person must not require a bond exceeding the equivalent of 4 weeks' rent, where the weekly rent is $375 or less. Where the weekly rent exceeds $375, the maximum bond is 6 weeks' rent (if the bond is required for a residential tenancy agreement where the weekly rent is more than $375). The bond must be deposited with the Commissioner of Consumer Affairs within the prescribed time.\n\nAPPLICATION: The weekly rent is $500, which exceeds the $375 threshold. At 6 weeks' rent ($500 \u00d7 6 = $3,000), the maximum lawful bond is $3,000. The agent is requesting $2,500, which is 5 weeks' rent \u2014 this is within the statutory maximum of 6 weeks.\n\nCONCLUSION: The bond of $2,500 is lawful under section 61 of the Residential Tenancies Act 1995 (SA), as the maximum for a property with rent above $375 per week is 6 weeks' rent ($3,000). The tenant should ensure the bond is properly lodged with Consumer and Business Services and obtain a receipt. The tenant should also request a completed inspection report at the start of the tenancy."
+  }
+]

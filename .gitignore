@@ -40,5 +40,6 @@ docs/superpowers/
 tmp/
 
 # Evaluation outputs
+reports/
 vic_eval_*.csv
 vic_eval_*.json
