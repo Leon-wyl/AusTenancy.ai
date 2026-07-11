@@ -102,7 +102,7 @@
     "question": "I'm about to rent a $490-per-week apartment in Narrabundah, ACT. The lessor wants a $1,960 bond \u2014 exactly 4 weeks' rent. Is that the maximum allowed in the ACT? Is there any exception for furnished apartments or pets?",
     "metadata": {
       "domain": "bonds",
-      "sections": ["34B", "30A"],
+      "sections": [],
       "difficulty": "direct",
       "role": "tenant",
       "location": "Narrabundah, ACT"

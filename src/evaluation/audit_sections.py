@@ -88,7 +88,7 @@ def find_sections(state: str, chunks: list[dict]) -> dict[str, list[dict]]:
 
 
 def main():
-    states = ["NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT", "VIC"]
+    states = ["VIC", "NSW"]  # supported states (others have chunk quality issues)
     output: dict = {}
 
     for state in states:

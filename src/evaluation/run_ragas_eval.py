@@ -60,7 +60,9 @@ DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
 LLM_MODEL_ID = os.environ.get("LLM_MODEL_ID", "deepseek-chat")
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 
-STATE_ORDER = ["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"]
+STATE_ORDER = ["VIC", "NSW"]
+ALL_STATES = {"VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"}
+UNSUPPORTED = ALL_STATES - set(STATE_ORDER)
 EVAL_DIR = PROJECT_ROOT / "tests" / "evaluation"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 
@@ -432,7 +434,7 @@ def main():
     parser.add_argument("--dataset", type=str, default=None,
                         help="Golden dataset path (default: tests/evaluation/{state}_golden_dataset.json)")
     parser.add_argument("--state", type=str, default="VIC",
-                        help="State filter: VIC|NSW|QLD|SA|WA|TAS|ACT|NT|all")
+                        help="State filter: VIC|NSW (supported) or QLD|SA|WA|TAS|ACT|NT (unsupported, chunks incomplete) | all")
     parser.add_argument("--batch", action="store_true",
                         help="[VIC only] Use curated 10-QA subset; --state all applies VIC batch automatically")
     parser.add_argument("--top-k", type=int, default=10,
@@ -515,9 +517,15 @@ def main():
         return
 
     state = args.state.upper()
-    if state not in STATE_ORDER:
-        logger.error("Unknown state: %s. Choose from %s", state, ", ".join(STATE_ORDER))
+    if state not in ALL_STATES:
+        logger.error("Unknown state: %s. Choose from %s", state, ", ".join(sorted(ALL_STATES)))
         sys.exit(1)
+    if state in UNSUPPORTED:
+        logger.warning(
+            "[%s] Not in supported state list (%s) — chunks may have incomplete/truncated content. "
+            "Proceeding anyway.",
+            state, ", ".join(STATE_ORDER),
+        )
 
     evaluator_llm = None
     if not args.dry_run:

@@ -203,8 +203,22 @@ CRITICAL RULES:
    not covered. Do NOT use limitations as a substitute for answering what the
    context does support.
 4. If the user has not specified a jurisdiction, note this limitation and ask them to clarify.
-5. Do NOT invent section numbers, dates, or penalties. Do NOT reference sections not present in the context below.
-6. All provided context comes from standard residential tenancy provisions of the Act. Answer accordingly — do not speculate about rooming house, caravan park, or SDA provisions unless those are explicitly raised by the query."""
+ 5. CRITICAL — You MUST ONLY cite sections that appear in the CONTEXT above.
+
+    Before writing any [STATE RTA YEAR Sec XXX] citation:
+    (a) Find that exact section in the CONTEXT.
+    (b) Only cite it if the section appears in the CONTEXT.
+    (c) Do not rely on memorized legal knowledge to supply missing section
+        numbers, statutory rules, notice periods, monetary limits, penalties,
+        or exceptions.
+
+    If the retrieved context does not support a legal proposition, do not
+    state it as law. Explicitly say that the retrieved context is insufficient
+    to verify that point.
+
+    Place every citation at the end of the sentence it supports. Do not use
+    a citation as a grammatical part of the sentence.
+ 6. All provided context comes from standard residential tenancy provisions of the Act. Answer accordingly — do not speculate about rooming house, caravan park, or SDA provisions unless those are explicitly raised by the query."""
 
 
 def _build_system_prompt(state: str | None) -> str:
@@ -228,13 +242,23 @@ def build_legal_prompt(query: str, chunks: list[dict]) -> str:
 
     context_text = "\n".join(context_blocks)
 
+    citation_labels = [
+        f"[{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}]"
+        for c in chunks
+    ]
+    unique_labels = sorted(set(citation_labels))
+    whitelist = "\n".join(f"  - {label}" for label in unique_labels)
+
     return f"""CONTEXT (statutory text from the relevant legislation):
 {context_text}
 
 USER QUERY:
 {query}
 
-Please provide your analysis using IRAC format where appropriate. Every statutory claim must include a citation."""
+Please provide your analysis using IRAC format where appropriate. Every statutory claim must include a citation.
+
+CITATION WHITELIST — You may cite ONLY the following retrieved sections:
+{whitelist}"""
 
 
 # ── Citation Verification ─────────────────────────────────────────────
@@ -282,56 +306,219 @@ def verify_citations(answer: str, chunks: list[dict]) -> dict:
     return {"verified": verified, "unverified": unverified}
 
 
+# ── Citation Guard ─────────────────────────────────────────────────────
+
+_VERIFICATION_CLAIM_RE = re.compile(
+    r"All statutory citations in this answer have been verified against .+?\.",
+    re.IGNORECASE,
+)
+
+
+def _remove_verification_claim(text: str) -> str:
+    """Remove the blanket 'All statutory citations verified' boilerplate."""
+    return _VERIFICATION_CLAIM_RE.sub("", text).strip()
+
+
+def _apply_citation_guard(answer: str, citation_check: dict) -> str:
+    """Remove unverified citation markers and fix false verification claims.
+
+    This is a citation guard — it enforces that citations appearing in the
+    answer exist in the retrieved context.  It does NOT perform claim-level
+    grounding (checking whether each legal assertion is supported by context).
+    """
+    unverified = citation_check.get("unverified", [])
+    verified = citation_check.get("verified", [])
+
+    if not unverified:
+        return answer
+
+    result = answer
+
+    # 1. Remove each unverified citation marker
+    for citation in unverified:
+        result = result.replace(citation, "")
+
+    # 2. Clean residual formatting artifacts (preserve Markdown line breaks)
+    result = re.sub(r"\s+([.,;:])", r"\1", result)
+    result = re.sub(r"\(\s*\)", "", result)
+    result = re.sub(r"[ \t]{2,}", " ", result)
+
+    # 3. Remove false blanket verification statement
+    result = _remove_verification_claim(result)
+
+    # 4. Append warning
+    result = result.rstrip()
+    if not verified:
+        result += (
+            "\n\n---\n"
+            "⚠️ No statutory citations in this answer could be verified "
+            "against the retrieved context."
+        )
+    else:
+        result += (
+            "\n\n---\n"
+            "⚠️ Some statutory citations generated in the draft could not be "
+            "verified against the retrieved context and were removed."
+        )
+
+    return result
+
+
 # ── Query Rewriting ────────────────────────────────────────────────────
 
-_REWRITE_PROMPT_TEMPLATE = """Rewrite the user's conversational tenancy law question into a concise legal keyword search query.
+_MULTI_QUERY_PROMPT = """Generate 3 complementary search queries for the user's tenancy law question using jurisdiction-correct terminology: "{landlord_term}", "{tenant_term}".
+
+1. SEMANTIC — factual scenario: preserve the key events, numbers, timeframes, and reasons.
+2. STATUTORY — legal terminology: use the jurisdiction's exact statutory vocabulary for the relevant provisions.
+3. CONCEPT — abstract legal domain: name the general legal principles and obligations involved.
+
+For example, for Victoria, "I need to break my 12-month lease early":
+SEMANTIC: break 12-month lease 4 months early new job relocation {tenant_term} notice period VIC
+STATUTORY: {tenant_term} notice of intention to vacate early termination fixed term agreement prescribed form VIC
+CONCEPT: early termination of lease by tenant compensation break fee notice requirements VIC
 
 Rules:
-- CRITICAL: Use the EXACT statutory phrase from the "Terminology note" in the user's message — do NOT use the original colloquial wording.
-- Preserve the key distinguishing facts (timeframes, reasons, specific numbers) even when using statutory phrases
-- Extract the core legal question (e.g., "notice to vacate for non-payment of rent")
-- Include the jurisdiction as a state abbreviation ONLY if the user specified one (e.g., VIC, NSW, QLD)
-- Use jurisdiction-correct terminology: "{landlord_term}" (landlord), "{tenant_term}" (tenant), "rented premises"
-- Remove conversational filler (pronouns, emotions, greetings) but keep ALL legal details (notice periods, fixed-term dates, reasons)
-- Preserve specific numbers (e.g., "10 days", "60 days notice")
-- Return ONLY the rewritten query — no explanation, no extra text, no punctuation at the end"""
+- Include jurisdiction abbreviation (e.g. VIC, NSW) in each query
+- Remove conversational filler but keep all legally relevant details (timeframes, reasons, numbers)
+- Keep the 3 queries meaningfully different in retrieval purpose
+- Do not invent section numbers or legal rules
+- Return exactly 3 lines in this format:
+SEMANTIC: <query>
+STATUTORY: <query>
+CONCEPT: <query>"""
 
 
-def _build_rewrite_prompt(state: str | None) -> str:
+def _build_multi_query_prompt(state: str | None) -> str:
     ctx = STATE_CONTEXT.get(state) if state else {}
-    landlord_term = ctx.get("landlord_term", "landlord")
-    tenant_term = ctx.get("tenant_term", "tenant")
-    return _REWRITE_PROMPT_TEMPLATE.format(
-        landlord_term=landlord_term, tenant_term=tenant_term
+    return _MULTI_QUERY_PROMPT.format(
+        landlord_term=ctx.get("landlord_term", "landlord"),
+        tenant_term=ctx.get("tenant_term", "tenant"),
     )
 
 
-def _rewrite_query(query: str, state_filter: str | None = None) -> str:
-    """Use the LLM to rewrite a conversational query into a concise legal search query."""
+def _parse_multi_response(raw: str) -> list[str]:
+    """Parse SEMANTIC:/STATUTORY:/CONCEPT: labeled lines from LLM output."""
+    labels = ("SEMANTIC:", "STATUTORY:", "CONCEPT:")
+    positions: list[tuple[int, str]] = []
+    for label in labels:
+        idx = raw.find(label)
+        if idx != -1:
+            positions.append((idx, label))
+    if not positions:
+        return []
+    positions.sort()
+    queries: list[str] = []
+    for i, (pos, label) in enumerate(positions):
+        start = pos + len(label)
+        end = positions[i + 1][0] if i + 1 < len(positions) else len(raw)
+        query = raw[start:end].strip().strip('"').strip("'").strip()
+        queries.append(query)
+    return queries
+
+
+def _rewrite_queries(query: str, state_filter: str | None = None) -> list[str]:
+    """Generate 3 complementary search queries. Falls back to single query on error."""
     state_hint = f" The jurisdiction is {state_filter}." if state_filter else ""
-
-    synonyms = (
-        "\n\nTerminology note — use EXACT statutory phrases instead of these colloquial words:"
-        '\n  "break lease" → "notice of intention to vacate"'
-        '\n  "evict" → "possession order"'
-        '\n  "rent increase" → "notice of rent increase"'
-        '\n  "repair" → "duty to maintain" or "urgent repairs"'
-        '\n  "bond" → "bond claim" or "security deposit"'
-    )
-    user_prompt = f"User question: {query}{state_hint}{synonyms}"
+    user_prompt = f"User question: {query}{state_hint}"
 
     try:
         llm = DeepSeekLLMProvider()
-        rewritten = llm.generate(_build_rewrite_prompt(state_filter), user_prompt)
+        raw = llm.generate(_build_multi_query_prompt(state_filter), user_prompt)
+        raw = raw.strip()
+        queries = _parse_multi_response(raw)
+        if len(queries) >= 2 and all(bool(q.strip()) for q in queries):
+            logger.info("Multi-query: '%s' → [%s, %s, %s]",
+                        query[:60], queries[0][:40], queries[1][:40],
+                        queries[2][:40] if len(queries) > 2 else "?")
+            return queries[:3]
+        logger.warning("Multi-query parse returned %d labels — falling back to single query", len(queries))
+    except Exception as exc:
+        logger.warning("Multi-query failed: %s — falling back to single query", exc)
+
+    fallback = _rewrite_single(query, state_filter)
+    return [fallback]
+
+
+def _rewrite_single(query: str, state_filter: str | None = None) -> str:
+    """Original single-query rewrite, used as fallback."""
+    state_hint = f" The jurisdiction is {state_filter}." if state_filter else ""
+    user_prompt = f"User question: {query}{state_hint}"
+
+    try:
+        llm = DeepSeekLLMProvider()
+        prompt = (
+            """Rewrite this tenancy law question into a concise legal keyword search query. """
+            """Include the jurisdiction abbreviation. Remove conversational filler but keep key facts. Return ONLY the query."""
+        )
+        rewritten = llm.generate(prompt, user_prompt)
         rewritten = rewritten.strip()
         if rewritten:
-            logger.info("Query rewritten: '%s' → '%s'", query, rewritten)
+            logger.info("Query rewritten (single): '%s' → '%s'", query[:60], rewritten)
             return rewritten
-        logger.warning("Query rewrite returned empty — using original query")
     except Exception as exc:
-        logger.warning("Query rewrite failed: %s — using original query", exc)
+        logger.warning("Single query rewrite failed: %s — using original query", exc)
 
     return query
+
+
+def _rewrite_query(query: str, state_filter: str | None = None) -> str:
+    """Backward-compatible wrapper: returns only the semantic query."""
+    queries = _rewrite_queries(query, state_filter)
+    return queries[0]
+
+
+def _retrieve_multi(query: str, state_filter: str | None, final_top_k: int,
+                    use_rewrite: bool = True, include_parts: list[str] | None = None,
+                    include_chapters: list[str] | None = None) -> list[dict]:
+    """Retrieve chunks via 3 complementary queries, fuse with RRF + reserve top-1 per query."""
+    from src.retrieval.vector_store import hybrid_retrieve
+
+    filter_dict = {"state": state_filter} if state_filter else None
+    per_query_k = 15
+
+    if use_rewrite:
+        raw_queries = _rewrite_queries(query, state_filter)
+    else:
+        raw_queries = [query]
+
+    all_rankings: list[list[dict]] = []
+    for q in raw_queries:
+        chunks = hybrid_retrieve(
+            query_text=q, state_filter=filter_dict, top_k=per_query_k,
+            include_parts=include_parts, include_chapters=include_chapters,
+        )
+        all_rankings.append(chunks)
+
+    rrf_scores: dict[str, float] = {}
+    chunk_by_id: dict[str, dict] = {}
+
+    for ranking in all_rankings:
+        for rank, chunk in enumerate(ranking, start=1):
+            key = chunk.get("chunk_id") or chunk.get("section_id")
+            rrf_scores[key] = rrf_scores.get(key, 0) + 1.0 / (60 + rank)
+            if key not in chunk_by_id:
+                chunk_by_id[key] = chunk
+
+    reserved: set[str] = set()
+    for ranking in all_rankings:
+        if ranking:
+            key = ranking[0].get("chunk_id") or ranking[0].get("section_id")
+            reserved.add(key)
+
+    sorted_keys = sorted(rrf_scores, key=lambda k: rrf_scores[k], reverse=True)
+
+    fused: list[dict] = []
+    for key in sorted(reserved, key=lambda k: rrf_scores.get(k, 0), reverse=True):
+        if key in chunk_by_id:
+            fused.append(chunk_by_id[key])
+
+    for key in sorted_keys:
+        if key not in reserved and key in chunk_by_id:
+            fused.append(chunk_by_id[key])
+            if len(fused) >= final_top_k:
+                break
+
+    return fused[:final_top_k]
 
 
 # ── Orchestrator ──────────────────────────────────────────────────────
@@ -356,9 +543,6 @@ def generate_compliance_answer(
     Returns a dict with keys:
         retrieved_chunks, answer, citation_check
     """
-    # Lazy import to avoid loading embedding models at module import time
-    from src.retrieval.vector_store import hybrid_retrieve
-
     filter_dict = {"state": state_filter} if state_filter else None
 
     logger.info("=" * 60)
@@ -371,15 +555,9 @@ def generate_compliance_answer(
         chunks = contexts_override
         logger.info("Using %d golden override chunks (retrieval bypassed)", len(chunks))
     else:
-        if use_rewrite:
-            search_query = _rewrite_query(query, state_filter)
-        else:
-            search_query = query
-
-        chunks = hybrid_retrieve(
-            query_text=search_query,
-            state_filter=filter_dict,
-            top_k=top_k_retrieve,
+        chunks = _retrieve_multi(
+            query, state_filter, final_top_k=15,
+            use_rewrite=use_rewrite,
             include_parts=include_parts,
             include_chapters=include_chapters,
         )
@@ -392,7 +570,7 @@ def generate_compliance_answer(
             )
 
         if use_reranker:
-            rq = reranker_query if reranker_query is not None else search_query
+            rq = reranker_query if reranker_query is not None else query
             chunks = rerank_context(rq, chunks, top_n=5)
 
     user_prompt = build_legal_prompt(query, chunks)
@@ -402,6 +580,7 @@ def generate_compliance_answer(
     logger.info("LLM response length: %d chars", len(answer))
 
     citation_check = verify_citations(answer, chunks)
+    answer = _apply_citation_guard(answer, citation_check)
 
     return {
         "retrieved_chunks": chunks,

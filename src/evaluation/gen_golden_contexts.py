@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 EVAL_DIR = PROJECT_ROOT / "tests" / "evaluation"
 ALL_CHUNKS_PATH = PROJECT_ROOT / "data" / "processed" / "all_australia_chunks.json"
-STATE_ORDER = ["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"]
+STATE_ORDER = ["VIC", "NSW"]  # only supported states (others have chunk quality issues)
 
 
 def _base_section(section_ref: str) -> str:
