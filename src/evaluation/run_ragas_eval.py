@@ -61,8 +61,6 @@ LLM_MODEL_ID = os.environ.get("LLM_MODEL_ID", "deepseek-chat")
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 
 STATE_ORDER = ["VIC", "NSW"]
-ALL_STATES = {"VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"}
-UNSUPPORTED = ALL_STATES - set(STATE_ORDER)
 EVAL_DIR = PROJECT_ROOT / "tests" / "evaluation"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 
@@ -405,12 +403,11 @@ def _smoke_test(state: str) -> bool:
     """Run query rewrite + retrieval for a default query to confirm Qdrant works."""
     try:
         from src.generation.generator import (
-            DEFAULT_QUERIES, _rewrite_query, _build_rewrite_prompt,
+            DEFAULT_QUERIES, _rewrite_query,
         )
         from src.retrieval.vector_store import hybrid_retrieve
         query = DEFAULT_QUERIES.get(state, "What is the maximum bond?")
-        rewrite_prompt = _build_rewrite_prompt(state)
-        rewritten = _rewrite_query(query, rewrite_prompt)
+        rewritten = _rewrite_query(query, state)
         results = hybrid_retrieve(rewritten, state_filter=state, top_k=3)
         logger.info("[%s] Smoke test — query: '%s' → %d results", state, query[:60], len(results))
         return len(results) > 0
@@ -434,7 +431,7 @@ def main():
     parser.add_argument("--dataset", type=str, default=None,
                         help="Golden dataset path (default: tests/evaluation/{state}_golden_dataset.json)")
     parser.add_argument("--state", type=str, default="VIC",
-                        help="State filter: VIC|NSW (supported) or QLD|SA|WA|TAS|ACT|NT (unsupported, chunks incomplete) | all")
+                        help="State filter: VIC | NSW | all")
     parser.add_argument("--batch", action="store_true",
                         help="[VIC only] Use curated 10-QA subset; --state all applies VIC batch automatically")
     parser.add_argument("--top-k", type=int, default=10,
@@ -517,15 +514,9 @@ def main():
         return
 
     state = args.state.upper()
-    if state not in ALL_STATES:
-        logger.error("Unknown state: %s. Choose from %s", state, ", ".join(sorted(ALL_STATES)))
+    if state not in STATE_ORDER:
+        logger.error("Unknown state: %s. Supported states: %s", state, ", ".join(STATE_ORDER))
         sys.exit(1)
-    if state in UNSUPPORTED:
-        logger.warning(
-            "[%s] Not in supported state list (%s) — chunks may have incomplete/truncated content. "
-            "Proceeding anyway.",
-            state, ", ".join(STATE_ORDER),
-        )
 
     evaluator_llm = None
     if not args.dry_run:

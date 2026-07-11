@@ -195,6 +195,55 @@ class BaseParser(ABC):
         """Build a chunk dict with jurisdiction-specific payload schema."""
         ...
 
+    # ── concrete post-processing ───────────────────────────────────────
+
+    def _dedupe_chunk_ids(self, chunks: list[dict]) -> None:
+        """Ensure every chunk_id is unique by appending hierarchy context.
+
+        Section numbering restarts inside Schedules (clause 1, 2, 3…) and
+        long-section splits produce fragments that would otherwise share a
+        chunk_id with a main-Act section. This post-pass rewrites only the
+        colliding members in place, appending ``-p{part}[-d{division}]
+        [-sub{subdivision}]`` and/or the subsection range so each chunk_id is
+        unique. Unique ids are left untouched.
+        """
+        seen: dict[str, list[dict]] = {}
+        for chunk in chunks:
+            seen.setdefault(chunk["chunk_id"], []).append(chunk)
+
+        for base_id, group in seen.items():
+            if len(group) <= 1:
+                continue
+            used: set[str] = set()
+            for chunk in group:
+                candidate = self._context_chunk_id(base_id, chunk)
+                if candidate in used or candidate == base_id:
+                    suffix = 2
+                    unique = f"{candidate}-{suffix}"
+                    while unique in used:
+                        suffix += 1
+                        unique = f"{candidate}-{suffix}"
+                    candidate = unique
+                used.add(candidate)
+                chunk["chunk_id"] = candidate
+
+    @staticmethod
+    def _context_chunk_id(base_id: str, chunk: dict) -> str:
+        """Build a disambiguated chunk_id from a chunk's hierarchy context."""
+        suffix_parts: list[str] = []
+        if chunk.get("part"):
+            suffix_parts.append(f"p{chunk['part']}")
+        if chunk.get("division"):
+            suffix_parts.append(f"d{chunk['division']}")
+        if chunk.get("subdivision"):
+            suffix_parts.append(f"sub{chunk['subdivision']}")
+        sub_range = chunk.get("subsection_range")
+        if sub_range:
+            suffix_parts.append(sub_range.replace(" ", ""))
+        if not suffix_parts:
+            return base_id
+        return f"{base_id}-" + "-".join(suffix_parts)
+
     # ── concrete export ────────────────────────────────────────────────
 
     def export_chunks(self, chunks: list[dict], output_path: str) -> None:
@@ -217,6 +266,8 @@ class BaseParser(ABC):
 
         chunks = self.parse_hierarchy(cleaned_lines)
         self.logger.info("Sections extracted: %d", len(chunks))
+
+        self._dedupe_chunk_ids(chunks)
 
         self.export_chunks(chunks, output_path)
 

@@ -31,22 +31,9 @@ PREFETCH_LIMIT = 20
 DEFAULT_EXCLUDE_PARTS: dict[str, list[str]] = {
     "VIC": ["3", "4", "4A", "12A"],
     "NSW": ["7"],
-    "QLD": ["4.1", "4.1A", "4.2", "4.3", "4.4", "5.2"],
-    "SA":  ["7"],
-    "WA":  [],
-    "TAS": ["4A"],
-    "ACT": ["5A", "5B"],
-    "NT":  [],
 }
 
-# Chapters that are NOT standard residential tenancy (e.g. moveable
-# dwelling parks / manufactured homes).  Use ``include_chapters`` to
-# carve back specific Chapters or ``["*"]`` to disable exclusion
-# entirely.  Only applies to states that have chapter-level organisation
-# (currently just QLD).
-DEFAULT_EXCLUDE_CHAPTERS: dict[str, list[str]] = {
-    "QLD": ["8"],
-}
+DEFAULT_EXCLUDE_CHAPTERS: dict[str, list[str]] = {}
 
 
 # ── Ingestion ─────────────────────────────────────────────────────────

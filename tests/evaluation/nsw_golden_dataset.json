@@ -1,20 +1,25 @@
 [
   {
-    "question": "My landlord just sent me a text saying the rent's going up $50 a week starting in 2 weeks. I live in Surry Hills, NSW and my rent was already increased 9 months ago. No formal letter, no notice period \u2014 just a WhatsApp message. Is this legal?",
+    "question": "My landlord just sent me a text saying the rent's going up $50 a week starting in 2 weeks. I live in Surry Hills, NSW and my rent was already increased 9 months ago. No formal letter, no notice period — just a WhatsApp message. Is this legal?",
     "metadata": {
       "domain": "rent_increases",
-      "sections": ["41", "44"],
+      "sections": [
+        "41",
+        "44"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Surry Hills, NSW"
     },
-    "ground_truth": "ISSUE: Whether a text message constitutes a valid rent increase notice under the Residential Tenancies Act 2010 (NSW), and whether the frequency and notice period requirements have been satisfied.\n\nRULE: Under section 41 of the Residential Tenancies Act 2010 (NSW), a landlord may increase the rent only if the tenant is given a written notice of the increase at least 60 days before the increase takes effect. The notice must specify the amount of the increased rent and the day from which it is payable. Further, a rent increase is not permitted more than once in any 12-month period for periodic tenancies or within a fixed term unless the agreement provides for it. Under section 44, if a tenant believes the rent increase is excessive, they may apply to the Tribunal within 30 days of receiving the notice for an order that the rent is excessive.\n\nAPPLICATION: The landlord sent a WhatsApp message, which is not a written notice in the prescribed form required by section 41. Only 2 weeks' notice was provided \u2014 far less than the 60-day minimum. The previous increase was only 9 months ago, which is less than the 12-month interval required by the Act.\n\nCONCLUSION: The rent increase is invalid on multiple grounds under the Residential Tenancies Act 2010 (NSW): the notice was not in the prescribed written form, the notice period was inadequate, and the increase occurred within the 12-month prohibition period. The tenant should inform the landlord in writing that the rent increase is invalid and continue paying the existing rent. If the landlord insists, the tenant may apply to NCAT."
+    "ground_truth": "ISSUE: Whether a text message constitutes a valid rent increase notice under the Residential Tenancies Act 2010 (NSW), and whether the frequency and notice period requirements have been satisfied.\n\nRULE: Under section 41 of the Residential Tenancies Act 2010 (NSW), a landlord may increase the rent only if the tenant is given a written notice of the increase at least 60 days before the increase takes effect. The notice must specify the amount of the increased rent and the day from which it is payable. Further, a rent increase is not permitted more than once in any 12-month period for periodic tenancies or within a fixed term unless the agreement provides for it. Under section 44, if a tenant believes the rent increase is excessive, they may apply to the Tribunal within 30 days of receiving the notice for an order that the rent is excessive.\n\nAPPLICATION: The landlord sent a WhatsApp message, which is not a written notice in the prescribed form required by section 41. Only 2 weeks' notice was provided — far less than the 60-day minimum. The previous increase was only 9 months ago, which is less than the 12-month interval required by the Act.\n\nCONCLUSION: The rent increase is invalid on multiple grounds under the Residential Tenancies Act 2010 (NSW): the notice was not in the prescribed written form, the notice period was inadequate, and the increase occurred within the 12-month prohibition period. The tenant should inform the landlord in writing that the rent increase is invalid and continue paying the existing rent. If the landlord insists, the tenant may apply to NCAT."
   },
   {
-    "question": "My rent in Parramatta just went from $500 to $620 a week \u2014 a 24% increase! The notice was properly written and gave 90 days, but the amount seems crazy. Similar apartments in my building are renting for $480-520. Can I challenge the amount even though the paperwork was done correctly?",
+    "question": "My rent in Parramatta just went from $500 to $620 a week — a 24% increase! The notice was properly written and gave 90 days, but the amount seems crazy. Similar apartments in my building are renting for $480-520. Can I challenge the amount even though the paperwork was done correctly?",
     "metadata": {
       "domain": "rent_increases",
-      "sections": ["44"],
+      "sections": [
+        "44"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Parramatta, NSW"
@@ -22,21 +27,27 @@
     "ground_truth": "ISSUE: Whether a tenant can challenge a rent increase as excessive even when the procedural requirements have been complied with under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 44 of the Residential Tenancies Act 2010 (NSW) provides that a tenant may apply to the Tribunal within 30 days of receiving a rent increase notice for an order that the rent increase is excessive. The Tribunal may have regard to the general market level of rents for comparable premises in the same area, the value of the residential premises, the amount of the previous rent, the landlord's outgoings, the state of repair of the premises, and any other relevant matter. If the Tribunal finds the increase is excessive, it may order that the rent not be increased or that it be increased by a lesser amount.\n\nAPPLICATION: The 24% increase from $500 to $620 per week significantly exceeds market rates for comparable apartments in the same building ($480-$520). While the procedural requirements (written notice, 90 days) were complied with, the amount appears disproportionate to the general market level of rents for comparable premises.\n\nCONCLUSION: The tenant may apply to NCAT under section 44 of the Residential Tenancies Act 2010 (NSW) within 30 days of receiving the notice for an order that the rent increase is excessive. The significant disparity between the proposed rent and comparable market rents in the same building is a strong ground for the application. The tenant should gather evidence of comparable rental listings, the condition of the premises, and the rent history."
   },
   {
-    "question": "I've been renting in Newtown for 2 years and I'm 2 weeks behind on rent for the first time ever \u2014 my employer changed payroll systems and my pay was delayed. The agent just served me a formal termination notice saying I have 14 days to leave. If I pay the overdue rent today, can they still evict me?",
+    "question": "I've been renting in Newtown for 2 years and I'm 2 weeks behind on rent for the first time ever — my employer changed payroll systems and my pay was delayed. The agent just served me a formal termination notice saying I have 14 days to leave. If I pay the overdue rent today, can they still evict me?",
     "metadata": {
       "domain": "terminations",
-      "sections": ["88", "89"],
+      "sections": [
+        "88",
+        "89"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Newtown, NSW"
     },
-    "ground_truth": "ISSUE: Whether a termination notice for non-payment of rent becomes void if the tenant pays the outstanding rent within the notice period under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Under section 88 of the Residential Tenancies Act 2010 (NSW), a termination notice for non-payment of rent must specify a termination date not less than 14 days after the notice is given. Under section 89, if the tenant pays all the rent owing, or enters into and fully complies with a repayment plan agreed with the landlord, on or before the termination date, the termination notice is of no effect and the residential tenancy agreement is not terminated. This is a 'pay-to-stay' provision that allows a tenant to remedy the breach and keep the tenancy.\n\nAPPLICATION: The tenant is 2 weeks behind on rent for the first time. The notice specifies 14 days. If the tenant pays the outstanding rent today \u2014 which is within the notice period \u2014 this falls squarely within section 89. The landlord cannot proceed with the eviction if the rent is fully paid before the termination date.\n\nCONCLUSION: If the tenant pays all outstanding rent on or before the termination date specified in the notice, the termination notice is of no effect under section 89 of the Residential Tenancies Act 2010 (NSW) and the tenancy continues. The tenant should pay immediately and keep proof of payment. If the landlord attempts to evict despite the payment, the tenant may apply to NCAT to have the notice declared of no effect."
+    "ground_truth": "ISSUE: Whether a termination notice for non-payment of rent becomes void if the tenant pays the outstanding rent within the notice period under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Under section 88 of the Residential Tenancies Act 2010 (NSW), a termination notice for non-payment of rent must specify a termination date not less than 14 days after the notice is given. Under section 89, if the tenant pays all the rent owing, or enters into and fully complies with a repayment plan agreed with the landlord, on or before the termination date, the termination notice is of no effect and the residential tenancy agreement is not terminated. This is a 'pay-to-stay' provision that allows a tenant to remedy the breach and keep the tenancy.\n\nAPPLICATION: The tenant is 2 weeks behind on rent for the first time. The notice specifies 14 days. If the tenant pays the outstanding rent today — which is within the notice period — this falls squarely within section 89. The landlord cannot proceed with the eviction if the rent is fully paid before the termination date.\n\nCONCLUSION: If the tenant pays all outstanding rent on or before the termination date specified in the notice, the termination notice is of no effect under section 89 of the Residential Tenancies Act 2010 (NSW) and the tenancy continues. The tenant should pay immediately and keep proof of payment. If the landlord attempts to evict despite the payment, the tenant may apply to NCAT to have the notice declared of no effect."
   },
   {
-    "question": "I signed a 12-month lease in Chatswood 3 months ago but I just got a job offer in Melbourne and need to move. I feel terrible breaking the lease early \u2014 what are my legal obligations? How much notice do I need to give and what fees am I liable for?",
+    "question": "I signed a 12-month lease in Chatswood 3 months ago but I just got a job offer in Melbourne and need to move. I feel terrible breaking the lease early — what are my legal obligations? How much notice do I need to give and what fees am I liable for?",
     "metadata": {
       "domain": "terminations",
-      "sections": ["98", "107"],
+      "sections": [
+        "98",
+        "107"
+      ],
       "difficulty": "direct",
       "role": "tenant",
       "location": "Chatswood, NSW"
@@ -47,18 +58,25 @@
     "question": "I've been a model tenant in Bondi for 4 years, never missed rent, never had complaints. The agent just gave me a 90-day notice to vacate saying the landlord wants to sell the property at the end of the fixed term. The lease expires in 3 months. Can they just kick me out so they can sell? Is there anything I can do?",
     "metadata": {
       "domain": "terminations",
-      "sections": ["84", "85"],
+      "sections": [
+        "87E",
+        "85"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Bondi, NSW"
     },
-    "ground_truth": "ISSUE: Whether a landlord can terminate a tenancy at the end of a fixed term on the ground of intention to sell, and what procedural requirements must be satisfied under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Under section 84 of the Residential Tenancies Act 2010 (NSW), a landlord may give a termination notice at the end of the fixed term if the landlord intends to sell the premises. The notice must specify a termination date that is not earlier than the end of the fixed term and not less than 30 days after the notice is given. However, under section 85, the notice must be accompanied by certain information and documents required by the regulations. Further, under the Act, it is an offence (section 86) for a landlord to give a termination notice on a ground that is not genuine. If a tenant believes the notice is retaliatory or the ground is not genuine, the tenant may apply to NCAT to challenge the notice.\n\nAPPLICATION: The tenant has an exemplary 4-year tenancy record. The lease expires in 3 months and the notice is for 90 days. The notice must be accompanied by prescribed information. The tenant may challenge the notice if they suspect the stated ground is not genuine.\n\nCONCLUSION: The landlord may give a termination notice on the ground of intention to sell under section 84 of the Residential Tenancies Act 2010 (NSW), but must comply with all procedural requirements including providing prescribed information under section 85. The tenant should verify the notice complies with all formal requirements and may apply to NCAT to challenge the notice if they believe the ground is not genuine. Tenants have at least 30 days after the notice is given, and the termination date cannot be before the end of the fixed term."
+    "ground_truth": "ISSUE: Whether a landlord can terminate a tenancy at the end of a fixed term on the ground of intention to sell, and what procedural requirements must be satisfied under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Under section 87E of the Residential Tenancies Act 2010 (NSW), a landlord may give a termination notice on the ground that the residential premises will be offered for sale and the contract for sale will give vacant possession. For a fixed term agreement, the termination date must be on or after the end of the fixed term and at least 90 days after the notice is given (s87E(2)(c)). Under section 85, the notice must be accompanied by supporting documents or information required by the regulations, and the landlord must not give false or misleading information. Further, the Tribunal may refuse to make a termination order if it is not satisfied the landlord genuinely intends to sell. If a contract for sale has already been entered into requiring vacant possession, s87D applies with a 30-day notice period. Tenants also have rights under s110B to give an early exit notice if the landlord issues a sale-related termination notice.\n\nAPPLICATION: The tenant has an exemplary 4-year tenancy record. The lease expires in 3 months and the notice is for 90 days — which satisfies the s87E(2)(c) requirement that the termination date be on or after the end of the fixed term with at least 90 days' notice. The notice must be accompanied by prescribed information under s85. The tenant may challenge the notice if they suspect the stated ground is not genuine or if the notice fails to comply with formal requirements. The tenant may also give an early exit notice under s110B to leave before the termination date without penalty.\n\nCONCLUSION: The landlord may give a termination notice on the ground of proposed sale under section 87E of the Residential Tenancies Act 2010 (NSW), but must comply with all procedural requirements including providing prescribed information under section 85 and giving at least 90 days' notice for a fixed term. The tenant should verify the notice complies with all formal requirements, may apply to NCAT to challenge the notice if they believe the ground is not genuine, or may give an early exit notice under s110B to leave earlier without penalty."
   },
   {
-    "question": "My shower has been leaking through the ceiling into the apartment below for 5 days in my rental in Marrickville. I called the real estate agent 3 times and emailed twice \u2014 no response. The ceiling is now sagging. Can I call a plumber myself and make the landlord pay?",
+    "question": "My shower has been leaking through the ceiling into the apartment below for 5 days in my rental in Marrickville. I called the real estate agent 3 times and emailed twice — no response. The ceiling is now sagging. Can I call a plumber myself and make the landlord pay?",
     "metadata": {
       "domain": "repairs",
-      "sections": ["52", "64", "65"],
+      "sections": [
+        "52",
+        "64",
+        "65"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Marrickville, NSW"
@@ -69,7 +87,10 @@
     "question": "There's black mould spreading across my bedroom wall in my rental in Ashfield. I sent the agent a detailed email with photos 20 days ago and they haven't done anything. My son has asthma and it's getting worse. What legal steps can I take to force the landlord to fix this?",
     "metadata": {
       "domain": "repairs",
-      "sections": ["52", "65"],
+      "sections": [
+        "52",
+        "65"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Ashfield, NSW"
@@ -77,10 +98,13 @@
     "ground_truth": "ISSUE: What remedies are available to a tenant when the landlord fails to carry out non-urgent repairs after being notified, particularly where the disrepair is affecting the health of an occupant under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 52 of the Residential Tenancies Act 2010 (NSW) imposes a duty on the landlord to provide the premises in a reasonable state of repair and to maintain them. Under section 52(1), a landlord must ensure the premises are fit for habitation. The presence of black mould that exacerbates or triggers a medical condition may indicate the premises are not fit for habitation. Section 65 provides that the Tribunal may, on application by a tenant, make an order requiring the landlord to carry out specified repairs. The Tribunal may also order that rent be paid to the Tribunal until repairs are done or order compensation for loss of use of the premises or for personal property damage. The tenant must have notified the landlord of the need for repair and given a reasonable opportunity to respond before applying.\n\nAPPLICATION: The tenant provided written notice (email with photos) 20 days ago, giving the landlord more than a reasonable period to respond. The mould is causing health impacts for a child with asthma, which supports a claim that the premises are not fit for habitation.\n\nCONCLUSION: The tenant may apply to NCAT under section 65 of the Residential Tenancies Act 2010 (NSW) for orders requiring the landlord to carry out the repairs. The tenant should present: the dated email and photos, medical evidence linking the mould to the child's asthma, a record of any rent paid since notification, and a professional mould assessment if available. The Tribunal may order the repairs be carried out, order a rent reduction, or order compensation. The tenant should also consider applying for a rent reduction if the mould has made part of the premises uninhabitable."
   },
   {
-    "question": "A water pipe in the wall of my apartment in Wolli Creek burst last week and flooded the living room carpet. The landlord is demanding I pay $3,000 for new carpet, claiming it's my responsibility because it happened during my tenancy. It wasn't my fault \u2014 the pipe just failed from age. Who pays?",
+    "question": "A water pipe in the wall of my apartment in Wolli Creek burst last week and flooded the living room carpet. The landlord is demanding I pay $3,000 for new carpet, claiming it's my responsibility because it happened during my tenancy. It wasn't my fault — the pipe just failed from age. Who pays?",
     "metadata": {
       "domain": "repairs",
-      "sections": ["52", "51"],
+      "sections": [
+        "52",
+        "51"
+      ],
       "difficulty": "direct",
       "role": "tenant",
       "location": "Wolli Creek, NSW"
@@ -88,10 +112,14 @@
     "ground_truth": "ISSUE: Whether a tenant is liable for the cost of repairing damage caused by a structural failure (burst water pipe) that was not the tenant's fault under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 52 of the Residential Tenancies Act 2010 (NSW) imposes on the landlord a duty to maintain the premises in a reasonable state of repair, which includes maintaining the structural integrity of the premises, including internal plumbing. A burst pipe is a structural failure, and the resulting damage to the carpet is incidental to that failure. The landlord's duty to repair covers damage caused by structural failures that are not the fault of the tenant. Under section 51, a tenant must not intentionally or negligently cause or permit damage to the premises. The tenant is liable for damage they cause through their own act or omission but not for damage arising from the ordinary deterioration or failure of the premises' fixtures and fittings.\n\nAPPLICATION: The burst pipe was caused by age and ordinary wear, not by any act or omission of the tenant. The resulting carpet damage flows directly from the pipe failure. The tenant did not intentionally or negligently cause the damage. The cost of replacing the carpet falls within the landlord's repair obligations, not the tenant's liability.\n\nCONCLUSION: The tenant is not liable for the $3,000 carpet replacement under sections 51 and 52 of the Residential Tenancies Act 2010 (NSW). The burst pipe was a structural failure in the landlord's domain of responsibility, and the consequential damage is part of the landlord's obligation to maintain the premises. The tenant should respond to the landlord in writing, stating that the damage resulted from a structural failure beyond their control. If the landlord persists or attempts to deduct from the bond, the tenant should apply to NCAT."
   },
   {
-    "question": "I'm moving out of my rental in Redfern next week and the landlord is already saying they'll keep my bond for wall marks and carpet stains. But those marks were there when I moved in 2 years ago \u2014 they're on the photos I took on day one. The problem is the agent never gave me a condition report to sign at the start of the tenancy. Can they still claim my bond?",
+    "question": "I'm moving out of my rental in Redfern next week and the landlord is already saying they'll keep my bond for wall marks and carpet stains. But those marks were there when I moved in 2 years ago — they're on the photos I took on day one. The problem is the agent never gave me a condition report to sign at the start of the tenancy. Can they still claim my bond?",
     "metadata": {
       "domain": "bonds",
-      "sections": ["29", "166", "168"],
+      "sections": [
+        "29",
+        "166",
+        "168"
+      ],
       "difficulty": "colloquial",
       "role": "tenant",
       "location": "Redfern, NSW"
@@ -99,14 +127,156 @@
     "ground_truth": "ISSUE: Whether a landlord can make deductions from a rental bond for alleged damage when no condition report was provided to the tenant at the commencement of the tenancy under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Under the Residential Tenancies Act 2010 (NSW), a landlord or agent must complete a condition report at the start of the tenancy and provide a copy to the tenant. The condition report is the primary evidence of the state of the premises at the commencement of the tenancy. Without a completed and signed condition report, a landlord cannot claim against the bond at the end of the tenancy (section 29 and associated provisions). Section 166 of the Act sets out the matters for which a landlord may claim against the bond, including: the reasonable cost of repairs to or restoration of the premises or goods leased with the premises, the reasonable cost of cleaning the premises, and unpaid rent. Section 168 provides for disputed bond claims to be resolved by the Tribunal.\n\nAPPLICATION: The agent never provided a condition report for the tenant to sign. Without a condition report, the landlord has no evidentiary basis to establish that the wall marks and carpet stains were not pre-existing. The tenant has day-one photos showing the marks were present at move-in.\n\nCONCLUSION: The landlord has no valid basis to claim against the bond for the wall marks and carpet stains under the Residential Tenancies Act 2010 (NSW) because no condition report was completed at the start of the tenancy. The tenant should lodge a claim with NSW Fair Trading for full return of the bond. If the landlord disputes the claim, the matter will proceed to NCAT under section 168. The tenant should present the day-one photos as evidence of pre-existing condition. The landlord's failure to provide a condition report is a breach of their obligations under the Act."
   },
   {
-    "question": "The real estate agent is demanding a $2,800 bond for a $700-per-week apartment in Liverpool, NSW. They're saying it's standard to ask for 4 weeks' rent as bond. That seems reasonable but I want to make sure \u2014 is there a legal maximum?",
+    "question": "The real estate agent is demanding a $2,800 bond for a $700-per-week apartment in Liverpool, NSW. They're saying it's standard to ask for 4 weeks' rent as bond. That seems reasonable but I want to make sure — is there a legal maximum?",
     "metadata": {
       "domain": "bonds",
-      "sections": ["159", "160"],
+      "sections": [
+        "159",
+        "160"
+      ],
       "difficulty": "direct",
       "role": "tenant",
       "location": "Liverpool, NSW"
     },
     "ground_truth": "ISSUE: Whether a landlord can lawfully demand a rental bond equal to 4 weeks' rent under the Residential Tenancies Act 2010 (NSW).\n\nRULE: The Residential Tenancies Act 2010 (NSW) limits the amount of rental bond that may be demanded. A landlord may not require or receive a rental bond of more than 4 weeks' rent for premises where the weekly rent is $700 or less. The bond must be lodged with NSW Fair Trading's Rental Bonds Online within the prescribed period. Section 159 and following provisions set out the requirements for rental bonds. Any amount received as a bond must be deposited with the Rental Bond Board. If a landlord demands a bond exceeding the statutory maximum, the tenant may apply to NCAT for an order requiring the landlord to refund the excess.\n\nAPPLICATION: The weekly rent is $700. Four weeks' rent is $2,800. The amount demanded is exactly at the statutory maximum, not in excess.\n\nCONCLUSION: The bond of $2,800 (4 weeks' rent at $700/week) is at the maximum permitted under the Residential Tenancies Act 2010 (NSW) and is lawful. The tenant should ensure the bond is lodged with NSW Fair Trading (Rental Bonds Online) and obtain a receipt showing the bond is properly registered. The tenant should also request a condition report at the start of the tenancy to protect against future bond claims."
+  },
+  {
+    "question": "The real estate agent keeps letting themselves into my apartment in Pyrmont for 'routine inspections' every 6 weeks. No notice, no email, just a key in the door. Last time I was in the shower and nearly had a heart attack. They say it's in the lease. What are my rights?",
+    "metadata": {
+      "domain": "entry_rights",
+      "sections": [
+        "55",
+        "57"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Pyrmont, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord or agent may enter residential premises without notice for routine inspections under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 55 of the Residential Tenancies Act 2010 (NSW) sets out the limited circumstances in which a landlord may enter residential premises without the tenant's consent: in an emergency, to carry out urgent repairs, to carry out an inspection under the Act, to show the premises to prospective tenants or purchasers, to value the premises, or as otherwise permitted by the Act. Section 57 imposes limits on entry, requiring: entry only between 8am and 8pm (except for urgent repairs or emergencies), entry only on a day not being a Sunday or public holiday (except with tenant's consent), and at least 7 days' written notice for inspections (maximum 4 inspections in a 12-month period). Any term of the residential tenancy agreement that purports to allow entry in circumstances other than those permitted by the Act is void.\n\nAPPLICATION: The agent is entering without any notice, which violates the requirement for at least 7 days' written notice. Every 6 weeks far exceeds the maximum of 4 inspections per year (every 3 months). The lease term purporting to allow this is void as it contradicts the Act.\n\nCONCLUSION: The landlord and agent are breaching sections 55 and 57 of the Residential Tenancies Act 2010 (NSW) by entering without notice and conducting inspections beyond the statutory limit. The tenant should send a written notice to the agent citing the statutory requirements: 7 days' written notice, maximum 4 inspections per year, and entry only between 8am-8pm on non-Sunday/non-public-holiday days. If the conduct continues, the tenant may apply to NCAT for orders including compensation, or a termination order on the basis the landlord has interfered with the tenant's quiet enjoyment."
+  },
+  {
+    "question": "I want to sublet my spare bedroom in my Glebe apartment for 6 months while my friend from overseas visits. The landlord's agent flatly refused without giving any reason — they just said 'the owner doesn't allow subletting'. Can they refuse without explaining why? What are my options?",
+    "metadata": {
+      "domain": "subletting",
+      "sections": [
+        "74",
+        "75"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Glebe, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may unreasonably withhold consent to a sub-letting arrangement proposed by a tenant under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 74 of the Residential Tenancies Act 2010 (NSW) provides that a tenant may transfer the residential tenancy agreement or sub-let the premises with the written consent of the landlord. Under section 75, a landlord may withhold consent to a transfer or sub-letting only if the proposed transferee or sub-tenant is not reasonably suitable having regard to the number of persons to occupy the premises, the nature of the premises, the character and financial capacity of the proposed person, and similar considerations. The landlord's consent must not be unreasonably withheld. If the landlord withholds consent, they must provide reasons. If consent is unreasonably withheld, the tenant may apply to NCAT for an order that the landlord's consent is not required. A clause in a residential tenancy agreement that attempts to prohibit or restrict a tenant's rights to sub-let under the Act is void.\n\nAPPLICATION: The agent refused without giving any reason, which itself is a failure to comply with the requirement to provide reasons. A blanket 'no subletting' policy is not a valid ground under the Act. The proposed sub-tenant (tenant's friend) has not been assessed for suitability.\n\nCONCLUSION: The landlord's refusal does not appear to be based on a reasonable assessment of the proposed sub-tenant and no reasons were provided as required under section 75 of the Residential Tenancies Act 2010 (NSW). The tenant should request in writing that the landlord provide specific reasons for the refusal. If the landlord continues to withhold consent unreasonably, the tenant may apply to NCAT for an order under section 75 that the landlord's consent is not required for the sub-letting."
+  },
+  {
+    "question": "I've been renting in Hornsby for 3 years and want to get a small dog — a Cavalier King Charles Spaniel, fully house-trained and desexed. The rental is a ground-floor unit with a small courtyard. I sent a request to the landlord with all the dog's details and a reference from my vet. The landlord came back saying yes, but wants me to pay an extra $50/week pet rent and get the carpets professionally cleaned every 6 months at my cost. Are these conditions legal?",
+    "metadata": {
+      "domain": "pets",
+      "sections": [
+        "73B",
+        "73E"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Hornsby, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may impose conditions such as additional rent and mandatory professional carpet cleaning as conditions of consent to keep a pet under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 73B of the Residential Tenancies Act 2010 (NSW) provides that a tenant may keep an animal at the residential premises with the landlord's consent, which must not be unreasonably withheld. A tenant does not need consent for an assistance animal. Section 73E provides that a landlord may impose reasonable conditions on the keeping of an animal. A condition is unreasonable if it would require the tenant to pay an amount of money that is not a reasonable charge, relates to the cost of cleaning or repair, or is otherwise unreasonable in the circumstances.\n\nAPPLICATION: The landlord's requirement for an extra $50/week 'pet rent' is an ongoing charge that appears punitive rather than reflective of actual costs (the dog is small, house-trained, and desexed). Mandatory professional carpet cleaning every 6 months regardless of whether there is actual damage or soiling is also disproportionate. These conditions are likely unreasonable under section 73E.\n\nCONCLUSION: The $50/week additional rent and mandatory 6-monthly professional carpet cleaning are likely unreasonable conditions under section 73E of the Residential Tenancies Act 2010 (NSW). The tenant should propose alternative reasonable conditions: agreeing to fumigate the premises at the end of the tenancy if required, or providing an additional bond amount for the pet. If the landlord refuses to negotiate reasonable conditions, the tenant may apply to NCAT. The landlord's refusal to consent to the pet is deemed unreasonable if the conditions imposed are unreasonable."
+  },
+  {
+    "question": "My landlord in North Sydney just sent me a $430 water bill and says I owe the full amount. I've been renting here for 18 months and this is the first time they've mentioned water. I checked — the building isn't separately metered, there's one meter for all 6 apartments. The lease doesn't say anything about water charges either. Do I have to pay this?",
+    "metadata": {
+      "domain": "water_usage",
+      "sections": [
+        "39"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "North Sydney, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may charge a tenant for water usage when the premises are not separately metered and the lease does not provide for water charges under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 39 of the Residential Tenancies Act 2010 (NSW) provides that a tenant must pay for water usage charges only if: (a) the rental premises are separately metered, (b) the residential tenancy agreement provides that the tenant is to pay water usage charges, (c) the premises meet prescribed water efficiency standards, and (d) the landlord has obtained the relevant water usage certificate or provided the tenant with a copy of the bill. If any of these conditions are not met, the tenant is not required to pay water usage charges.\n\nAPPLICATION: The building has a single meter for 6 apartments, so the premises are not separately metered. The lease does not provide for water charges. No evidence has been provided about water efficiency standards compliance or a charges certificate. On multiple independent grounds, the preconditions for water charging are not satisfied.\n\nCONCLUSION: The tenant is not required to pay the $430 water bill under section 39 of the Residential Tenancies Act 2010 (NSW) because the premises are not separately metered and the lease does not provide for water usage charges. The tenant should respond to the landlord in writing, noting these statutory requirements, and refuse to pay. If the landlord deducts water charges from the rent or bond, the tenant may apply to NCAT for an order requiring the landlord to refund the amount."
+  },
+  {
+    "question": "My apartment in Bankstown was broken into last week while I was at work — they smashed through the front door lock. My landlord lives overseas and the agent says they need the owner's approval to replace the lock, which could take weeks. I've been sleeping with a chair propped under the door handle. Can I just change the lock myself and send them the key?",
+    "metadata": {
+      "domain": "locks_and_security",
+      "sections": [
+        "70",
+        "71"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Bankstown, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant may change a lock following a break-in when the landlord or agent is unable or unwilling to act promptly under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 70 of the Residential Tenancies Act 2010 (NSW) requires a landlord to provide and maintain the locks or other security devices necessary to ensure that the residential premises are reasonably secure. Section 71 permits a landlord or tenant to change a lock or other security device, but if a tenant changes a lock, they must provide a copy of the key or other opening device to the landlord within 7 days. However, section 71 also provides that a tenant may change a lock without providing a key to the landlord in circumstances of domestic violence or if NCAT orders it.\n\nAPPLICATION: The break-in has resulted in a damaged lock, making the premises insecure. The landlord's obligation under section 70 to maintain security is engaged. The landlord has not acted to restore security, and the tenant has been living with inadequate security for a week. As a tenant, section 71 permits the change of a lock, with the obligation to provide a copy of the key to the landlord within 7 days.\n\nCONCLUSION: The tenant may change the lock under section 71 of the Residential Tenancies Act 2010 (NSW) and must provide a copy of the key to the landlord or agent within 7 days. The tenant should document the break-in (police report, photos of damage), obtain a receipt from the locksmith, and seek reimbursement of the reasonable cost from the landlord under section 70 (the landlord's obligation to maintain security). If the landlord refuses to reimburse, the tenant may apply to NCAT."
+  },
+  {
+    "question": "I've been paying my $550/wk rent by bank transfer every fortnight for 2 years in Hurstville. The agent won't answer my emails and I just realized I've never received a single rent receipt or statement. When I asked for a payment summary for my tax, they told me to check my own bank records. Don't they have to give me receipts?",
+    "metadata": {
+      "domain": "rent_receipts",
+      "sections": [
+        "37"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Hurstville, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord or agent is required to provide rent receipts or payment records upon request under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 37 of the Residential Tenancies Act 2010 (NSW) requires a landlord or landlord's agent to keep a rent record for the duration of the tenancy and for at least 12 months after the end of the tenancy. The rent record must include the date and amount of each payment, the rental period for which each payment was made, and the name of the person making the payment if the payment was not made by the tenant. The tenant is entitled to a copy of the rent record, and must be given a copy within 7 days of making a written request for it. No fee may be charged for providing a copy of the rent record. The landlord must also provide a receipt for any rent payment made in cash, but this does not apply to electronic payments.\n\nAPPLICATION: The tenant has been paying rent for 2 years without receiving any rent record. The tenant has requested a payment summary (which constitutes a request for a copy of the rent record). The agent's refusal to provide it is a breach of section 37.\n\nCONCLUSION: The agent must provide a copy of the rent record within 7 days of the tenant's written request under section 37 of the Residential Tenancies Act 2010 (NSW), and may not charge for it. The tenant should make a formal written request (email is acceptable) specifically requesting a copy of the rent record under section 37. If the agent fails to comply, the tenant may apply to NCAT, which can make an order requiring the landlord to provide the record and potentially impose a penalty. The tenant should also check their bank records independently to ensure there are no discrepancies."
+  },
+  {
+    "question": "The agent just served me a 14-day termination notice claiming I've 'breached the agreement' because my dog barks and supposedly damaged the blinds. The dog is approved and has been here for 2 years without issue. The 'damage' is a slight bend in one slat that was already there before I moved in. Can they evict me over this? What's the process I need to follow?",
+    "metadata": {
+      "domain": "breaches",
+      "sections": [
+        "87C",
+        "103"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Dulwich Hill, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may issue a termination notice on the ground of breach of agreement and what rights a tenant has to challenge such a notice under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 87C of the Residential Tenancies Act 2010 (NSW) provides that a landlord may give a termination notice on the ground that the tenant has breached the residential tenancy agreement. The termination notice must specify a termination date not less than 14 days after the notice is given and must state the particulars of the breach. If the breach is capable of being remedied (such as damage to the premises), the notice must also state that the tenancy will not be terminated if the breach is remedied. Section 103 allows a tenant to apply to the Tribunal for a review of the notice, and the Tribunal may declare the notice to be of no effect or to have no effect if it is satisfied the breach does not justify termination. The Tribunal may also order the tenant to remedy the breach.\n\nAPPLICATION: The dog is approved by the landlord (with consent under s73B), so the pet's presence is not a breach. The bent blind slat was pre-existing and documented in the condition report (if one exists) or the tenant's records. The notice should state whether the breach is remediable, and if so, allow the tenant to remedy it before the termination date.\n\nCONCLUSION: The termination notice is likely not valid because the alleged breaches either do not exist (approved dog) or are disputed (pre-existing damage). The tenant should respond in writing within the notice period, disputing the alleged breaches with evidence (condition report, photos, landlord's pet consent). If the landlord persists, the tenant should apply to NCAT under section 103 of the Residential Tenancies Act 2010 (NSW) seeking a declaration that the notice is of no effect. The tenant must apply before the termination date."
+  },
+  {
+    "question": "I went overseas for a 3-week holiday to visit family in India. When I came back to my Randwick apartment, the locks were changed and all my furniture and belongings were gone. The agent says they thought I'd 'abandoned' the property because I didn't reply to an email they sent (it went to my spam folder). I'm devastated — all my things, my passport backup, everything. What can I do?",
+    "metadata": {
+      "domain": "abandonment",
+      "sections": [
+        "106",
+        "107"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Randwick, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may treat premises as abandoned and dispose of a tenant's goods when the tenant has temporarily left the premises without providing notice under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 106 of the Residential Tenancies Act 2010 (NSW) allows the Tribunal to make an order declaring that a tenant abandoned the premises on a specified day. The landlord must first have reasonable grounds to believe the premises are abandoned. The landlord must also apply to the Tribunal before taking any steps, unless there are urgent circumstances. Section 107 provides for the landlord's remedies on abandonment, including the Tribunal ordering the tenant to pay compensation for any loss including loss of rent. The landlord cannot unilaterally determine abandonment without a Tribunal declaration or without following the prescribed statutory process. The landlord cannot simply take possession and dispose of goods without legal authority. The landlord's right to dispose of goods is governed by separate provisions regarding uncollected goods.\n\nAPPLICATION: The tenant was away for 3 weeks with rent presumably paid in advance or continuing. A single unanswered email (in spam) does not constitute reasonable grounds to believe the property is abandoned. The landlord changed the locks and disposed of belongings without any Tribunal order or declaration, which is unlawful self-help.\n\nCONCLUSION: The landlord has acted unlawfully by changing the locks and disposing of the tenant's belongings without a Tribunal declaration of abandonment under section 106 of the Residential Tenancies Act 2010 (NSW). The tenant should immediately apply to NCAT seeking: (a) urgent orders for re-entry to the premises, (b) compensation for the value of lost or disposed goods under section 107, (c) an order that the landlord's conduct constitutes a breach of the tenancy agreement, and (d) potentially a termination order and compensation. The tenant should also report the matter to NSW Police and Fair Trading as the landlord's actions may constitute an offence."
+  },
+  {
+    "question": "I applied for a rental in Blacktown and got rejected — the agent said I'm 'blacklisted' on a tenancy database because of a bond dispute at my last place. The thing is, I won that NCAT dispute and got my full bond back! The landlord made a false claim and I was cleared. How do I get my name off this database?",
+    "metadata": {
+      "domain": "tenancy_databases",
+      "sections": [
+        "211",
+        "212",
+        "213"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Blacktown, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a person's name may be listed on a residential tenancy database following a bond dispute that was resolved in the tenant's favour, and how a tenant may seek removal of a listing under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 212 of the Residential Tenancies Act 2010 (NSW) provides that personal information about a person may only be listed on a residential tenancy database if the person has breached a residential tenancy agreement and the breach is of a prescribed kind. The breach must have resulted in the person owing the landlord an amount exceeding the rental bond for the tenancy, or the Tribunal must have made an order terminating the agreement based on the breach. A bond dispute that was resolved in the tenant's favour does not satisfy these requirements. Section 211 requires the landlord or agent to give the tenant notice in writing before listing the information, specifying the database and the grounds for listing. Section 213 provides further restrictions, including that listing is not permitted if the breach occurred more than 3 years ago. If a listing is made in contravention of the Act, the tenant may apply to NCAT for orders including that the listing be removed.\n\nAPPLICATION: The bond dispute was resolved in the tenant's favour (full bond returned), so there was no breach and no amount owed exceeding the bond. The listing is therefore in contravention of section 212. The tenant was likely not given the required notice under section 211 before the listing was made.\n\nCONCLUSION: The database listing is unlawful under section 212 of the Residential Tenancies Act 2010 (NSW). The tenant should: (a) request a copy of the database entry from the agent or database operator, (b) provide the database operator with a copy of the NCAT order showing the dispute was resolved in their favour, and (c) request removal of the listing. If the listing is not promptly removed, the tenant should apply to NCAT for an order under section 213 that the listing be removed. The tenant may also seek compensation for any loss suffered as a result of the unlawful listing (such as the unsuccessful rental application)."
+  },
+  {
+    "question": "My landlord in Camperdown just put the apartment on the market and the agent says they'll be holding open houses every Saturday for the next 6 weeks. I work Saturday afternoons and have a lot of expensive equipment in the apartment. Can I refuse the open houses? What are the rules about showing an occupied rental to buyers?",
+    "metadata": {
+      "domain": "notice_of_sale",
+      "sections": [
+        "55",
+        "56"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Camperdown, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord or agent may hold open houses at a tenanted property for the purposes of sale, and what limits apply to a tenant's obligation to allow access under the Residential Tenancies Act 2010 (NSW).\n\nRULE: Section 55 of the Residential Tenancies Act 2010 (NSW) permits a landlord to enter residential premises without the tenant's consent to show the premises to prospective purchasers or mortgagees, on not more than 2 occasions in any period of 7 days, but only after giving the tenant reasonable notice. Section 56 further provides for entry with the tenant's consent, which may be given at any time. Section 57 imposes general limits on access: entry only between 8am and 8pm, not on Sundays or public holidays except with consent, and must not interfere with the tenant's reasonable peace, comfort and privacy. The Act also requires that the landlord or agent must not interfere or cause or permit interference with the reasonable peace, comfort or privacy of the tenant in using the premises. The tenant's right to quiet enjoyment of the premises is a common law right incorporated into the statutory framework.\n\nAPPLICATION: Weekly open houses for 6 weeks far exceed the statutory limit of 2 showings per 7-day period without consent. The tenant works Saturdays, making Saturday open houses particularly burdensome. The tenant has expensive equipment that requires security during viewings. The tenant has the right to reasonable peace, comfort and privacy.\n\nCONCLUSION: The agent cannot hold weekly open houses without the tenant's consent as this exceeds the statutory limit under section 55 of the Residential Tenancies Act 2010 (NSW). The tenant should: (a) agree to up to 2 viewings per 7-day period as required by the Act, (b) request that viewings occur by appointment rather than as open houses (the Act does not mandate open houses — the tenant may consent to private viewings instead), (c) require at least 14 days' written notice for each inspection (or whatever period is reasonable in the circumstances), and (d) ensure they are present during all viewings to safeguard their property. If the agent persists with excessive open houses, the tenant may apply to NCAT for an order limiting access or for compensation for interference with quiet enjoyment."
   }
 ]

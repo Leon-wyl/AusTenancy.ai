@@ -7,9 +7,11 @@ import pytest
 
 @pytest.fixture(scope="session")
 def chunks():
-    output_path = Path("data/processed/vic_rta_chunks.json")
+    output_path = Path("data/processed/vic_chunks.json")
     if not output_path.exists():
-        pytest.skip("Output file not found — run parser.py first")
+        output_path = Path("data/processed/vic_rta_chunks.json")
+    if not output_path.exists():
+        pytest.skip("Output file not found — run VICParser first")
     with open(output_path, encoding="utf-8") as f:
         return json.load(f)
 

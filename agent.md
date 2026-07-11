@@ -156,12 +156,12 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 
 Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps that a better embedding model would address.
 
-### Phase B: Scale to All 8 Jurisdictions
+### Phase B: Scale to Multi-Jurisdiction
 | Step | Status | What |
 |------|--------|------|
-| 4 | ⬜ | NSW legislation ingestion |
-| 5 | ⬜ | QLD, SA, WA, TAS, ACT, NT ingestion |
-| 6 | ⬜ | Multi-state RAGAS evaluation (40 QA pairs) |
+| 4 | ✅ | NSW legislation ingestion (NSWParser, per-state architecture) |
+| 5 | ❌ | QLD, SA, WA, TAS, ACT, NT — deferred (chunk quality issues) |
+| 6 | ✅ | Multi-state RAGAS evaluation (VIC 20Q + NSW 20Q) |
 
 ### Phase C: Conversational Agent
 | Step | Status | What |
