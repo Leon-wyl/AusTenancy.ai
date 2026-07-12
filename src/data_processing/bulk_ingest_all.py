@@ -14,7 +14,9 @@ import time
 from pathlib import Path
 
 from src.data_processing.nsw_parser import NSWParser
+from src.data_processing.nsw_regulation_parser import NSWRegulationParser
 from src.data_processing.vic_parser import VICParser
+from src.data_processing.vic_regulation_parser import VICRegulationParser
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -26,6 +28,16 @@ MASTER_OUTPUT = PROCESSED_DIR / "all_australia_chunks.json"
 PARSER_MAP: dict[str, tuple[type, str, str]] = {
     "VIC": (VICParser, "97-109aa111-authorised-VIC.pdf", "vic_chunks.json"),
     "NSW": (NSWParser, "act-2010-042_nsw.pdf", "nsw_chunks.json"),
+    "VIC_REG": (
+        VICRegulationParser,
+        "21-003sra authorised-regulation-vic.pdf",
+        "vic_regulation_chunks.json",
+    ),
+    "NSW_REG": (
+        NSWRegulationParser,
+        "sl-2019-0629-regulation-nsw.pdf",
+        "nsw_regulation_chunks.json",
+    ),
 }
 
 

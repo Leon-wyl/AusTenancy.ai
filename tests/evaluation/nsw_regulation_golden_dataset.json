@@ -1,0 +1,290 @@
+[
+  {
+    "question": "I'm signing a lease for an apartment in Parramatta, NSW and the agent included a clause saying I must use Origin Energy for electricity — they won't let me choose my own provider. The building has an embedded network so the landlord says they have to use Origin. I've always been with AGL and don't want to switch. Is this clause legal?",
+    "metadata": {
+      "domain": "prohibited_terms",
+      "sections": [
+        "reg:5"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Parramatta, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a residential tenancy agreement may contain a term requiring the tenant to use a specific utility provider under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 5(1) of the Residential Tenancies Regulation 2019 (NSW) provides that a residential tenancy agreement must not contain a term that requires a tenant to use a specific utility provider. Clause 5(2) provides an exception — subclause (1) does not apply if the landlord must use a specific utility provider for the premises.\n\nAPPLICATION: The agreement contains a clause mandating Origin Energy as the electricity provider. The building has an embedded network, which may mean the landlord is constrained in utility choice. If the embedded network genuinely requires Origin as the sole provider, the exception in clause 5(2) may apply. However, being in an embedded network does not automatically mean only one specific provider is available — tenants in embedded networks can sometimes choose from providers servicing that network.\n\nCONCLUSION: The clause requiring use of Origin Energy is presumptively prohibited under clause 5(1) of the Residential Tenancies Regulation 2019 (NSW). The landlord bears the burden of proving clause 5(2) applies — that they must use Origin for the premises. The tenant should request the landlord provide evidence that no alternative provider services the embedded network. If no such evidence exists, the clause is void under the Act, section 19(1), and the tenant may insist it be removed before signing."
+  },
+  {
+    "question": "I moved into my rental in Wollongong, NSW two weeks ago and the agent handed me a condition report at the lease signing but it was completely blank — they said I should fill it out myself and email it back. I haven't had time. Now there's already a dispute about a cracked window that was there on day one. What should the condition report have looked like and how does it protect me?",
+    "metadata": {
+      "domain": "condition_reports",
+      "sections": [
+        "reg:7",
+        "reg:sch2"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Wollongong, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a blank condition report handed to a tenant for self-completion satisfies the landlord's obligations regarding condition reports under the Residential Tenancies Regulation 2019 (NSW), and the legal effect of non-compliance.\n\nRULE: Clause 7 of the Residential Tenancies Regulation 2019 (NSW) provides that a condition report is to be in the form set out in Schedule 2. Schedule 2 sets out the prescribed form and detailed completion requirements. Under Schedule 2, the landlord or landlord's agent must complete and sign the report, including indicating the condition of each room item by placing 'Y' (Yes) or 'N' (No) in the columns for clean, undamaged, and working. Two copies (or one electronic copy) of the completed and signed report must be given to the tenant before or when the tenant signs the agreement. The tenant then inspects the premises, completes the tenant's section, and returns a copy. The condition report is a critical evidentiary document — without a properly completed condition report, the landlord is significantly impeded from claiming against the bond for alleged damage.\n\nAPPLICATION: The agent's practice of handing over a blank report for the tenant to complete self-defeats the entire purpose of the condition report — which is to have the landlord's independent record of the condition at the start. The cracked window should have been recorded by the landlord. The agent's failure to complete their section of the report deprives the tenant of the evidentiary protection the regulation intends.\n\nCONCLUSION: The landlord has not complied with the condition report requirements under clause 7 and Schedule 2 of the Residential Tenancies Regulation 2019 (NSW). The tenant should document the cracked window with dated photographs immediately, complete the tenant's section of the report noting all pre-existing damage, and retain a copy. The landlord's failure to complete and sign the report before providing it to the tenant seriously weakens any future bond claim based on the condition of the premises."
+  },
+  {
+    "question": "I just found out from a neighbour that my rental house in Lismore, NSW was completely flooded in the 2022 floods — water went through the whole ground floor. The agent never mentioned it when I signed the lease 3 months ago. I've now noticed a musty smell and my son's asthma has gotten worse. Should the landlord have disclosed this?",
+    "metadata": {
+      "domain": "disclosures",
+      "sections": [
+        "reg:8"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Lismore, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord is required to disclose that residential premises have been subject to flooding from a natural weather event within the last 5 years under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 8(1) of the Residential Tenancies Regulation 2019 (NSW) prescribes material facts that must be disclosed to tenants under section 26(1) of the Act, including: (a) the residential premises have been subject to flooding from a natural weather event or bush fire within the last 5 years, (b) the residential premises are subject to significant health or safety risks that are not apparent to a reasonable person on inspection, (c) the premises are listed on the LFAI Register, (d) the premises have been the scene of a serious violent crime within the last 5 years, (e) the premises have been used for the manufacture or cultivation of any prohibited drug or prohibited plant within the last 2 years, (f) any council waste services that will be provided to the tenant on a different basis than is generally applicable, and (g) the tenant will not be able to obtain a residential parking permit. Failure to disclose a material fact is a breach of the landlord's obligations under the Act, section 26.\n\nAPPLICATION: The 2022 Lismore floods occurred within 5 years of the tenancy commencement. The flooding from a natural weather event is a prescribed material fact under clause 8(1)(a). The musty smell and the child's worsened asthma may additionally trigger clause 8(1)(b) (significant health risks not apparent on inspection). The landlord had an obligation to disclose this information before the tenant entered the agreement.\n\nCONCLUSION: The landlord was required to disclose the flood history under clause 8(1)(a) of the Residential Tenancies Regulation 2019 (NSW). The failure to disclose is a breach of section 26(1) of the Act. The tenant should document the non-disclosure, obtain evidence of the 2022 flooding (council records, neighbour statements), and consult NCAT. The tenant may be entitled to compensation or termination of the tenancy, and the landlord may face a penalty notice of $440 under Schedule 4 for breach of section 26(2) of the Act."
+  },
+  {
+    "question": "My real estate agent in Newcastle, NSW just switched their rent payment system and now I can only pay by credit card — but there's a 1.5% surcharge on every payment. My rent is $600/week so that's an extra $9 every week, $468 a year! I used to pay by bank transfer for free. Is the agent allowed to charge me this card surcharge?",
+    "metadata": {
+      "domain": "payment_surcharges",
+      "sections": [
+        "reg:8A"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Newcastle, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord or landlord's agent may charge a tenant a credit card surcharge when alternative fee-free payment methods are not offered under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 8A of the Residential Tenancies Regulation 2019 (NSW) provides that a landlord or landlord's agent may require or receive from a tenant a fee for the recovery of a transaction cost only if: (a) the landlord or agent incurs the transaction cost for a payment of rent by way of a payment method chosen by the tenant, (b) the payment method is a way to pay rent other than by a prescribed way, and (c) the fee is not greater than the transaction cost incurred. A fee must not be imposed more than once for the same transaction cost and may be imposed by either the landlord or agent but not both. A 'prescribed way' is defined by section 35 of the Act and refers to fee-free payment methods that must be offered.\n\nAPPLICATION: The agent has removed the bank transfer option and is now requiring credit card payment with a 1.5% surcharge. Critically, the surcharge is only permitted under clause 8A if the credit card payment method was chosen by the tenant (not mandated by the agent). The surcharge is also only permitted if the tenant has at least one fee-free 'prescribed way' to pay. By removing bank transfer, the agent may have eliminated all prescribed ways, forcing the tenant into the surcharged method.\n\nCONCLUSION: The surcharge may be unlawful under clause 8A of the Residential Tenancies Regulation 2019 (NSW) because: (1) the credit card method was not freely chosen by the tenant but imposed by the agent, and (2) the tenant may not have been offered a fee-free prescribed way to pay. The tenant should request in writing the list of all available payment methods including fee-free options under the Act, section 35. If no fee-free option is provided, the tenant should apply to NCAT."
+  },
+  {
+    "question": "My landlord in Penrith, NSW just sent me a $380 water usage bill and says I have to pay it. The house has an old shower head that pours water like a waterfall and the toilet runs constantly. The lease says I pay for water but I thought there were rules about water efficiency before they can charge me. What are the requirements?",
+    "metadata": {
+      "domain": "water_efficiency",
+      "sections": [
+        "reg:10"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Penrith, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant may be required to pay water usage charges when the residential premises do not meet the prescribed water efficiency measures under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 10 of the Residential Tenancies Regulation 2019 (NSW) prescribes the water efficiency measures required for a tenant to be liable for water usage charges under section 39(1)(b) of the Act. The measures are: (a) for shower heads — a maximum flow rate of 9 litres a minute, (b) on and from 23 March 2025, for toilets — a dual flush toilet that has a minimum 3 star rating in accordance with the WELS scheme, (c) for internal cold water taps and single mixer taps for kitchen sinks or bathroom hand basins — a maximum flow rate of 9 litres a minute, and (d) at the commencement of the residential tenancy agreement and whenever any other water efficiency measures are installed, repaired or upgraded, the premises are checked and any leaking taps or toilets on the premises are fixed. All of these measures must be satisfied before a tenant is liable for water usage charges.\n\nAPPLICATION: The shower head pours water without restriction, suggesting it does not meet the 9L/min maximum flow rate. The toilet runs constantly, indicating it leaks — a breach of clause 10(d) requiring leaking toilets to be fixed at the commencement of the agreement. On multiple grounds, the water efficiency measures are not met.\n\nCONCLUSION: The tenant is not liable for the water usage charges under clause 10 of the Residential Tenancies Regulation 2019 (NSW) because the premises do not comply with the prescribed water efficiency measures. The tenant should inform the landlord in writing, referencing the specific deficiencies (shower head flow rate, leaking toilet), and request the measures be installed and leaks fixed before any future water charges are demanded. If the landlord insists, the tenant may apply to NCAT. Note that clause 46 extends clause 10 to all existing residential tenancy agreements."
+  },
+  {
+    "question": "I rent an apartment in Chatswood, NSW with gas hot water and a gas stove — both supplied by the landlord. My gas bill arrived and it has a 'service availability charge' of $90. The landlord says this is my responsibility. The apartment is separately metered. I actually do use gas for cooking and hot water every day. Do I have to pay this availability charge?",
+    "metadata": {
+      "domain": "gas_charges",
+      "sections": [
+        "reg:11",
+        "reg:12A"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Chatswood, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant is exempt from paying gas service availability charges where the premises have gas appliances supplied by the landlord and the tenant uses gas, and separately whether sewerage usage charges are the landlord's responsibility under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 11(1) of the Residential Tenancies Regulation 2019 (NSW) exempts a tenant from the operation of section 38(1)(a) of the Act in relation to gas service availability charges only if: (a) the premises do not have any appliances, supplied by the landlord, for which gas is required, and (b) the tenant does not use gas on the premises. Clause 11(2) provides that the landlord must pay the service availability charge only if all three conditions are met: (a) no gas appliances supplied by landlord, (b) tenant does not use gas, and (c) premises are separately metered. For sewerage charges, clause 12A provides that the landlord must pay all charges for sewerage usage at residential premises within a local government area where the council charges for sewerage usage.\n\nAPPLICATION: The premises have gas appliances supplied by the landlord (gas hot water and gas stove) and the tenant does use gas daily. Therefore, the conditions in clause 11(1)(a) and (b) are not met — the tenant is not exempt from gas charges. The service availability charge flows through to the tenant as part of normal gas usage. However, if the gas bill includes any sewerage usage component, clause 12A mandates the landlord pays those.\n\nCONCLUSION: The tenant is not exempt from the gas service availability charge under clause 11 of the Residential Tenancies Regulation 2019 (NSW) because the premises have landlord-supplied gas appliances and the tenant uses gas. The service availability charge is payable by the tenant as part of the gas supply charges. However, the landlord must separately pay all sewerage usage charges under clause 12A. The tenant should review the bill to ensure no sewerage charges have been passed through."
+  },
+  {
+    "question": "The smoke alarm in my rental in Gosford, NSW has been beeping every 30 seconds for the past 4 days — the battery is clearly flat. I texted the agent 4 days ago and emailed twice but no one has come. I'm losing sleep and I'm worried about fire safety. Can I just change the battery myself and send them the receipt? What are the actual timeframes they have to fix this?",
+    "metadata": {
+      "domain": "smoke_alarms",
+      "sections": [
+        "reg:13",
+        "reg:14",
+        "reg:16",
+        "reg:18"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Gosford, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant may replace a battery in a battery-operated smoke alarm and recover the cost when the landlord has failed to act within the prescribed timeframe under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 14(1) of the Residential Tenancies Regulation 2019 (NSW) provides that a landlord who becomes aware that a smoke alarm is not working must, within 2 business days, repair or replace the smoke alarm. Clause 13 requires the landlord to give the tenant at least 2 business days' written notice to inspect or assess the smoke alarm, and at least 1 hour's notice to carry out repairs or replacement. Clause 16 provides that if a tenant has notified the landlord that a battery-operated smoke alarm is not working, and the landlord has failed to replace the removable battery within the 2 business day timeframe under clauses 14 and 15, the tenant may replace the battery themselves (unless the premises are in a strata scheme where the owners corporation is responsible, or the tenant is a social housing tenant). Clause 18 provides that a tenant who carries out a repair or replacement in accordance with clause 16 is entitled to reimbursement from the landlord within 7 days after giving written notice with details of the repair, cost, and receipts.\n\nAPPLICATION: The tenant notified the agent 4 days ago (more than 2 business days). The landlord has failed to repair or replace the smoke alarm within the prescribed timeframe. The premises are not social housing. The beeping indicates a low removable battery in a battery-operated smoke alarm, which falls within clause 16.\n\nCONCLUSION: The tenant may replace the battery themselves under clause 16 of the Residential Tenancies Regulation 2019 (NSW), as the landlord has failed to act within 2 business days. The tenant must notify the landlord in writing within 24 hours of the replacement. Under clause 18, the tenant is entitled to reimbursement of the cost within 7 days of providing written notice with details, cost, and a copy of the receipt. If the landlord refuses to reimburse, the tenant may apply to NCAT."
+  },
+  {
+    "question": "I'm renting a small studio in Bondi, NSW and summer is brutal — there's no air conditioning. I want to install a split system air conditioner at my own expense. The landlord's agent said they're 'not comfortable with modifications' and refused consent. It's a minor installation on an internal wall and I'm willing to use a licensed installer and pay for everything. Is this something the landlord can unreasonably refuse?",
+    "metadata": {
+      "domain": "fixtures_alterations",
+      "sections": [
+        "reg:22"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Bondi, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord may unreasonably withhold consent to a tenant's request to install a split system air conditioner when the tenant bears all costs under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 22(1) of the Residential Tenancies Regulation 2019 (NSW) lists kinds of fixtures or alterations, additions or renovations of a minor nature in relation to which it would be unreasonable for a landlord to withhold consent under section 66(2A)(a) of the Act. The listed items include: (a) securing furniture to a wall for safety, (b) fitting childproof latches to exterior gates, (c) inserting fly screens, (d) installing or replacing internal window coverings, (e) installing cleats or cord guides for blind/curtain cords, (f) installing child safety gates, (g) installing window safety devices for child safety, (h) installing hand-held shower heads or lever-style taps for elderly or disabled people, (i) installing or replacing hooks, nails or screws for hanging paintings, picture frames and similar items, and (j) installing a carriage service for connecting a phone line or accessing the internet.\n\nAPPLICATION: A split system air conditioner is not a minor fixture listed in clause 22(1). It is a significant installation involving electrical work, external condenser unit, and structural penetration of walls. It does not fall within any of the enumerated categories where withholding consent would be unreasonable. The landlord's refusal, while expressed in vague terms, is not automatically deemed unreasonable under the regulation.\n\nCONCLUSION: The landlord's refusal to consent to the air conditioner installation is not presumptively unreasonable under clause 22 of the Residential Tenancies Regulation 2019 (NSW) because split system air conditioning is not listed as a minor fixture or alteration for which consent must not be unreasonably withheld. The tenant may negotiate further — for example, offering a portable air conditioner as an alternative that requires no installation, or agreeing to remove and make good at the end of the tenancy. If the landlord's refusal is genuinely unreasonable in the circumstances (beyond the regulation's list), the tenant may apply to NCAT under section 66 of the Act."
+  },
+  {
+    "question": "I need to leave my rental in Campbelltown, NSW urgently because of domestic violence. I have a letter from my social worker at the local women's health centre and a provisional AVO. The agent says I can't break the lease without paying a break fee because I'm only 3 months into a 12-month lease. Who can sign the declaration and what rights do I have to terminate without penalty?",
+    "metadata": {
+      "domain": "domestic_violence",
+      "sections": [
+        "reg:23",
+        "reg:sch3"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Campbelltown, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant experiencing domestic violence can terminate a fixed-term residential tenancy agreement without penalty, and whether a declaration by a social worker satisfies the competent person requirements under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 23 of the Residential Tenancies Regulation 2019 (NSW) provides that for the purposes of sections 105B(3) and 105C(2)(d) of the Act, a declaration by a competent person is to be in the form and contain the matters set out in Schedule 3. Schedule 3 sets out the prescribed form for a declaration by a competent person. Under the Act, a domestic violence termination notice must be accompanied by one of four documents: (1) a Domestic Violence Order, (2) a Family Law Injunction, (3) a Certificate of Conviction, or (4) a signed declaration from a competent person. A 'competent person' includes a registered health practitioner under the Health Practitioner Regulation National Law (NSW), a social worker registered with the Australian Association of Social Workers, or other prescribed professions. The declaration must state that the tenant or the tenant's dependent child is a victim of domestic violence perpetrated by the relevant domestic violence offender during the currency of the residential tenancy agreement.\n\nAPPLICATION: The tenant has both a provisional AVO (which may constitute one of the four documents) and can obtain a declaration from a qualified professional. A social worker registered with the AASW qualifies as a competent person under Schedule 3. The tenant should complete the declaration in the form set out in Schedule 3.\n\nCONCLUSION: The tenant may terminate the tenancy without penalty under the domestic violence provisions by serving a domestic violence termination notice together with either: (a) the provisional AVO (if it meets the Act's definition of a Domestic Violence Order), or (b) a declaration by a competent person in the form prescribed by clause 23 and Schedule 3 of the Residential Tenancies Regulation 2019 (NSW). The social worker is a competent person under the regulation. The agent's demand for a break fee is unlawful. The tenant is not liable for any break fee or ongoing rent beyond the termination date specified in the notice."
+  },
+  {
+    "question": "I'm applying for a rental in Sydney's Inner West and the agent said I need to pay an extra $300 'pet bond' for my cat on top of the standard 4 weeks' bond. The standard bond is already $2,400 for my $600/week apartment. Is this extra pet bond legal? Can they demand a different bond amount for having a pet?",
+    "metadata": {
+      "domain": "pet_bonds",
+      "sections": [
+        "reg:23R",
+        "act:159"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Inner West, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a landlord can charge a separate pet bond in addition to the standard rental bond under the Residential Tenancies Act 2010 (NSW) and Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Under section 159(1) of the Residential Tenancies Act 2010 (NSW), a landlord, landlord's agent or any other person must not require or receive from a tenant or another person a rental bond of an amount exceeding 4 weeks rent under the residential tenancy agreement. There is no provision in the Act or Regulation authorising a separate or additional bond specifically for pets.\n\nClause 23R of the Residential Tenancies Regulation 2019 (NSW) provides for different bond amounts in the context of the smart rental bonds transfer scheme (Part 3B) — where a bond is transferred from an original agreement to a new agreement and a difference in bond amounts exists. This clause relates to bond transfers between agreements, not to charging additional bonds for pets or any other purpose.\n\nClause 22A of the Regulation (Pets — only grounds for refusing consent) limits the grounds on which a landlord may refuse a pet but does not authorise charging an additional bond. Clause 38A exempts purpose-built student accommodation from pet consent provisions but similarly does not create a pet bond power.\n\nAPPLICATION: The total bond the landlord may require is capped at 4 weeks rent under section 159. A separate 'pet bond' is not authorised by any provision of the Act or Regulation. The smart rental bonds transfer provisions in clause 23R are irrelevant to this situation — they concern bond transfers between successive agreements, not separate additional bonds.\n\nCONCLUSION: A landlord cannot require or receive a separate pet bond in addition to the standard rental bond. The maximum total bond is 4 weeks rent under section 159 of the Residential Tenancies Act 2010 (NSW). The tenant should refuse to pay any additional amount and may apply to NCAT if the landlord persists."
+  },
+  {
+    "question": "I've been renting in Zetland, NSW for 3 years and my landlord wants me to switch my bond to this new 'smart rental bonds' online system. They say it means my bond will automatically transfer to my next rental without me having to claim it back and re-lodge. I'm worried this is some kind of scam or that I'll lose track of my money. Is this a real government system? Can social housing tenants use it too?",
+    "metadata": {
+      "domain": "online_bonds",
+      "sections": [
+        "reg:23ZA",
+        "reg:23ZB",
+        "reg:24"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Zetland, NSW"
+    },
+    "ground_truth": "ISSUE: Whether the smart rental bonds scheme is a legitimate government program established under the Residential Tenancies Regulation 2019 (NSW), what it permits, and whether social housing providers are required to use it.\n\nRULE: Clause 23ZA of the Residential Tenancies Regulation 2019 (NSW) provides that the online rental bond service (under section 157A of the Act) applies to the smart rental bonds scheme for purposes including: (a) making an application for transfer of a deposited rental bond, (b) making payments of rental bond amounts including additional amounts or refunded surplus, (c) transferring a deposited rental bond, (d) making claims for payment of a bond against an original or transferred bond, (e) paying application fees, (f) reimbursing money guaranteed by the Secretary, (g) keeping a register of disqualified persons, (h) giving notices, and (i) doing other things under the scheme. Clause 23ZB deals with financial matters — all money payable to the Secretary must be paid into the Rental Bond Account, and payments out include claims and refunds. Clause 24 provides an important exemption: the New South Wales Land and Housing Corporation and the Aboriginal Housing Office are exempt from the operation of section 159(1A) of the Act (which mandates use of the online rental bond service).\n\nAPPLICATION: The smart rental bonds scheme is a legitimate scheme established under Part 3B of the regulation. It allows deposited rental bonds to be transferred between tenancies. Social housing providers (NSW Land and Housing Corporation, Aboriginal Housing Office) are exempt from the requirement to use the online rental bond service under clause 24.\n\nCONCLUSION: The smart rental bonds scheme is a genuine government program established under the Residential Tenancies Regulation 2019 (NSW), not a scam. It allows for bond transfer between qualifying tenancies using the online rental bond service. Tenants should verify the landlord's details and ensure all transactions occur through the official NSW Fair Trading portal. Social housing tenants whose landlord is the NSW Land and Housing Corporation or Aboriginal Housing Office are exempt from the online bond system requirement under clause 24."
+  },
+  {
+    "question": "I was placed in a women's refuge in Katoomba, NSW after fleeing domestic violence 2 weeks ago. The refuge manager is now saying I have to sign a residential tenancy agreement and pay a bond. I thought refuges were exempt from normal tenancy laws. What are the rules for refuge and crisis accommodation in NSW?",
+    "metadata": {
+      "domain": "exemptions",
+      "sections": [
+        "reg:25",
+        "reg:26",
+        "reg:28",
+        "reg:29",
+        "reg:30",
+        "reg:31"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Katoomba, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a residential tenancy agreement for refuge or crisis accommodation provided by a prescribed authority is exempt from the operation of the Residential Tenancies Act 2010 (NSW) under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 25(1) of the Residential Tenancies Regulation 2019 (NSW) provides that a residential tenancy agreement under which a person resides in refuge or crisis accommodation provided by a prescribed authority is exempt from the operation of the Act. Clause 25(2)-(4) further provides that a residential tenancy agreement for a moveable dwelling in a caravan park is also exempt if the dwelling is owned by the park owner/operator, the person is residing there as a result of a written referral from a prescribed authority for temporary refuge or crisis accommodation, and the referral has not expired (30 days, extendable to 60 days). Other exemption categories in Part 4 include: disability accommodation (clause 26), heritage properties owned by the Crown or council (clause 28), St Patrick's Estate Manly long-term leases (clause 29), life estates (clause 30), and residential colleges/halls of residence (clause 31).\n\nAPPLICATION: The tenant is residing in a women's refuge following domestic violence, placed there by a prescribed authority. Under clause 25(1), a residential tenancy agreement for refuge or crisis accommodation provided by a prescribed authority is exempt from the Act. However, the language 'a residential tenancy agreement' suggests that if the refuge operator tries to impose a formal tenancy agreement, the question is whether the arrangement remains 'refuge or crisis accommodation' within the meaning of the clause.\n\nCONCLUSION: The refuge accommodation is exempt from the operation of the Residential Tenancies Act 2010 (NSW) under clause 25(1) of the Residential Tenancies Regulation 2019 (NSW) if provided by a prescribed authority as refuge or crisis accommodation. The refuge manager's attempt to impose a residential tenancy agreement and demand a bond is inconsistent with the exemption framework. The tenant should seek advice from the referring authority and a community legal centre. Note that the exemption extends to existing agreements under clause 48, but if there is no tenancy agreement at all, the exemption confirms the arrangement is outside the Act entirely."
+  },
+  {
+    "question": "I live in a large apartment complex in Rhodes, NSW — it's a modern high-rise with an embedded electricity network. Each apartment has its own meter that measures my individual usage, but the building uses a private embedded network rather than each unit having a separate NMI (National Meter Identifier) with an electricity retailer. The landlord says I have to pay the electricity charges. Is this allowed?",
+    "metadata": {
+      "domain": "electricity_charges",
+      "sections": [
+        "reg:34"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Rhodes, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a tenant is required to pay electricity supply charges where the premises are within an embedded network and the meter does not have an NMI assigned, under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 34 of the Residential Tenancies Regulation 2019 (NSW) provides a specific regime for embedded electricity networks. Clause 34(1) exempts a landlord from the prohibition on passing through electricity charges for non-separately metered premises (section 40(1)(c) of the Act) if the premises have a meter that: (a) measures the supply of electricity satisfying the first four elements of the 'separately metered' definition, (b) does not have an NMI assigned because it is located in an embedded network, and (c) the meter is not required to have an NMI assigned. Clause 34(2) correspondingly provides that the tenant must pay electricity charges in these circumstances. An NMI is a National Meter Identifier assigned under the National Electricity Rules. Embedded electricity networks are common in high-density apartment buildings, strata schemes, residential land lease communities, and residential villages.\n\nAPPLICATION: The apartment has its own meter that measures individual usage (satisfying the measurement requirement). The meter is in an embedded network, so no NMI is assigned and none is required. This falls squarely within clause 34(1) and (2) — the landlord is exempt from the prohibition on passing through charges, and the tenant is correspondingly liable to pay.\n\nCONCLUSION: The tenant is required to pay the electricity charges under clause 34(2) of the Residential Tenancies Regulation 2019 (NSW) because the premises satisfy the embedded network exception — the meter measures individual usage but lacks an NMI solely because it is in an embedded network where an NMI is not required. The tenant should: (a) confirm the meter's readings and ensure charges are based on actual usage not estimates, (b) verify the rate charged matches the embedded network operator's tariff, and (c) note that clause 48 extends this provision to existing residential tenancy agreements."
+  },
+  {
+    "question": "I'm a social housing tenant in Waterloo, NSW and my rent just went up by $20 a week — but the only reason is that my Centrelink payment changed, which adjusted my rent rebate calculation. There was no formal 60-day notice, just a letter from Housing NSW saying 'your rent has been recalculated.' Is this a valid rent increase under NSW tenancy law?",
+    "metadata": {
+      "domain": "social_housing",
+      "sections": [
+        "reg:36B",
+        "reg:36A",
+        "reg:36"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Waterloo, NSW"
+    },
+    "ground_truth": "ISSUE: Whether a social housing rent increase resulting solely from a change in the tenant's rent rebate is exempt from the notice requirements under section 41(1A) of the Residential Tenancies Act 2010 (NSW).\n\nRULE: Clause 36B of the Residential Tenancies Regulation 2019 (NSW) provides that a social housing tenancy agreement is exempt from the operation of section 41(1A) of the Act if the increase in the rent payable is a result only of a change in the tenant's rent rebate. Section 41(1A) of the Act requires written notice of at least 60 days for a rent increase. 'Rent rebate' has the same meaning as in Part 7 of the Act. Clause 36 additionally provides that a social housing landlord is exempt from section 40(1)(c) (landlord paying utility charges) in certain circumstances involving centralised gas hot water systems, and clause 36A exempts head leases between councils and social housing providers from the Act.\n\nAPPLICATION: The rent increase was caused solely by a recalculation of the tenant's Centrelink-based rent rebate — not by a discretionary rent increase initiated by the landlord. This falls within the exemption in clause 36B. The Housing NSW letter confirming the recalculation is sufficient; no 60-day notice under section 41 is required.\n\nCONCLUSION: The rent increase is valid under clause 36B of the Residential Tenancies Regulation 2019 (NSW). Social housing rent rebate adjustments resulting from changes in the tenant's financial circumstances (such as Centrelink payments) are exempt from the standard 60-day written notice requirement under section 41(1A) of the Act. The tenant should review the recalculation for accuracy and, if there is an error in the Centrelink assessment or the rebate calculation, seek an internal review through Housing NSW."
+  },
+  {
+    "question": "My landlord is taking me to NCAT claiming I owe them $22,000 in rent arrears from my time renting in Liverpool, NSW. They're also claiming $18,000 for alleged property damage. I've heard NCAT has a monetary limit on what they can award — can they actually make me pay $40,000 through the Tribunal?",
+    "metadata": {
+      "domain": "tribunal_limits",
+      "sections": [
+        "reg:39",
+        "reg:40",
+        "reg:40A"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Liverpool, NSW"
+    },
+    "ground_truth": "ISSUE: Whether NCAT has jurisdiction to make orders exceeding certain monetary limits, and what those limits are, under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 40 of the Residential Tenancies Regulation 2019 (NSW) prescribes the monetary limit of the Tribunal's jurisdiction under section 187(4)(a) of the Act. The prescribed amounts are: (a) if the order is with respect to a rental bond — $30,000, or (b) otherwise — $15,000. Clause 40A provides that the maximum monetary penalty that may be imposed by the Local Court in proceedings for an offence against the Act is 650 penalty units. Clause 39 prescribes time limits for making applications to the Tribunal, including: 30 days after a rent increase notice for excessive rent claims (s44(2)), 30 days after the termination date for certain termination reviews (s83(2)(a)), 7 days after the termination notice for early termination by tenant (s98(4)), and 30 days or 14 days depending on the notice ground (s115(3)).\n\nAPPLICATION: The landlord's claim comprises two parts: $22,000 in rent arrears and $18,000 in property damage, totaling $40,000. For the rent arrears claim ($22,000), this exceeds the $15,000 monetary limit for non-bond orders under clause 40(b). For the property damage claim ($18,000), this also exceeds the $15,000 limit. Neither claim relates to a rental bond, so the $30,000 bond limit in clause 40(a) does not apply.\n\nCONCLUSION: NCAT's jurisdiction is limited under clause 40 of the Residential Tenancies Regulation 2019 (NSW). For orders other than bond orders, the maximum is $15,000. The landlord's total claim of $40,000 exceeds NCAT's jurisdiction. The landlord would need to either: (a) abandon the excess (limit the claim to $15,000 at NCAT), or (b) pursue the claim in the Local Court (which has a higher monetary jurisdiction under clause 40A with penalties up to 650 penalty units for criminal matters). The tenant should raise the jurisdictional limit as a preliminary issue at any NCAT hearing."
+  },
+  {
+    "question": "I'm doing my tax return and I need to know exactly how much interest my rental bond earned this financial year. I've had a $2,000 bond lodged with NSW Fair Trading for my apartment in Strathfield, NSW for the past 3 years. How is the interest calculated and what rate applies?",
+    "metadata": {
+      "domain": "bond_interest",
+      "sections": [
+        "reg:41"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Strathfield, NSW"
+    },
+    "ground_truth": "ISSUE: How interest on a deposited rental bond is calculated under the Residential Tenancies Regulation 2019 (NSW), including the applicable interest rate and compounding period.\n\nRULE: Clause 41 of the Residential Tenancies Regulation 2019 (NSW) provides that: (1) the Secretary is to pay interest on an amount of rental bond paid, (2) the rate of interest payable on a rental bond is the rate payable by the Commonwealth Bank of Australia on an Everyday Access Account balance of $1,000 as at the last day of the month the interest is being calculated, and (3) the interest is to be compounded on 30 June and 31 December each year. This means the interest rate is variable and tracks the CBA Everyday Access Account rate.\n\nAPPLICATION: The tenant has had a $2,000 bond lodged for 3 years. Interest is calculated monthly using the CBA Everyday Access Account rate for a $1,000 balance as at the last day of each month. The interest compounds twice per year — on 30 June and 31 December. To calculate total interest earned, one would need the applicable CBA rates over the 3-year period, applied to the $2,000 principal with semi-annual compounding.\n\nCONCLUSION: Under clause 41 of the Residential Tenancies Regulation 2019 (NSW), the bond earns interest at the CBA Everyday Access Account rate on $1,000 as at the last day of each calculation month, compounded semi-annually (30 June and 31 December). The tenant can request a statement of bond interest from NSW Fair Trading (Rental Bonds Online) for tax purposes. The interest is typically paid when the bond is refunded at the end of the tenancy. The tenant should contact Rental Bonds Online to obtain an interest statement for the relevant financial years."
+  },
+  {
+    "question": "I'm moving into a purpose-built student accommodation building near UNSW in Kensington, NSW — it's one of those big student housing towers with hundreds of rooms. I want to bring my small dog, but the accommodation manager said 'no pets allowed — student housing is exempt from pet laws.' I thought the new NSW laws mean landlords can't unreasonably refuse pets. Are they right?",
+    "metadata": {
+      "domain": "student_pets",
+      "sections": [
+        "reg:38A"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Kensington, NSW"
+    },
+    "ground_truth": "ISSUE: Whether purpose-built student accommodation is exempt from the pet provisions of the Residential Tenancies Act 2010 (NSW) under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 38A of the Residential Tenancies Regulation 2019 (NSW) provides that residential premises that are purpose-built student accommodation are exempt from the operation of Part 3, Division 8 of the Act. Part 3, Division 8 of the Act is the division that deals with the keeping of animals in residential premises — the provisions that limit a landlord's ability to unreasonably refuse consent to pets. 'Purpose-built student accommodation' has the same meaning as in clause 23K. This exemption means the standard pet consent requirements (including the requirement that consent not be unreasonably withheld) do not apply to purpose-built student accommodation.\n\nAPPLICATION: The accommodation is purpose-built student housing near UNSW. If it falls within the definition of 'purpose-built student accommodation' under clause 23K, then clause 38A exempts it from the pet provisions in Part 3, Division 8. The manager can therefore maintain a blanket 'no pets' policy without needing to consider reasonable grounds under section 73F of the Act.\n\nCONCLUSION: The accommodation manager is likely correct under clause 38A of the Residential Tenancies Regulation 2019 (NSW). Purpose-built student accommodation is exempt from the Act's pet provisions (Part 3, Division 8), meaning the landlord is not required to consider pet requests or demonstrate reasonable grounds for refusal. The tenant should verify whether the building formally qualifies as purpose-built student accommodation under clause 23K and, if so, negotiate directly with management for an exception rather than relying on the statutory pet provisions."
+  },
+  {
+    "question": "I work for a community housing provider in Dubbo, NSW and we use the Department of Communities and Justice tenancy database to check tenant histories. A tenant is disputing a listing and says we must give them notice before listing and can't keep old listings beyond 3 years. Our manager says we're exempt from those rules because we use the government database. Who's right?",
+    "metadata": {
+      "domain": "tenancy_databases",
+      "sections": [
+        "reg:38"
+      ],
+      "difficulty": "colloquial",
+      "role": "landlord",
+      "location": "Dubbo, NSW"
+    },
+    "ground_truth": "ISSUE: Whether registered community housing providers using the Department of Communities and Justice residential tenancy database are exempt from certain provisions of the Residential Tenancies Act 2010 (NSW) relating to tenancy database listings under the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Clause 38 of the Residential Tenancies Regulation 2019 (NSW) provides exemptions for database operators and users of the Department of Communities and Justice residential tenancy database. Clause 38(2) exempts a relevant database operator from sections 213(3), 215, 216(2) and (3), and 218 of the Act. Clause 38(3) exempts a relevant landlord or relevant landlord's agent from sections 211-216 of the Act. A 'relevant database operator' means the Secretary of the Department of Communities and Justice, the NSW Land and Housing Corporation, or the Aboriginal Housing Office. A 'relevant landlord' means: the NSW Land and Housing Corporation, the Aboriginal Housing Office, or a registered community housing provider approved by the Secretary to use the database. The exempted provisions (ss 211-216) include notice requirements before listing (s211), restrictions on what can be listed (s212), time limits on listings (s213), and correction of listings (s215-216).\n\nAPPLICATION: As a registered community housing provider approved by the Secretary to use the DCJ database, the provider qualifies as a 'relevant landlord' under clause 38(4). The provider is exempt from sections 211-216 of the Act, which includes the notice-before-listing requirement and the 3-year time limit. However, the exemption applies only to the DCJ database, not to commercial tenancy databases.\n\nCONCLUSION: The community housing provider is exempt from sections 211-216 of the Act (including notice requirements and time limits) under clause 38(3) of the Residential Tenancies Regulation 2019 (NSW), but only when using the Department of Communities and Justice residential tenancy database. If the tenant has been listed on the DCJ database, the standard protections (notice, 3-year limit, right to correction) do not apply. However, the provider should still follow best practice and have internal policies governing fair and accurate listings."
+  },
+  {
+    "question": "I'm in a dispute with my landlord in Byron Bay, NSW — they've refused to lodge my $2,400 bond with NSW Fair Trading even though I paid it 3 months ago when I moved in. I've asked twice and they keep making excuses. I'm worried they've just pocketed the money. What are the penalties for not lodging a bond? Can I get them fined?",
+    "metadata": {
+      "domain": "penalty_notices",
+      "sections": [
+        "reg:40A",
+        "reg:sch4-1"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Byron Bay, NSW"
+    },
+    "ground_truth": "ISSUE: What penalty applies to a landlord who fails to lodge a rental bond with NSW Fair Trading as required by the Residential Tenancies Act 2010 (NSW), under the penalty notice provisions of the Residential Tenancies Regulation 2019 (NSW).\n\nRULE: Schedule 4 of the Residential Tenancies Regulation 2019 (NSW) prescribes penalty notice amounts for offences under the Act and the regulation. Schedule 4, clause 1 provides that each offence specified in the Schedule is an offence for which a penalty notice may be issued, with the amount specified opposite the provision. Under Schedule 4, section 159(4) of the Act (relating to failure to lodge a rental bond) attracts a penalty of $1,100. Section 160(1) of the Act (relating to the landlord's obligation to deposit the bond) also attracts a penalty of $1,100. For more serious offences, the maximum monetary penalty that may be imposed by the Local Court is 650 penalty units under clause 40A. Schedule 4 also covers a range of other offences including: section 22 (residential tenancy agreement must be in writing) — $440, section 26 (disclosure of material facts) — $440, section 41(9) (rent increase requirements) — $440, section 64A(1) (smoke alarms) — $1,100, and sections 85-87 (termination notice requirements with false information) — up to $35,750 for corporations.\n\nAPPLICATION: The landlord has received the bond money but has failed to lodge it with NSW Fair Trading for 3 months. This is a breach of section 159(4) and/or section 160(1) of the Act. The tenant has made multiple requests without result.\n\nCONCLUSION: A penalty notice of $1,100 may be issued for the landlord's failure to lodge the bond under sections 159(4) and 160(1) of the Act, as prescribed by Schedule 4 of the Residential Tenancies Regulation 2019 (NSW). The tenant should: (a) report the non-lodgment to NSW Fair Trading for investigation and potential issuance of a penalty notice, (b) apply to NCAT for an order directing the landlord to lodge the bond, and (c) seek an order for the return of the bond money if it has been misappropriated. The tenant should keep all evidence of payment (bank transfer records, receipts) and correspondence requesting lodgment."
+  },
+  {
+    "question": "I signed a 3-year lease for a house in Orange, NSW in January 2020 — just before the new Residential Tenancies Regulation 2019 started in March 2020. My landlord says none of the new rules apply to my tenancy because my agreement was signed under the old regulation. But I've heard some provisions apply to existing agreements. Which parts of the new regulation apply to my pre-March 2020 lease?",
+    "metadata": {
+      "domain": "transitional_provisions",
+      "sections": [
+        "reg:43",
+        "reg:44",
+        "reg:45",
+        "reg:46",
+        "reg:47",
+        "reg:48",
+        "reg:49",
+        "reg:50",
+        "reg:54",
+        "reg:61"
+      ],
+      "difficulty": "direct",
+      "role": "tenant",
+      "location": "Orange, NSW"
+    },
+    "ground_truth": "ISSUE: Which provisions of the Residential Tenancies Regulation 2019 (NSW) apply to residential tenancy agreements that were in force before the regulation commenced on 23 March 2020.\n\nRULE: Part 7 of the Residential Tenancies Regulation 2019 (NSW) contains savings and transitional provisions. Clause 43 defines an 'existing residential tenancy agreement' as one in force immediately before the commencement of the Regulation. Clause 44 provides that any act, matter or thing that had effect under the repealed Residential Tenancies Regulation 2010 continues to have effect. Key provisions that extend to existing agreements include: Clause 45 — long term lease mandatory terms (clause 6) apply to existing long-term leases (20+ years fixed term). Clause 46 — water efficiency measures (clause 10) extend to all existing agreements. Clause 47 — provisions relating to smoke alarms and access (clauses 13-22) extend to all existing agreements. Clause 48 — exemptions regarding electricity supply charges (clauses 34 and 35) extend to existing agreements. Clause 49 — exemptions for social housing tenancy agreements (clauses 36 and 37) extend. Clause 50 — specific terms of the standard form agreement (including provisions on minimum standards, repair obligations, disclosure, and termination) extend to existing agreements. Clause 54 — terms about significant health or safety risks extend to existing agreements. Clause 61 — additional standard form terms extending from the Residential Tenancies Amendment Regulation 2025, including pet-related provisions (clauses 53-55 of the Agreement).\n\nAPPLICATION: The tenant signed a 3-year lease in January 2020, before the 23 March 2020 commencement. This is an existing residential tenancy agreement under clause 43. The landlord is incorrect that no new provisions apply — many provisions expressly extend to existing agreements.\n\nCONCLUSION: Under Part 7 of the Residential Tenancies Regulation 2019 (NSW), numerous provisions extend to existing residential tenancy agreements. The tenant's January 2020 lease: (a) is subject to the new water efficiency measures under clause 46, (b) is subject to the new smoke alarm provisions under clause 47, (c) has the extended standard form terms applied under clause 50, (d) is subject to the health and safety provisions under clause 54, and (e) if applicable, pet provisions under clause 61. The tenant should review the specific clauses to determine which terms now form part of their agreement. For provisions that do not automatically extend, they apply only to agreements entered into after 23 March 2020."
+  }
+]

@@ -25,6 +25,20 @@ ALL_CHUNKS_PATH = PROJECT_ROOT / "data" / "processed" / "all_australia_chunks.js
 STATE_ORDER = ["VIC", "NSW"]  # only supported states (others have chunk quality issues)
 
 
+_PREFIX_RE = re.compile(r"^(act|reg):(.+)$")
+
+
+def _parse_section_ref(section_ref: str) -> tuple[str | None, str]:
+    """Parse optional corpus prefix: 'act:159' → ('act', '159'), 'reg:21' → ('reg', '21').
+
+    Plain references (e.g. '44') → (None, '44') for backward compatibility.
+    """
+    m = _PREFIX_RE.match(section_ref)
+    if m:
+        return m.group(1), m.group(2)
+    return None, section_ref
+
+
 def _base_section(section_ref: str) -> str:
     """Strip subsection qualifier and trailing period: '44(1)' → '44', '30.' → '30'."""
     m = re.match(r"^(\d+[A-Z]*)\.?", section_ref)
@@ -50,7 +64,9 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
         return
 
     if output_path.exists() and not force:
-        logger.info("[%s] Golden contexts already exist — skipping (use --force to overwrite)", state)
+        logger.info(
+            "[%s] Golden contexts already exist — skipping (use --force to overwrite)", state
+        )
         return
 
     with open(dataset_path) as f:
@@ -60,13 +76,28 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
     if not state_chunks:
         logger.warning("[%s] No chunks found for state", state)
 
-    idx_by_section: dict[str, list[dict]] = {}
-    for c in state_chunks:
-        sid = c.get("section_id", "")
-        idx_by_section.setdefault(sid, []).append(c)
-        sid_stripped = sid.rstrip(".")
-        if sid_stripped != sid:
-            idx_by_section.setdefault(sid_stripped, []).append(c)
+    act_chunks = [c for c in state_chunks if "Regulation" not in c.get("act", "")]
+    reg_chunks = [c for c in state_chunks if "Regulation" in c.get("act", "")]
+
+    def _build_idx(chunks: list[dict]) -> dict[str, list[dict]]:
+        idx: dict[str, list[dict]] = {}
+        for c in chunks:
+            sid = c.get("section_id", "")
+            idx.setdefault(sid, []).append(c)
+            sid_stripped = sid.rstrip(".")
+            if sid_stripped != sid:
+                idx.setdefault(sid_stripped, []).append(c)
+        return idx
+
+    act_idx = _build_idx(act_chunks)
+    reg_idx = _build_idx(reg_chunks)
+    # Legacy combined index for unprefixed references
+    combined_idx = _build_idx(state_chunks)
+
+    logger.info(
+        "[%s] Act chunks: %d, Reg chunks: %d",
+        state, len(act_chunks), len(reg_chunks),
+    )
 
     output: dict[str, list[dict]] = {}
     not_found: list[str] = []
@@ -77,14 +108,24 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
         seen = set()
 
         for ref in sections:
-            base = _base_section(ref)
-            if base in seen:
+            source, ref_body = _parse_section_ref(ref)
+            base = _base_section(ref_body)
+            # Build a unique key that includes source prefix to avoid dedup
+            # across different corpuses for the same base section id
+            lookup_key = f"{source}:{base}" if source else base
+            if lookup_key in seen:
                 continue
-            seen.add(base)
+            seen.add(lookup_key)
 
-            matches = idx_by_section.get(base, [])
+            if source == "reg":
+                matches = reg_idx.get(base, [])
+            elif source == "act":
+                matches = act_idx.get(base, [])
+            else:
+                matches = combined_idx.get(base, [])
+
             if not matches:
-                not_found.append(f"sample {i}: s{ref} → base '{base}'")
+                not_found.append(f"sample {i}: {ref} → base '{base}'")
                 continue
 
             for m in matches:
@@ -119,7 +160,9 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Auto-generate golden contexts for golden datasets")
+    parser = argparse.ArgumentParser(
+        description="Auto-generate golden contexts for golden datasets"
+    )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     parser.add_argument("--state", type=str, help="Process a single state (e.g. NSW)")
     args = parser.parse_args()

@@ -35,4 +35,5 @@ indent-style = "space"
 [tool.pytest.ini_options]
 markers = [
     "slow: slow tests that require full E2E ingestion",
+    "integration: tests that require pre-generated output files",
 ]

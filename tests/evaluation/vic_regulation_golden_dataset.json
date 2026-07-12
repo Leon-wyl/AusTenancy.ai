@@ -1,0 +1,291 @@
+[
+  {
+    "question": "I live in a flat in Melbourne and my landlord just sent me a text message saying the rent is going up by $50 a week from next month. He didn't send any proper form or anything. Is a text message enough to notify me of a rent increase, or does he need to use a specific form?",
+    "metadata": {
+      "domain": "rent_increases",
+      "sections": [
+        "reg:21",
+        "reg:sch1-form5"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Melbourne, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a text message from a landlord constitutes valid notice of a proposed rent increase under the Residential Tenancies Act 1997 (Vic) and the Residential Tenancies Regulations 2021.\n\nRULE: Regulation 21 of the Residential Tenancies Regulations 2021 prescribes that for the purposes of section 44(1) of the Residential Tenancies Act 1997, the prescribed form of notice of rent increase to a renter is Form 5 in Schedule 1. Form 5 requires the rental provider to specify: the method by which the rent increase was calculated, the proposed new rent amount, the date the increase will take effect, and at least 60 days' notice. Form 5 also includes information for renters about their right to challenge the increase through the Director of Consumer Affairs Victoria or VCAT within 30 days. The form states: \"A valid notice of a proposed rent increase is required for all rent increases. This notice may provide for one rent increase only.\"\n\nAPPLICATION: A text message is not Form 5 in Schedule 1. The regulation explicitly requires use of the prescribed form. The text message fails to meet the formal requirements, including the 60-day notice period, the method of calculating the increase, and the information about the renter's right to challenge the increase.\n\nCONCLUSION: The landlord's text message is not valid notice of a rent increase. The prescribed Form 5 in Schedule 1 must be used. The renter does not need to pay the increased rent until proper notice is given in the prescribed form with the required 60 days' notice."
+  },
+  {
+    "question": "I'm renting a house in Geelong for $1050 per week. The agent is asking for a bond of $6,300 which they say is 6 weeks' rent. I thought the bond couldn't be more than 4 weeks' rent. Can they charge that much?",
+    "metadata": {
+      "domain": "bonds",
+      "sections": [
+        "reg:17",
+        "reg:94",
+        "reg:95"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Geelong, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a landlord can charge a bond exceeding 4 weeks' rent when the weekly rent is $1,050.\n\nRULE: Section 31 of the Residential Tenancies Act 1997 generally limits the bond to the amount of one month's rent (approximately 4 weeks). However, regulation 17 of the Residential Tenancies Regulations 2021 provides an exception: \"For the purposes of section 31(3) of the Act, the prescribed amount is $900.\" This means that where the weekly rent exceeds $900, the legislative cap on the bond amount that would otherwise apply under section 31 does not apply. Regulation 94 prescribes the information that the Residential Tenancies Bond Authority must include on its receipt, including the bond amount, address, and names of parties.\n\nAPPLICATION: The weekly rent of $1,050 exceeds the $900 threshold in regulation 17. Therefore, the statutory maximum bond limit under section 31(1) of the Act (one month's rent) does not apply to this tenancy. The landlord is not restricted to 4 weeks' rent and can negotiate a higher bond amount with the tenant.\n\nCONCLUSION: Yes, the agent can charge a bond of $6,300 (6 weeks' rent) because the weekly rent of $1,050 exceeds the $900 threshold under regulation 17, which removes the statutory bond cap."
+  },
+  {
+    "question": "The toilet in my rental in Ballarat stopped working two days ago and it's overflowing. I've called the real estate agent three times but nobody's gotten back to me. Can I just hire a plumber myself and get reimbursed? And is there a dollar limit I should stay under?",
+    "metadata": {
+      "domain": "repairs",
+      "sections": [
+        "reg:32",
+        "reg:34"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Ballarat, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter may arrange urgent repairs themselves and be reimbursed, and what the maximum amount is.\n\nRULE: Under section 72(2) of the Residential Tenancies Act 1997, a renter may arrange urgent repairs if the residential rental provider or their agent has been given notice of the need for repairs but has failed to carry them out within a reasonable time. Regulation 32 prescribes that \"for the purposes of section 72(2)(b) of the Act, the prescribed amount is $2500.\" This is the maximum amount the renter may spend on urgent repairs and be entitled to reimbursement. If the repair exceeds this amount, the renter must apply to VCAT under section 73. Regulation 34 similarly prescribes $2500 as the prescribed amount for section 73(1)(b) (application to Tribunal for urgent repairs). The breakdown of the toilet and sewerage system constitutes an urgent repair as it makes the premises unsafe or unhabitable.\n\nAPPLICATION: The renter has given notice to the agent, who has not responded within a reasonable time (2 days for an urgent toilet issue). The renter may arrange the repair herself, provided the cost does not exceed $2,500.\n\nCONCLUSION: Yes, the renter can arrange the plumber herself. The cost limit for self-arranged urgent repairs under regulation 32 is $2,500. She should keep the receipt and provide it to the landlord for reimbursement."
+  },
+  {
+    "question": "I'm applying for a rental apartment in Richmond and the property manager is asking me to provide my bank statements showing all my daily transactions from the last 3 months. I feel uncomfortable sharing all that private information. Can they legally require this?",
+    "metadata": {
+      "domain": "disclosures",
+      "sections": [
+        "reg:15",
+        "reg:16"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Richmond, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider or their agent can lawfully require a rental applicant to provide bank statements showing daily transactions.\n\nRULE: Regulation 15 of the Residential Tenancies Regulations 2021 prescribes information that the residential rental provider must not require a rental applicant to disclose under section 30C of the Act. Specifically, regulation 15(c) prohibits requiring \"a statement from a credit or bank account containing daily transactions.\" Additionally, regulation 15(a) prohibits requiring information about whether the applicant has previously taken legal action or had a dispute with a rental provider; regulation 15(b) prohibits requiring the applicant's rental bond history including bond claims; and regulation 15(d) prohibits requiring information relating to protected attributes under section 6 of the Equal Opportunity Act 2010 unless the reason is provided in writing.\n\nAPPLICATION: By requesting bank statements showing all daily transactions, the property manager is directly asking for exactly what regulation 15(c) prohibits — a statement from a bank account containing daily transactions. This is a prescribed category of prohibited information.\n\nCONCLUSION: No, the property manager cannot legally require you to provide bank statements showing daily transactions. Under regulation 15(c) of the VIC Residential Tenancies Regulations 2021, this is information the rental provider must not require an applicant to disclose."
+  },
+  {
+    "question": "I just moved into a new rental in Bendigo a week ago and the agent still hasn't given me a condition report. What's supposed to be in a condition report and whose responsibility is it to complete it?",
+    "metadata": {
+      "domain": "forms",
+      "sections": [
+        "reg:18",
+        "reg:sch1-form4"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Bendigo, VIC"
+    },
+    "ground_truth": "ISSUE: Whether the landlord is required to provide a condition report, what it must contain, and the timeline for completion.\n\nRULE: Regulation 18 of the Residential Tenancies Regulations 2021 provides that \"for the purposes of section 35(1B) of the Act, a condition report is in the prescribed form if it contains the information in Form 4 in Schedule 1.\" Form 4 (Condition Report — Rented Premises) specifies that: (1) A condition report must be completed at the start of every residential rental agreement. It records the state of the premises at the start of the rental agreement. (2) The rental provider or their agent must fill in, sign and date the condition report and give 2 copies to the renter before the renter moves in. (3) Within 5 business days after moving in, the renter must fill in, sign and date their part of the condition report and return one copy to the rental provider. (4) The renter should include comments where they disagree with the description of any item and note anything which seems unsafe, insecurely fixed or needs repair. (5) The report should include photos showing the condition of items, fixtures and fittings.\n\nAPPLICATION: The agent failed to provide the condition report before the renter moved in, which is a breach of the regulation 18 obligation. Since 7 days have passed, the 5-business-day window for the renter to complete their portion has likely passed without the report being provided.\n\nCONCLUSION: The landlord is required to provide a condition report in Form 4 at the start of every tenancy. The condition report must contain a detailed inventory of the premises' fixtures, fittings, and condition. The renter can complete their own condition report and give it to the rental provider if not given one. The renter should document the condition of the premises independently with photos to protect their position."
+  },
+  {
+    "question": "I just signed a new 12-month lease for a unit in Frankston and there's a clause that says I must have the carpets professionally cleaned when I move out, no matter what condition they're in. Is that actually enforceable or can I just clean them myself?",
+    "metadata": {
+      "domain": "prohibited_terms",
+      "sections": [
+        "reg:11",
+        "reg:12"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Frankston, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a lease term requiring professional carpet cleaning at the end of the tenancy regardless of condition is enforceable.\n\nRULE: Regulation 12(1) of the Residential Tenancies Regulations 2021 prescribes for section 27C(1)(a) of the Act that \"the residential rental provider must not require the renter to arrange professional cleaning or cleaning to a professional standard at the end of the tenancy, unless — (a) professional cleaning or cleaning to a professional standard was carried out to the rented premises immediately before the start of the tenancy and the renter was advised that professional cleaning or cleaning to a professional standard had been carried out to those premises immediately before the start of the tenancy; or (b) professional cleaning or cleaning to a professional standard is required to restore the rented premises to the same condition they were in immediately before the start of the tenancy, having regard to the condition report and taking into account fair wear and tear.\" Regulation 12(2) provides that a renter must have the premises professionally cleaned only \"if professional cleaning becomes required to restore the premises to the condition they were in immediately before the start of the tenancy, having regard to the condition report and taking into account fair wear and tear.\" Regulation 11 lists prescribed prohibited terms including terms that impose fees for safety-related maintenance, bind the renter to undisclosed contracts, and require indemnification of the provider.\n\nAPPLICATION: The blanket clause requiring professional cleaning regardless of condition goes further than regulation 12 permits. Unless the carpets were professionally cleaned immediately before the tenancy began and the tenant was advised of this, or professional cleaning is actually needed to restore the carpets to the original condition (accounting for fair wear and tear), the requirement is unenforceable.\n\nCONCLUSION: A blanket clause requiring professional carpet cleaning regardless of condition is not enforceable. Under regulation 12, professional cleaning can only be required if: (1) the carpets were professionally cleaned right before the tenancy and you were told; or (2) it's actually needed to restore them to their original condition accounting for fair wear and tear."
+  },
+  {
+    "question": "I've been living in my rental house in Dandenong for 3 years and the landlord has never done any electrical safety checks. A friend told me they're supposed to check the wiring every couple of years. How often does the landlord actually need to get the electrical safety checked?",
+    "metadata": {
+      "domain": "safety",
+      "sections": [
+        "reg:13",
+        "reg:sch3",
+        "reg:30"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Dandenong, VIC"
+    },
+    "ground_truth": "ISSUE: The frequency with which a residential rental provider must conduct electrical safety checks at rented premises.\n\nRULE: Regulation 13 of the Residential Tenancies Regulations 2021 prescribes that \"for the purposes of section 27C(2) of the Act, the prescribed terms are in Schedule 3.\" Schedule 3, clause on electrical safety, provides: \"(1) The residential rental provider must ensure that an electrical safety check of all electrical installations, appliances and fittings provided by a residential rental provider in the rented premises is conducted every 2 years by a licensed or registered electrician and must provide the renter with the date of the most recent safety check, in writing, on request by the renter. (2) If an electrical safety check of the rented premises has not been conducted within the last 2 years at the time the renter occupies the premises, the residential rental provider must arrange an electrical safety check as soon as practicable.\" Regulation 30 prescribes the record-keeping requirements for gas and electrical safety checks, including that records must include the electrician's name and licence number, the date, results, and repairs required, and that a copy must be provided to the renter within 7 days of a written request.\n\nAPPLICATION: The renter has been in the premises for 3 years and no electrical safety check has been conducted. Since no check occurred in the last 2 years before the renter moved in, the landlord should have arranged one \"as soon as practicable\" upon occupation. Subsequently, a check should have been performed every 2 years.\n\nCONCLUSION: The landlord must arrange an electrical safety check every 2 years by a licensed electrician, as required by Schedule 3 of the VIC Residential Tenancies Regulations 2021. The landlord is in breach. The renter can make a written request for the date of the most recent safety check and also request a copy of any records under regulation 30."
+  },
+  {
+    "question": "I just moved into a house in Shepparton and there's no heater at all. Winter's coming and it gets really cold. The agent says the landlord doesn't have to provide heating because it's an old house. Is that true, or does the landlord have to install a heater?",
+    "metadata": {
+      "domain": "minimum_standards",
+      "sections": [
+        "reg:29",
+        "reg:sch4"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Shepparton, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider is required to provide a heater in a rented premises under the rental minimum standards.\n\nRULE: Regulation 29 of the Residential Tenancies Regulations 2021 provides that \"for the purposes of section 65A(1) of the Act, the prescribed rental minimum standards are in Schedule 4.\" Schedule 4, clause on heating, provides: \"On and from 29 March 2023, in relation to heating in a Class 1 building, an energy efficient fixed heater in good working order is to be installed in the main living area of the rented premises.\" For a Class 2 building (units/apartments): \"an energy efficient fixed heater in good working order is to be installed in the main living area of the rented premises unless it is unreasonable to install an energy efficient fixed heater; or if it is unreasonable to install an energy efficient fixed heater in the main living area of the rented premises, a fixed heater in good working order is to be installed in the main living area of the rented premises.\" An energy efficient fixed heater means a non-ducted air conditioner or heat pump with a 2 star or above heating rating, a gas space heater with a 2 star or above heating rating, a ducted heating or hydronic heating system, or a domestic solid fuel burning appliance. A fixed heater is defined as a heater that is not designed or manufactured to be portable.\n\nAPPLICATION: Since 29 March 2023, all rental premises must have an energy efficient fixed heater (or at minimum, a fixed heater in good working order for Class 2 buildings where installation of energy efficient heater is unreasonable). The agent's claim that \"old houses\" are exempt is incorrect.\n\nCONCLUSION: No, the landlord must provide a heater. Under the rental minimum standards in Schedule 4, from 29 March 2023 all rental premises must have an energy efficient fixed heater in the main living area. The agent's claim that old houses are exempt is incorrect."
+  },
+  {
+    "question": "My landlord in Werribee is insisting I pay my rent in cash every week. I find this really inconvenient and I want to pay by bank transfer. He says he doesn't have to accept electronic payments. Is bank transfer something I have a right to use?",
+    "metadata": {
+      "domain": "payment_methods",
+      "sections": [
+        "reg:19"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Werribee, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a residential rental provider can refuse to accept electronic funds transfer as a method of rent payment.\n\nRULE: Regulation 19 of the Residential Tenancies Regulations 2021 provides that \"for the purposes of section 42(5) of the Act, the prescribed payment method is electronic funds transfer.\" Section 42 of the Act deals with how rent is to be paid. By prescribing EFT as a payment method in the regulations, the legislation establishes EFT as a method that must be available for rent payment. Additionally, regulation 11(d) prescribes as a prohibited term any term \"which requires the renter to pay rent in advance by a payment method which requires additional costs (other than bank fees or account fees payable on the renter's bank account).\"\n\nAPPLICATION: The landlord's insistence on cash payments conflicts with the prescribed payment method of electronic funds transfer under regulation 19. The landlord cannot unreasonably refuse to accept EFT.\n\nCONCLUSION: No, the landlord cannot refuse bank transfers. Under regulation 19 of the VIC Residential Tenancies Regulations 2021, electronic funds transfer is the prescribed payment method. You have the right to pay rent via EFT."
+  },
+  {
+    "question": "I live in a rooming house in St Kilda and the operator has a clause in my agreement saying if I break any house rule I have to pay a $200 penalty fee. Also he's trying to lock me into a contract with a specific internet provider he's chosen. Is any of this legal?",
+    "metadata": {
+      "domain": "rooming_houses",
+      "sections": [
+        "reg:39",
+        "reg:43",
+        "reg:44",
+        "reg:38"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "St Kilda, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a rooming house operator can include penalty fees for breaking house rules and require residents to use a nominated service provider.\n\nRULE: Regulation 39 of the Residential Tenancies Regulations 2021 prescribes prohibited terms for rooming house agreements under section 94AD(1)(g) of the Act. These include: (a) a term binding the resident to a contract the resident did not agree to in writing after an opportunity to review it; (e) a term \"which requires the resident to use the services of a third party service provider nominated by the rooming house operator, other than an embedded network\"; and (h) \"a term which unreasonably limits the resident's use of utilities.\" Regulation 39 also prohibits terms that make the resident liable for the operator's VCAT costs (f), terms that make the resident liable by default for insurance excess (g), and terms imposing fixed early termination fees without stating the calculation basis (i). Regulation 38 provides that the prescribed form for a fixed term rooming house agreement is Form 7 in Schedule 1. Regulation 43 provides that a rooming house condition report must contain the information in Form 9 in Schedule 1. Regulation 44 prescribes electronic funds transfer as the prescribed rent payment method for rooming houses.\n\nAPPLICATION: The $200 penalty fee for breaking house rules is not among the prescribed prohibited terms in regulation 39, but it could constitute a penalty clause unenforceable at common law, and if it is a fixed fee for breach of agreement, it may be challenged. The requirement to use a nominated internet provider directly contravenes regulation 39(e) which prohibits requiring residents to use the services of a third party service provider nominated by the operator (other than an embedded network).\n\nCONCLUSION: Requiring you to use the operator's chosen internet provider is illegal under regulation 39(e) — it is a prescribed prohibited term. The $200 penalty clause is likely unenforceable as a penalty and may constitute an unfair term. The operator must use Form 7 for your agreement (regulation 38), provide a condition report in Form 9 (regulation 43), and accept EFT payments (regulation 44)."
+  },
+  {
+    "question": "I'm renting a rural property near Mildura that's on a septic tank system. The landlord sent me a bill for the septic tank pumping and cleaning, saying it's my responsibility as the tenant to pay for it. Is that right?",
+    "metadata": {
+      "domain": "utility_charges",
+      "sections": [
+        "reg:22"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Mildura, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a tenant is responsible for payment of septic tank pumping and cleaning charges.\n\nRULE: Regulation 22 of the Residential Tenancies Regulations 2021 prescribes utility charges for which the residential rental provider (landlord) is liable under section 53(1)(h) of the Act. Specifically: \"the prescribed charges are — (a) all charges relating to the pumping out and cleaning of sewage and septic tanks that is required for reasons other than damage caused by the renter; and (b) all costs and charges with respect to the initial installation of fixed internet and telecommunications connections to the rented premises, including through the national broadband network; and (c) all cartage charges for refilling fire safety water tanks; and (d) all cartage charges for drinking water unless the charges are related to the amount of water supplied to the rented premises during the renter's occupation.\"\n\nAPPLICATION: The septic tank pumping and cleaning is not caused by damage from the tenant — it appears to be routine maintenance. Under regulation 22(a), charges relating to pumping out and cleaning of septic tanks required for reasons other than damage caused by the renter are prescribed charges payable by the landlord, not the tenant.\n\nCONCLUSION: No, the septic tank pumping and cleaning is the landlord's responsibility, not the tenant's. Regulation 22(a) of the VIC Residential Tenancies Regulations 2021 prescribes that the landlord is liable for septic tank pumping and cleaning charges where the need arises for reasons other than damage caused by the renter."
+  },
+  {
+    "question": "The shower in my rental in Box Hill uses a ridiculous amount of water and my water bills are through the roof. I looked it up and the shower head isn't water-efficient at all — no WELS rating. Does the landlord have to replace it with a water-efficient one?",
+    "metadata": {
+      "domain": "efficiency_ratings",
+      "sections": [
+        "reg:23",
+        "reg:24"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Box Hill, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a landlord is required to ensure that shower heads in rented premises meet minimum water efficiency standards.\n\nRULE: Regulation 23(1)(a) prescribes the WELS scheme in the Water Efficiency Labelling and Standards Act 2005 as the system for rating water efficiency of appliances, fixtures and fittings. Regulation 24(1)(a) prescribes the minimum ratings for which the landlord is liable for water charges: \"for any appliances, fixtures and fittings, other than a dishwasher, which use or supply water — (i) a 3 star rating in the WELS scheme in the efficiency rating system referred to in regulation 23(1)(a); or (ii) if, because of the age, nature or structure of the plumbing in the rented premises, a replacement with a 3 star rating... cannot be installed or, when installed will not operate effectively — the highest rating in the efficiency rating system... of a replacement that will operate effectively.\" Schedule 4 (Rental Minimum Standards), bathroom facilities clause, also requires that if a shower is present, it must have \"(i) a shower head with a 3 star rating in the rating system referred to in regulation 23(1)(a); or (ii) a shower head with a one or 2 star rating if a shower head with a 3 star rating (A) cannot be installed; or (B) if installed, will not operate effectively due to the age, nature or structure of the plumbing of the premises.\"\n\nAPPLICATION: Under the rental minimum standards in Schedule 4, the shower head must have at minimum a 3 star WELS rating, unless plumbing constraints prevent this. Since the current shower head has no WELS rating and is clearly not water-efficient, the landlord is obligated to replace it with a compliant shower head.\n\nCONCLUSION: Yes, the landlord must replace the shower head with a water-efficient one. Under the rental minimum standards in Schedule 4, bathrooms must have a shower head with at least a 3 star WELS rating. The landlord is non-compliant."
+  },
+  {
+    "question": "I want to hang some picture frames and put up some shelves in my rental apartment in Carlton. I don't want to lose my bond over this. Can I just drill into the walls without asking the agent, or do I need permission for everything?",
+    "metadata": {
+      "domain": "modifications",
+      "sections": [
+        "reg:26",
+        "reg:28"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Carlton, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter can install picture hooks and screws for shelves without the landlord's consent.\n\nRULE: Regulation 26 of the Residential Tenancies Regulations 2021 prescribes modifications which can be made without the residential rental provider's consent under section 64(1) of the Act. These include: \"(a) in a rented premises that is not a registered place — (i) installation of picture hooks or screws for wall mounts, shelves or brackets on surfaces other than exposed brick or concrete walls; and (ii) installation of wall anchoring devices on surfaces other than exposed brick or concrete walls to secure items of furniture; and (iii) installation of LED light globes which do not require new light fittings; and (iv) installation of a water efficient shower head if the original shower head is retained; and (v) installation of blind or cord anchors; and (vi) installation of security lights, alarm systems or security cameras that do not impact on the privacy of neighbours, can be easily removed, and are not hardwired; and (vii) installation of hardware-mounted child safety gates on walls (other than exposed brick or concrete walls).\" Regulation 28 prescribes additional modifications for which the landlord must not unreasonably refuse consent, including: \"(a) installation of picture hooks or screws for wall mounts, shelves or brackets on exposed brick or concrete walls; (b) installation of hardware-mounted child safety gates on exposed brick or concrete walls; (c) installation of wall anchoring devices on exposed brick or concrete walls to secure items of furniture.\"\n\nAPPLICATION: Picture hooks and screws for shelves on surfaces other than exposed brick or concrete walls are modifications that can be made without consent under regulation 26(a)(i). If the walls are exposed brick or concrete, consent is required but the landlord must not unreasonably refuse under regulation 28(a).\n\nCONCLUSION: You can install picture hooks and screws for shelves on regular plasterboard walls without the landlord's consent under regulation 26(a)(i). If the walls are exposed brick or concrete, you need consent but the landlord cannot unreasonably refuse it under regulation 28(a)."
+  },
+  {
+    "question": "I've been living in a caravan park in Lakes Entrance for about 3 months now. The owner has never given me any written agreement or told me about my rights. Someone told me they're supposed to give me a notice about my rights as a resident. What are they required to disclose to me?",
+    "metadata": {
+      "domain": "caravan_parks",
+      "sections": [
+        "reg:54",
+        "reg:57",
+        "reg:60"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Lakes Entrance, VIC"
+    },
+    "ground_truth": "ISSUE: What disclosure obligations a caravan park owner has toward a resident, including notification of rights and pre-agreement disclosures.\n\nRULE: Regulation 54 prescribes Form 12 in Schedule 1 as the notification of prospective caravan park resident rights under section 145 of the Act. Form 12 informs the prospective resident that: (1) the Act sets out rights and duties of residents and caravan park owners; (2) you may enter into a written agreement to become a resident at any time; (3) even without a written agreement, you will automatically become a resident if you occupy any site as your only or main residence for at least 60 consecutive days. Regulation 57 prescribes information that the caravan park owner must disclose before the agreement commences under section 145E(1)(e): \"(a) a copy of the caravan park rules; (b) a list of amenities available for use in the caravan park; (c) whether the caravan park is in a flood area; (d) whether the site is in a flood area; (e) whether the park has a history of subsidence; (f) whether the site is in an area with a history of subsidence; (g) whether the park is being operated under a lease.\" Regulation 60 prescribes Form 15 as the notice for caravan park rent increase and hiring charge increase.\n\nAPPLICATION: The caravan park owner has failed to provide Form 12 (notification of resident rights) and has not disclosed the information required by regulation 57, including park rules, amenity list, flood risks, and subsidence history. After 60 days of continuous residence, the person has automatically become a resident under the Act regardless of whether a written agreement was signed.\n\nCONCLUSION: The caravan park owner must provide you with Form 12 (notification of resident rights) under regulation 54, and must disclose park rules, amenities, flood and subsidence information under regulation 57 before any agreement commences. Since you've been there over 60 days, you are now a protected resident under the Act regardless of whether you signed anything."
+  },
+  {
+    "question": "I'm thinking about signing a site agreement for a permanent spot in a residential park in Wangaratta under Part 4A. Before I commit to this, what information must the site owner legally disclose to me? And if the rent goes up later, what form do they need to use?",
+    "metadata": {
+      "domain": "site_agreements",
+      "sections": [
+        "reg:75",
+        "reg:77",
+        "reg:79",
+        "reg:80"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Wangaratta, VIC"
+    },
+    "ground_truth": "ISSUE: The disclosure obligations of a Part 4A site owner before a site agreement is entered into, and the prescribed form for rent increases under a site agreement.\n\nRULE: Regulation 75 prescribes that the statement of information for site agreement applicants is Form 18 in Schedule 1 under section 206JB of the Act. Regulation 77 prescribes the information that site owners must disclose under section 206JF(1)(f): \"(a) whether the Part 4A park is in a flood area; (b) whether the Part 4A site is in a flood area; (c) details of the site tenant's liabilities on permanent departure from the park or Part 4A site; (d) details of the site tenant's liabilities, or estimated liabilities, if the site tenant permanently departed after 1, 2, 5 or 10 years residence in the park or Part 4A site; (e) whether the park has a history of subsidence; (f) whether the site is in an area with a history of subsidence; (g) whether the park is being operated under a lease.\" Regulation 79 prescribes that a Part 4A site condition report is Form 19 in Schedule 1. Regulation 80 prescribes that the form of notice of fixed rent increase under a site agreement is Form 20 in Schedule 1 under section 206SA(5)(a).\n\nAPPLICATION: Before signing a site agreement, the site owner must provide: Form 18 (statement of information for site agreement applicants) and the disclosure items in regulation 77 (flood status, subsidence history, departure liabilities, whether the park operates under a lease). For any subsequent fixed rent increase, the site owner must use Form 20.\n\nCONCLUSION: The site owner must disclose: (1) Form 18 — statement of information for site agreement applicants (regulation 75); (2) flood area and subsidence status of both park and site, departure liabilities at 1, 2, 5 and 10 years, and whether the park operates under a lease (regulation 77). For rent increases, the prescribed form is Form 20 in Schedule 1 (regulation 80)."
+  },
+  {
+    "question": "I'm in a really urgent situation. My partner has been violent and I need to leave our rental property in Sunshine immediately. The police told me there's some form I need about my personal documents, and I might need another form if there's been serious violence. What forms do I need, and how do they help me get out quickly?",
+    "metadata": {
+      "domain": "domestic_violence",
+      "sections": [
+        "act:91V",
+        "act:91W"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Sunshine, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a tenant experiencing family violence can leave their rental property immediately and what forms are required to protect their rights under the Residential Tenancies Act 1997 (Vic) and Residential Tenancies Regulations 2021.\n\nRULE: Under section 91V of the Residential Tenancies Act 1997 (Vic), a person specified in subsection (2) may apply to the Tribunal for an order terminating the existing residential rental agreement because of family violence or personal violence. The Tribunal may make orders under section 91W including terminating the agreement, creating a new agreement, or apportioning liability.\n\nRegulation 91 prescribes Form 23 (Schedule 1) for the Sheriff's notice of retained personal documents under section 361(b) of the Act — this form relates to personal documents left in a caravan and is not applicable to a standard rental tenancy.\n\nRegulation 92 prescribes Form 24 (Schedule 1) for a notice to leave to a resident of managed premises or a resident's visitor under section 368(3) of the Act — this form relates to managed premises (such as rooming houses or crisis accommodation), not standard residential tenancies.\n\nAPPLICATION: The tenant needs to apply to VCAT under section 91V for termination of the tenancy due to family violence. The Forms 23 and 24 prescribed by regulations 91 and 92 are not the correct forms for this situation — they address caravan park document retention and managed premises visitor removal respectively. The tenant should focus on the Tribunal application process under section 91V rather than relying on the prescribed regulatory forms.\n\nCONCLUSION: The tenant should apply to VCAT under section 91V of the Residential Tenancies Act 1997 (Vic) to seek termination of the tenancy due to family violence. The regulatory forms (Forms 23 and 24) prescribed by regulations 91 and 92 are for different circumstances and are not the appropriate forms for this situation."
+  },
+  {
+    "question": "My landlord in Tarneit gave me a notice to vacate but it wasn't on the proper form — just a typed letter with the date I need to leave. I also noticed that under the reason for eviction, he put down information I know is false. What penalties does the landlord face for giving me an improper or false notice to vacate?",
+    "metadata": {
+      "domain": "infringement_penalties",
+      "sections": [
+        "reg:98",
+        "reg:sch5",
+        "act:91ZZO",
+        "act:91ZZH",
+        "act:504"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Tarneit, VIC"
+    },
+    "ground_truth": "ISSUE: The infringement penalties that apply to a residential rental provider who issues an improper notice to vacate under the Residential Tenancies Regulations 2021 (Vic).\n\nRULE: Regulation 98 provides that an offence specified in Column 2 of the table in Schedule 5 is an infringement offence, and the prescribed penalty is the amount in Column 3. Schedule 5 lists offences by their Act section number and the penalty in penalty units. Offences potentially relevant to notices to vacate include: Item 28 (s.91ZZH(1) — 12 penalty units for natural person, 60 for body corporate), Item 29 (s.92C(1) — 5 penalty units), Item 30 (s.96 — 12 penalty units), Item 31 (s.97(1) — 5 penalty units), Item 32 (s.99 — 12 penalty units), Item 33 (s.99A(1) — 12 penalty units), Items 34-36 (s.100 — 5 penalty units each), Item 37 (s.107 — 12 penalty units). Schedule 5 does not list a specific offence for providing false information in a notice to vacate; it only references Act section numbers.\n\nAPPLICATION: By using a typed letter instead of a prescribed form, the landlord may have breached one of the Act sections listed in Schedule 5. However, the Regulation and Schedule 5 do not themselves define the elements of these offences — they merely prescribe the penalty amounts. Whether the landlord's conduct constitutes a specific offence under the Act depends on the text of the referenced Act sections, which are not provided in the Regulation corpus. The maximum penalty identifiable from Schedule 5 for notice-related offences is 12 penalty units (for a natural person).\n\nCONCLUSION: The Regulation and Schedule 5 prescribe infringement penalty amounts for specific Act offences related to notices to vacate, with most carrying 12 penalty units. Schedule 5 does not contain a standalone 'false information' offence. The actual determination of which offence applies requires reference to the Act sections listed in Schedule 5."
+  },
+  {
+    "question": "My agent in Epping says they're evicting me because the landlord wants to move back in. The notice to vacate they gave me is a typed Word document with some text about 'landlord moving in.' I've heard there's a specific form they have to use. What form should they have provided, and does this typed letter count as valid?",
+    "metadata": {
+      "domain": "notice_to_vacate",
+      "sections": [
+        "reg:37",
+        "reg:sch1-form6"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Epping, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a typed letter constitutes a valid notice to vacate, and what form must be used.\n\nRULE: Regulation 37 of the Residential Tenancies Regulations 2021 provides that \"for the purposes of section 91ZZO(a) of the Act, the prescribed form is Form 6 in Schedule 1.\" Form 6 (Notice to Vacate to Renter of Rented Premises) contains detailed information requirements, including: the rental provider's details, the renter's details, the reason for the notice to vacate with specific statutory grounds, the termination date, information about challenging the notice at VCAT, unpaid rent provisions, and information about possession orders. Form 6 states: \"If you believe you were given this notice due to unlawful discrimination or because you tried to exercise your rights as a renter; or you believe it was not given to you properly; or you disagree with the reason given or the information in the form is incorrect or incomplete; or you have experienced family or personal violence... you should apply to VCAT.\" The form also explains specific timeframes for challenges and the process for possession orders.\n\nAPPLICATION: A typed Word document with generic text is not Form 6 in Schedule 1. It lacks the prescribed format, mandatory information fields, the renter's rights notices, and the explanation of the challenge process required by the regulation. The typed letter therefore fails to constitute a valid notice to vacate.\n\nCONCLUSION: No, a typed letter is not valid. The landlord must use Form 6 in Schedule 1 (regulation 37) — the prescribed notice to vacate form. The typed document is invalid and you can challenge it at VCAT on the basis it was not properly given. If the landlord applies for a possession order based on the invalid notice, you can raise the invalidity of the notice as a defence."
+  },
+  {
+    "question": "I'm an international student living in student accommodation near Monash University in Clayton. The housing is arranged through a provider that says it's affiliated with the university. I'm told the Residential Tenancies Act might not fully apply to me. What's the rule about educational institution affiliation, and does it affect my rights as a renter?",
+    "metadata": {
+      "domain": "affiliation",
+      "sections": [
+        "reg:9",
+        "reg:97",
+        "reg:sch2",
+        "act:21"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Clayton, VIC"
+    },
+    "ground_truth": "ISSUE: Whether premises affiliated with an educational institution are exempt from the Residential Tenancies Act 1997, and what criteria determine a valid affiliation.\n\nRULE: Section 21 of the Residential Tenancies Act 1997 provides that the Act does not apply to residential premises used to provide accommodation to students of a school or institution providing education and training, where the premises are formally affiliated with that school or institution. Regulation 9 prescribes that \"for the purposes of section 21(3) of the Act, the prescribed criteria are in Schedule 2.\" Schedule 2 sets out criteria to be considered by a school or institution before entering an affiliation agreement, including: (1) whether the owner or operator intends to provide tutoring, academic support, welfare services (including health and counselling), meals, or personal care services; (2) whether the premises are located on or near the school or institution campus; (3) whether the facilities, occupancy rules, and management are consistent with student accommodation; (4) the number of persons who can be accommodated; and (5) whether the owner or operator has policies consistent with those of the school or institution, including regarding student welfare. Regulation 97 prescribes Form 25 in Schedule 1 as the form of notice of affiliation and requires that the school or institution's official seal or endorsement be affixed to the notice.\n\nAPPLICATION: If the student accommodation provider has properly complied with the Schedule 2 criteria and the school/university has executed a Form 25 notice of affiliation with its official seal (regulation 97), the premises may be exempt from the Act. However, a mere claim of affiliation without proper compliance does not automatically exclude the student from the Act's protections.\n\nCONCLUSION: The affiliation must meet the Schedule 2 criteria (regulation 9) and be endorsed by the institution through Form 25 with official seal (regulation 97). If these requirements are met, the accommodation may be exempt from the Residential Tenancies Act 1997. If not properly affiliated, the Act's standard protections apply. You should verify whether a valid Form 25 has been completed."
+  },
+  {
+    "question": "My landlord is selling the house I'm renting in Reservoir and the agents are doing open houses three times a week, every Saturday, plus two mid-week inspections. It's really disruptive to my life and I feel like I'm constantly having to clean and leave the house. Am I entitled to any compensation for all these sales inspections? How much should I get per inspection?",
+    "metadata": {
+      "domain": "sale_termination",
+      "sections": [
+        "reg:35"
+      ],
+      "difficulty": "colloquial",
+      "role": "tenant",
+      "location": "Reservoir, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a renter is entitled to compensation for sales inspections, and the amount of compensation prescribed.\n\nRULE: Regulation 35 of the Residential Tenancies Regulations 2021 provides that \"for the purposes of section 86(2A)(c) of the Act, the prescribed compensation for each sales inspection is the higher amount of — (a) one half of the daily amount of rent payable under the residential rental agreement per inspection; or (b) $30.\" This means the tenant is entitled to compensation for each individual sales inspection conducted at the rented premises while the property is being marketed for sale. The compensation is calculated on a per-inspection basis. Additionally, the Act imposes limits on the frequency and conduct of sales inspections — they must be at reasonable times, with reasonable notice, and cannot be unreasonably frequent.\n\nAPPLICATION: The renter is experiencing 3 inspections per week on a regular basis. The rent needs to be converted to a daily rate (weekly rent divided by 7), then halved, and compared against the $30 floor. The renter is entitled to the higher of these two amounts per inspection. If the weekly rent is, for example, $420, the daily rate is $60, half is $30, so the compensation would be $30 per inspection (the $30 minimum would apply as it equals half the daily rent). If rent is $500/wk, daily rate is ~$71.43, half is ~$35.71, so $35.71 per inspection. At 3 inspections per week, this could amount to significant compensation. Additionally, if the inspections are unreasonably frequent (e.g., more than 2 per week), the renter may also have grounds to request a reduction in frequency.\n\nAPPLICATION: The renter is entitled to compensation for each sales inspection. The prescribed amount under regulation 35 is the greater of half the daily rent or $30 per inspection. If the frequency of 3 per week is unreasonable, the renter can also challenge the frequency.\n\nCONCLUSION: Yes, you are entitled to compensation for each sales inspection. Under regulation 35, the amount is the higher of half your daily rent or $30 per inspection. For example, at $420/week rent, that's $30 per inspection. At 3 per week, that's at least $90/week. You can also challenge the frequency if 3 per week is unreasonable."
+  }
+]
