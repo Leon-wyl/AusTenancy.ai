@@ -269,6 +269,13 @@ def _run_eval_for_state(
     else:
         samples = list(raw_samples)
 
+    if args.samples is not None:
+        indices = [int(x.strip()) for x in args.samples.split(",")]
+        samples = [s for i, s in enumerate(samples) if i in indices]
+        # Preserve original index for golden context lookup
+        for j, s in enumerate(samples):
+            s["_original_index"] = s.get("_original_index", indices[j])
+
     per_state_limit = args.limit if args.limit > 0 else 0
     if per_state_limit > 0:
         samples = samples[: per_state_limit]
@@ -320,7 +327,7 @@ def _run_eval_for_state(
             row = run_single_question(
                 question, state=state, top_k=args.top_k,
                 use_rewrite=not args.no_rewrite,
-                use_reranker=False if ctxs_override else not args.no_rerank,
+                use_reranker=False if ctxs_override else args.rerank,
                 reranker_query=rq, contexts_override=ctxs_override,
                 include_parts=include_parts,
                 include_chapters=include_chapters,
@@ -436,12 +443,15 @@ def main():
                         help="[VIC only] Use curated 10-QA subset; --state all applies VIC batch automatically")
     parser.add_argument("--top-k", type=int, default=10,
                         help="Chunks to retrieve (default: 10)")
+    parser.add_argument("--rerank", action="store_true",
+                        help="Enable FlashRank reranking (DISABLED by default — "
+                             "degrades legal RAG; see docs/EVALUATION_IMPLEMENTATION.md)")
     parser.add_argument("--no-rerank", action="store_true",
-                        help="Disable FlashRank reranking")
+                        help="[deprecated no-op] reranker is disabled by default; kept for compat")
     parser.add_argument("--no-rewrite", action="store_true",
                         help="Disable LLM query rewrite")
     parser.add_argument("--reranker-query-original", action="store_true",
-                        help="Pass original query to the reranker")
+                        help="Pass original query to the reranker (only applies with --rerank)")
     parser.add_argument("--golden-contexts", dest="golden_contexts_path", type=str, default=None,
                         help="Override golden contexts path (ignored in --state all)")
     parser.add_argument("--exclude-parts", type=str, default=None,
@@ -450,6 +460,8 @@ def main():
                         help="Parts to include (carveback), comma-separated")
     parser.add_argument("--include-chapters", type=str, default=None,
                         help="Chapters to include (carveback), comma-separated (QLD only)")
+    parser.add_argument("--samples", type=str, default=None,
+                        help="Comma-separated 0-indexed sample indices to evaluate (e.g. '15,16,18')")
     args = parser.parse_args()
 
     if args.state == "all" and not args.dry_run and not DEEPSEEK_API_KEY:

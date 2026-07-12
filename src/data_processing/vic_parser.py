@@ -73,6 +73,8 @@ PROSE_STARTS = frozenset(
 def _is_valid_section_title(title: str) -> bool:
     if not title or len(title) < 2:
         return False
+    if not title[0].isupper():
+        return False
     first_word = title.split()[0] if title.split() else ""
     if first_word in PROSE_STARTS:
         return False

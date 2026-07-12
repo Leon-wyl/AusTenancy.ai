@@ -19,7 +19,7 @@ AWS Bedrock is chosen over direct Anthropic API or self-hosted models for three 
 │  User / Demo │────▶│  API Gateway     │────▶│  Lambda (Python 3.12)    │
 │  (Browser)   │     │  (REST, HTTP)    │     │  - LangGraph supervisor  │
 └──────────────┘     └──────────────────┘     │  - Intent classification │
-                                              │  - Retrieval + rerank    │
+                                              │  - Retrieval (no rerank) │
                                               │  - Response generation   │
                                               │  - Citation verification │
                                               └───────┬──────────────────┘
@@ -144,7 +144,7 @@ Australian tenancy Acts are deeply nested documents structured as: **Act → Par
 2. **Hierarchical tree construction:** Each Act is transformed into a tree with Part → Division → Section nodes.
 3. **Chunk generation:** Each leaf Section node produces one or more chunks (hard split at section boundary, soft split within long sections).
 4. **Embedding:** Each chunk is embedded via Amazon Titan Text Embeddings v2 (Bedrock). Embedding dimension: 1536.
-5. **Upsert:** Chunks + embeddings + metadata are upserted to Qdrant. Payload includes full text and metadata for reranker access.
+5. **Upsert:** Chunks + embeddings + metadata are upserted to Qdrant. Payload includes full text and metadata for retrieval/citation.
 
 ---
 
@@ -187,11 +187,12 @@ User Query: "How much notice for a rent increase in VIC?"
                             │
                             ▼
 ┌─────────────────────────────────────────────────────┐
-│ 4. BGE-Reranker                                     │
-│    - Cross-encoder scores (query, chunk) pairs      │
-│    - More accurate than cosine similarity           │
-│    - Top-5 candidates after reranking               │
-│    - Runs as Lambda layer (BGE-Reranker-v2-m3)      │
+│ 4. Reranker — DISABLED for legal RAG                │
+│    - FlashRank/BGE cross-encoder NOT used            │
+│    - General-domain models mis-rank statutory text   │
+│    - Would demote correct sections below cutoff      │
+│    - Code retained (opt-in only); default OFF        │
+│    - See docs/EVALUATION_IMPLEMENTATION.md            │
 └─────────────────────────────────────────────────────┘
                             │
                             ▼

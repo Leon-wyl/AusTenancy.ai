@@ -49,6 +49,12 @@ def rerank_context(
     """
     Cross-encode (query, chunk) pairs via FlashRank and return the top_n most relevant chunks.
 
+    DISABLED BY DEFAULT for legal RAG. FlashRank is a general-domain (MS MARCO)
+    cross-encoder that mis-ranks statutory text — it demotes correct sections
+    (ranked #1 by hybrid search) below the top-n cutoff, collapsing context
+    precision. Retained only for opt-in experimentation; the default pipeline
+    (use_reranker=False) never calls this. See docs/EVALUATION_IMPLEMENTATION.md.
+
     Each chunk dict must have at least 'text'.  The original chunk dict is returned with
     an added 'rerank_score' field.
     """

@@ -173,7 +173,7 @@ This is a stronger trust signal than the aggregate faithfulness score. Users can
 | Parameter | Value | Rationale |
 |-----------|-------|-----------|
 | Query rewrite | ON | Improves retrieval precision without hurting faithfulness |
-| Reranker (FlashRank) | OFF | Over-filters legal context; ablation proved it hurts faith |
+| Reranker (FlashRank) | OFF (default) | Over-filters legal context; ablation proved it hurts faith. See "Why the reranker is disabled" below. |
 | Part filter | exclude 3, 4, 4A, 12A | Removes rooming house/caravan park/SDA noise |
 | Top-K retrieve | 10 | Enough for good recall; more hurts CP without faith improvement |
 | IRAC format | ON | Changed from rigid disclaimer to "lead with what context supports" |
@@ -188,6 +188,98 @@ This is a stronger trust signal than the aggregate faithfulness score. Users can
 | Answer Relevancy | 0.86 | 0.86 | 0.85 | 0.85 | 0.88 |
 
 The `exclude_parts` filter is a configurable pipeline parameter (not hardcoded). Pass `None` for the default standard residential filter, `[]` for no filtering, or a custom list to include/exclude specific Parts. The eval script exposes this as `--exclude-parts PARTS` (comma-separated). See the [CLI reference](#cli-reference) for usage.
+
+---
+
+## Why the reranker is disabled
+
+The reranker is **OFF by default** across the entire pipeline — both the library
+(`generate_compliance_answer(..., use_reranker=False)`) and the eval CLI
+(`run_ragas_eval.py` no longer enables it unless `--rerank` is passed explicitly).
+Legal RAG must not use FlashRank.
+
+**Reason.** FlashRank ships a general-domain cross-encoder trained on MS MARCO
+web-search relevance. Statutory text (dense cross-referenced provisions, numeric
+section IDs, procedural language) is out-of-distribution for it. Empirically, when
+enabled it demotes the correct sections — which hybrid search already ranked in the
+top results — below the top-5 cutoff, and fills the top slots with off-target
+sections. This collapses context precision to ~0 on exactly the questions where
+retrieval succeeded. Observed examples (reranker ON, top-15 → top-5):
+
+- NSW rent-increase query: `s44` retrieved rank #1 → dropped entirely from top-5.
+- NSW rent-increase query: `s41`+`s44` retrieved → only `s41` survived; top slots filled with `s99, s87L, s87H`.
+- VIC bond query: `s31,s32,s34` retrieved → only `s31` survived; `s34A, s407, s411AB` promoted instead.
+
+The ablation study (see [Step 2](#step-2-ablation-study--removing-the-reranker))
+also showed reranker ON dropped faithfulness by ~5.6 points because over-filtering
+from the retrieved set to 5 chunks removes the surrounding context the LLM relies on
+for cross-references.
+
+**Code is retained** (`rerank_context()` in `generator.py`) for opt-in
+experimentation only — e.g. if a legal-domain cross-encoder becomes available. To
+try it, pass `--rerank` to the eval CLI. Default runs never call it.
+
+---
+
+## Resolved — VIC Q6 & NSW Q19 (golden-label errors + parser truncation)
+
+Two questions initially showed low context precision / answer relevancy. Deeper
+investigation found the low scores were **not** a retrieval or answer-quality
+problem — the RAG answers were substantively correct. The true causes were
+(1) **factual errors in the golden dataset annotations** and (2) a **VIC parser
+chunk-truncation bug**. Both were fixed.
+
+### NSW Q19 (open houses / notice of sale)
+
+- **Original golden**: `sections = [55, 56]`; the ground-truth RULE claimed
+  *"Section 55 permits a landlord to enter to show premises to prospective
+  purchasers, on not more than 2 occasions in any period of 7 days"*.
+- **Statute check**: This is wrong. **s53** ("Sale of residential premises") is
+  the controlling provision — 14 days' notice before first inspection, landlord
+  must make reasonable efforts to agree times, and the tenant *is not required to
+  agree to inspections more than twice a week* (s53(4)). **s55(2)(f)** only allows
+  access to show purchasers *"if the landlord and tenant fail to agree under
+  section 53"*, capped at twice per week with 48 hours' notice. **s56** ("Entry
+  with tenant's consent") is largely irrelevant to a *refusal* question.
+- **Fix**: golden `sections` corrected to `[53, 55]` and the RULE/APPLICATION/
+  CONCLUSION rewritten to match the statute. The system's own answer (citing
+  s53/55/57) was already more accurate than the original label.
+
+### VIC Q6 (landlord resumes occupation)
+
+- **Original golden**: `sections = [91ZW, 91ZZO, 91ZZS]`; the CONCLUSION said the
+  renter can *"challenge it at VCAT under section 91ZZS within 30 days"*.
+- **Statute check**: This is wrong. **s91ZZS(1)** applies only to notices given
+  under `91ZX, 91ZY, 91ZZ, 91ZZA, 91ZZB or 91ZZC` — **it does not cover 91ZW**.
+  So a 91ZW ("principal place of residence") notice cannot be challenged via
+  91ZZS. **s91ZW** (grounds) and **s91ZZO** (form-of-notice validity) are the
+  correct provisions.
+- **Fix**: golden `sections` corrected to `[91ZW, 91ZZO]`, and the erroneous
+  91ZZS sentence replaced with an accurate note that 91ZZS does not apply to
+  91ZW notices.
+
+### VIC parser chunk-truncation bug (found during the investigation)
+
+While verifying the statute text, we found `91ZZS`, `91ZZO`, and **10 other VIC
+sections** were truncated mid-sentence in the chunk files. Root cause: the VIC
+`SECTION_RE` matched cross-reference list continuations inside a section body
+(e.g. a body line `"91ZZB or 91ZZC, a renter who has received the"`) and treated
+`91ZZB` as the start of a *new* section, prematurely flushing the real one and
+emitting bogus fragment chunks (18 of them, with lowercase-starting "titles").
+
+**Fix**: `_is_valid_section_title()` in `vic_parser.py` now requires the title's
+first character to be an uppercase letter. Verified safe — all 980 genuine VIC
+section headings start uppercase; the only "lowercase-only" id (`91ZZDA`) was an
+amendment-note artifact, not a real section. VIC chunk count went 1029 → 1011
+(−18 bogus fragments); the 12 truncated sections are now complete. Regression
+tests added: `TestVICSectionTruncation` asserts no lowercase-starting titles and
+that `91ZZS`/`91ZZO` retain their full cross-reference lists.
+
+### Result
+
+After re-ingesting and re-running the 40-question eval (reranker off):
+NSW Q19 context precision rose from ~0.20 to **1.00**; VIC Q6 recovered to
+CP 0.33 / AR 0.85 (its golden now correctly excludes the inapplicable 91ZZS).
 
 ---
 
@@ -267,24 +359,24 @@ next highest-impact work. Scaling will test whether:
 # Dry-run (validate dataset, no LLM calls)
 python src/evaluation/run_ragas_eval.py --dry-run
 
-# Baseline T2 config (reranker OFF, rewrite ON)
-python src/evaluation/run_ragas_eval.py --no-rerank --output report.csv
+# Baseline T2 config (reranker OFF by default, rewrite ON)
+python src/evaluation/run_ragas_eval.py --output report.csv
 
 # Test with rooming houses included (exclude only caravan parks, site agreements, SDA)
-python src/evaluation/run_ragas_eval.py --no-rerank --exclude-parts "4,4A,12A"
+python src/evaluation/run_ragas_eval.py --exclude-parts "4,4A,12A"
 
 # Test with all Parts (no filter)
-python src/evaluation/run_ragas_eval.py --no-rerank --exclude-parts ""
+python src/evaluation/run_ragas_eval.py --exclude-parts ""
 
-# Full ablation (all flags available)
+# Full ablation — opt in to the (disabled-by-default) reranker
 python src/evaluation/run_ragas_eval.py \
-    --no-rerank --no-rewrite --reranker-query-original \
+    --rerank --no-rewrite --reranker-query-original \
     --limit 5 --output ablation.csv
 
 # Golden-context diagnostic
 python src/evaluation/run_ragas_eval.py \
     --golden-contexts tests/evaluation/vic_golden_contexts.json \
-    --no-rerank --output golden.csv
+    --output golden.csv
 ```
 
 ### CLI reference
@@ -293,9 +385,10 @@ python src/evaluation/run_ragas_eval.py \
 |------|--------|
 | `--dry-run` | Validate dataset, print first prompt, exit |
 | `--limit N` | Evaluate only first N questions |
-| `--no-rerank` | Disable FlashRank reranking |
+| `--rerank` | Enable FlashRank reranking (OFF by default — degrades legal RAG) |
+| `--no-rerank` | Deprecated no-op; reranker is already OFF by default (kept for compat) |
 | `--no-rewrite` | Use original query for retrieval (skip LLM rewrite) |
-| `--reranker-query-original` | Pass original query to reranker (not rewritten) |
+| `--reranker-query-original` | Pass original query to reranker (only applies with `--rerank`) |
 | `--golden-contexts PATH` | Use pre-computed contexts as retrieval override |
 | `--exclude-parts PARTS` | Parts to exclude from retrieval, comma-separated (default: pipeline default for standard residential). Use `""` for no filtering. Part 3=rooming houses, 4=caravan parks, 4A=site agreements, 12A=SDA |
 | `--state STATE` | State filter (default: VIC) |
@@ -308,7 +401,7 @@ python src/evaluation/run_ragas_eval.py \
 
 | File | Purpose |
 |------|---------|
-| `src/generation/generator.py` | RAG pipeline: rewrite → retrieve → rerank → prompt → LLM → verify. Contains SYSTEM_PROMPT, QUERY_REWRITE_PROMPT, `generate_compliance_answer()`, `rerank_context()`, `verify_citations()`. |
+| `src/generation/generator.py` | RAG pipeline: rewrite → retrieve → prompt → LLM → verify (reranker disabled by default). Contains SYSTEM_PROMPT, QUERY_REWRITE_PROMPT, `generate_compliance_answer()`, `rerank_context()` (retained, opt-in only), `verify_citations()`. |
 | `src/retrieval/vector_store.py` | Qdrant ingestion and hybrid retrieval (dense + sparse RRF) with metadata filters, including `exclude_parts` parameter. |
 | `src/evaluation/run_ragas_eval.py` | Evaluation script with `DeepSeekRagasLLM`, `FastembedRagasEmbeddings`, CLI flags for all configurations, intermediate save/resume. |
 | `src/evaluation/__init__.py` | Package marker. |

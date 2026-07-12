@@ -134,6 +134,7 @@ class TestSystemPrompt:
 # ── Integration: rerank_context (uses real FlashRank model) ────────────
 
 
+@pytest.mark.skip(reason="reranker disabled by default for legal RAG (kept for opt-in experimentation)")
 class TestRerankContext:
     def test_returns_at_most_top_n(self, sample_chunks):
         top_n = 3

@@ -466,3 +466,22 @@ class TestNSWDefinitionParse:
         assert len(text) > 100, "Part 7 s22 Definitions body appears truncated"
         assert "means" in text, "Part 7 s22 should contain defined terms"
 
+
+class TestVICSectionTruncation:
+    def test_no_lowercase_section_titles(self):
+        bad = [
+            c["chunk_id"]
+            for c in _load_chunks("vic_chunks.json")
+            if c["section_title"] and not c["section_title"][0].isupper()
+        ]
+        assert not bad, f"VIC chunks with lowercase-starting section_title (mis-parsed): {bad}"
+
+    def test_cross_reference_lists_not_truncated(self):
+        chunks = {c["section_id"]: c for c in _load_chunks("vic_chunks.json")}
+        # 91ZZS lists the notice sections it applies to; must include the full tail
+        assert "91ZZC" in chunks["91ZZS"]["text"], "s91ZZS cross-reference list truncated"
+        assert "challenging" in chunks["91ZZS"]["text"], "s91ZZS body truncated"
+        # 91ZZO form-of-notice list must include 91ZZC
+        assert "91ZZC" in chunks["91ZZO"]["text"], "s91ZZO cross-reference list truncated"
+
+
