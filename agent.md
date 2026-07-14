@@ -52,7 +52,7 @@ cd frontend && npm install           # Install frontend deps
 ## Run
 
 ```bash
-python src/data_processing/parser.py          # Parse VIC RTA PDF → chunks
+python src/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
 python src/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/generation/generator.py            # Run RAG compliance pipeline
 pytest tests/ -m "not slow"                   # Run tests
@@ -156,12 +156,12 @@ memory_recall → intent_classifier → slot_filler → rag_retriever → legal_
 
 Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps that a better embedding model would address.
 
-### Phase B: Scale to All 8 Jurisdictions
+### Phase B: Scale to Multi-Jurisdiction
 | Step | Status | What |
 |------|--------|------|
-| 4 | ⬜ | NSW legislation ingestion |
-| 5 | ⬜ | QLD, SA, WA, TAS, ACT, NT ingestion |
-| 6 | ⬜ | Multi-state RAGAS evaluation (40 QA pairs) |
+| 4 | ✅ | NSW legislation ingestion (NSWParser, per-state architecture) |
+| 5 | ❌ | QLD, SA, WA, TAS, ACT, NT — deferred (chunk quality issues) |
+| 6 | ✅ | Multi-state RAGAS evaluation (VIC 20Q + NSW 20Q) |
 
 ### Phase C: Conversational Agent
 | Step | Status | What |
@@ -217,7 +217,9 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ```
 src/                          # RAG pipeline (Python)
   data_processing/            # PDF parsing → hierarchical chunks
-    parser.py                 #   VIC RTA PDF parser (PyMuPDF + regex)
+    vic_parser.py             #   VIC RTA PDF parser (PyMuPDF + regex)
+    nsw_parser.py             #   NSW RTA PDF parser
+    base_parser.py            #   Abstract BaseParser (shared pipeline)
   retrieval/                  # Vector store indexing + hybrid search
     vector_store.py           #   Qdrant ingestion with dense + BM25
   generation/                 # RAG compliance pipeline

@@ -39,9 +39,9 @@ class AgentState(TypedDict):
 
     # Retrieval & generation
     entities: dict                         # Extracted dates, amounts, section references
-    retrieved_chunks: list[dict]           # Chunks from Qdrant after RRF + BGE reranker
+    retrieved_chunks: list[dict]           # Chunks from Qdrant after RRF fusion (reranker disabled for legal RAG)
     citation_map: dict[str, str]           # chunk_id → formatted citation for verification
-    confidence: Optional[float]            # Reranker confidence score (0.0–1.0)
+    confidence: Optional[float]            # Retrieval/RRF confidence score (0.0–1.0)
 
     # Cross-session memory (Mem0)
     user_id: Optional[str]                 # For Mem0 identity lookup across sessions

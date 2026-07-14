@@ -85,7 +85,7 @@ A property manager overseeing 200+ properties across multiple states currently r
 
 ### FR-6: Fallback / Escalation
 
-- For queries the system cannot answer with high confidence (low reranker score), it defaults to: "I cannot answer this with confidence. Here are the relevant sections for manual review: …"
+- For queries the system cannot answer with high confidence (low retrieval/RRF score), it defaults to: "I cannot answer this with confidence. Here are the relevant sections for manual review: …"
 - Option to export the conversation and citations for human legal review.
 
 ---
@@ -96,7 +96,7 @@ A property manager overseeing 200+ properties across multiple states currently r
 
 - **Target:** <3 seconds at the 95th percentile for single-turn queries.
 - **Measurement:** Time from API Gateway receipt to response body sent.
-- Budget: intent classification (~200ms) + retrieval (~500ms) + reranking (~300ms) + generation (~1500ms) + verification (~200ms).
+- Budget: intent classification (~200ms) + retrieval (~500ms) + generation (~1500ms) + verification (~200ms). (Reranking disabled — see docs/EVALUATION_IMPLEMENTATION.md.)
 
 ### NFR-2: Hallucination Containment
 

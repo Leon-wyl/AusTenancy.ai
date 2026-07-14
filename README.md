@@ -94,7 +94,7 @@ rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_cita
        └───────────────────────────┘
 ```
 
-*Phase A complete (RAGAS evaluation). Phase B (multi-state ingestion) next. See full roadmap below.*
+*Phase A complete (RAGAS evaluation). Phase B (NSW ingestion + multi-state RAGAS complete, other 6 jurisdictions deferred). See full roadmap below.*
 
 ## Roadmap
 
@@ -107,12 +107,12 @@ rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_cita
 
 Golden-context diagnostic confirmed retrieval quality is not the bottleneck — the current BGE-small + BM25 hybrid search already finds the right sections. Steps 2-3 are deferred until multi-state scaling reveals cross-jurisdiction retrieval gaps.
 
-### Phase B: Scale to All 8 Jurisdictions
+### Phase B: Scale to Multi-Jurisdiction
 | Step | Status | What |
 |------|--------|------|
-| 4 | ⬜ | NSW legislation ingestion (parse NSW RTA 2010 PDF, validate parser reusability) |
-| 5 | ⬜ | QLD, SA, WA, TAS, ACT, NT ingestion (bulk ingest remaining 6 states) |
-| 6 | ⬜ | Multi-state RAGAS evaluation (40 golden QA pairs across all 8 jurisdictions + cross-state) |
+| 4 | ✅ | NSW legislation ingestion (dedicated NSWParser, per-state architecture) |
+| 5 | ❌ | QLD, SA, WA, TAS, ACT, NT — deferred (chunk quality issues: WA 95%, ACT 74%, QLD 37% bad chunks) |
+| 6 | ✅ | Multi-state RAGAS evaluation (VIC 20Q + NSW 20Q, batch mode) |
 
 ### Phase C: Conversational Agent
 | Step | Status | What |
@@ -230,7 +230,7 @@ cp .env.example .env
 # Set DEEPSEEK_API_KEY in .env
 
 # Step 1: Parse VIC RTA PDF into hierarchical chunks
-python src/data_processing/parser.py
+python src/data_processing/vic_parser.py
 
 # Step 2: Index chunks into Qdrant vector store
 python src/retrieval/vector_store.py
