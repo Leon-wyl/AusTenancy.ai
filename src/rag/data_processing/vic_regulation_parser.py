@@ -10,7 +10,7 @@ Inherits from BaseParser and implements:
 import logging
 import re
 
-from src.data_processing.base_parser import BaseParser
+from src.rag.data_processing.base_parser import BaseParser
 
 STATE = "VIC"
 ACT_NAME = "Residential Tenancies Regulations 2021"
@@ -36,17 +36,46 @@ KNOWN_RUNNING_HEADERS = frozenset({"Endnotes", "Authorised Version"})
 
 MONTH_NAMES = frozenset(
     {
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     }
 )
 
 PROSE_STARTS = frozenset(
     {
-        "penalty", "Penalty", "years", "year", "months", "month",
-        "days", "day", "hours", "hour", "business", "p.m.", "a.m.",
-        "In", "An", "For", "The", "This", "If", "A", "Each",
-        "Column", "Item",
+        "penalty",
+        "Penalty",
+        "years",
+        "year",
+        "months",
+        "month",
+        "days",
+        "day",
+        "hours",
+        "hour",
+        "business",
+        "p.m.",
+        "a.m.",
+        "In",
+        "An",
+        "For",
+        "The",
+        "This",
+        "If",
+        "A",
+        "Each",
+        "Column",
+        "Item",
     }
 )
 
@@ -380,14 +409,14 @@ class VICRegulationParser(BaseParser):
             except ValueError:
                 return None
             if 6 <= form_num <= 11:
-                return "3"       # Rooming house forms (Form 6–11)
+                return "3"  # Rooming house forms (Form 6–11)
             elif 12 <= form_num <= 15:
-                return "4"       # Caravan park forms (Form 12–15)
+                return "4"  # Caravan park forms (Form 12–15)
             elif 16 <= form_num <= 22:
-                return "4A"      # Site agreement forms (Form 16–22)
-            return None          # General forms (1–5, 23–25)
+                return "4A"  # Site agreement forms (Form 16–22)
+            return None  # General forms (1–5, 23–25)
         if section_id.startswith("sch") or not section_id.isdigit():
-            return None          # Schedule-level chunks (sch2–sch5), non-numeric IDs
+            return None  # Schedule-level chunks (sch2–sch5), non-numeric IDs
         reg_num = int(section_id)
         if 37 <= reg_num <= 53:
             return "3"
@@ -395,7 +424,7 @@ class VICRegulationParser(BaseParser):
             return "4"
         elif 72 <= reg_num <= 89:
             return "4A"
-        return None              # General: 1–36, 90–98
+        return None  # General: 1–36, 90–98
 
     def _flush_pending(
         self,

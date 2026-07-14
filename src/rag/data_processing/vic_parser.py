@@ -9,7 +9,7 @@ Inherits from BaseParser and implements VIC-specific:
 
 import re
 
-from src.data_processing.base_parser import BaseParser
+from src.rag.data_processing.base_parser import BaseParser
 
 STATE = "VIC"
 ACT_NAME = "Residential Tenancies Act 1997"

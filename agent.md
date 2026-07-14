@@ -52,9 +52,9 @@ cd frontend && npm install           # Install frontend deps
 ## Run
 
 ```bash
-python src/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
-python src/retrieval/vector_store.py           # Index chunks → Qdrant
-python src/generation/generator.py            # Run RAG compliance pipeline
+python src/rag/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
+python src/rag/retrieval/vector_store.py           # Index chunks → Qdrant
+python src/rag/generation/generator.py            # Run RAG compliance pipeline
 pytest tests/ -m "not slow"                   # Run tests
 ```
 

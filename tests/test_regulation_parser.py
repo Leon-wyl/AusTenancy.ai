@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src.data_processing.nsw_regulation_parser import (
+from src.rag.data_processing.nsw_regulation_parser import (
     CLAUSE_ID_RE,
     CLAUSE_LINE_RE,
     DIVISION_RE,
@@ -13,10 +13,10 @@ from src.data_processing.nsw_regulation_parser import (
     NSWRegulationParser,
     _is_valid_clause_title,
 )
-from src.data_processing.nsw_regulation_parser import (
+from src.rag.data_processing.nsw_regulation_parser import (
     SCHEDULE_RE as NSW_SCHEDULE_RE,
 )
-from src.data_processing.vic_regulation_parser import (
+from src.rag.data_processing.vic_regulation_parser import (
     AUTHORISED_LINE,
     KNOWN_RUNNING_HEADERS,
     PREAMBLE_MARKER,
@@ -138,17 +138,34 @@ class TestVICRegulationChunkSchema:
     def test_all_required_fields_present(self):
         p = VICRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": None, "schedule_title": None,
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
         }
         chunk = p._build_chunk("1", "Objective", "Test text", hierarchy)
         expected_fields = [
-            "chunk_id", "text", "state", "act", "year", "instrument_type",
-            "section_id", "section_title", "part", "part_title", "division",
-            "division_title", "subdivision", "subdivision_title",
-            "schedule", "schedule_title", "subsection_range",
+            "chunk_id",
+            "text",
+            "state",
+            "act",
+            "year",
+            "instrument_type",
+            "section_id",
+            "section_title",
+            "part",
+            "part_title",
+            "division",
+            "division_title",
+            "subdivision",
+            "subdivision_title",
+            "schedule",
+            "schedule_title",
+            "subsection_range",
         ]
         for field in expected_fields:
             assert field in chunk, f"Missing field: {field}"
@@ -156,33 +173,61 @@ class TestVICRegulationChunkSchema:
 
     def test_instrument_type_is_regulation(self):
         p = VICRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Objective", "Test text", hierarchy)
         assert chunk["instrument_type"] == "regulation"
 
     def test_state_and_act(self):
         p = VICRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Objective", "Test text", hierarchy)
         assert chunk["state"] == "VIC"
         assert chunk["act"] == "Residential Tenancies Regulations 2021"
 
     def test_chunk_id_format_for_regulation(self):
         p = VICRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Objective", "Test text", hierarchy)
         assert chunk["chunk_id"] == "VIC-RTR2021-r1"
 
     def test_schedule_chunk_has_schedule_fields(self):
         p = VICRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": "Schedule 1", "schedule_title": "Forms",
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": "Schedule 1",
+            "schedule_title": "Forms",
         }
         chunk = p._build_chunk("sch1", "Schedule 1\u2014Forms", "Test text", hierarchy)
         assert chunk["schedule"] == "Schedule 1"
@@ -199,17 +244,34 @@ class TestNSWRegulationChunkSchema:
     def test_all_required_fields_present(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": None, "schedule_title": None,
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
         }
         chunk = p._build_chunk("1", "Name of Regulation", "Test text", hierarchy)
         expected_fields = [
-            "chunk_id", "text", "state", "act", "year", "instrument_type",
-            "section_id", "section_title", "part", "part_title", "division",
-            "division_title", "subdivision", "subdivision_title",
-            "schedule", "schedule_title", "subsection_range",
+            "chunk_id",
+            "text",
+            "state",
+            "act",
+            "year",
+            "instrument_type",
+            "section_id",
+            "section_title",
+            "part",
+            "part_title",
+            "division",
+            "division_title",
+            "subdivision",
+            "subdivision_title",
+            "schedule",
+            "schedule_title",
+            "subsection_range",
         ]
         for field in expected_fields:
             assert field in chunk, f"Missing field: {field}"
@@ -217,33 +279,61 @@ class TestNSWRegulationChunkSchema:
 
     def test_instrument_type_is_regulation(self):
         p = NSWRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Name of Regulation", "Test text", hierarchy)
         assert chunk["instrument_type"] == "regulation"
 
     def test_state_and_act(self):
         p = NSWRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Name of Regulation", "Test text", hierarchy)
         assert chunk["state"] == "NSW"
         assert chunk["act"] == "Residential Tenancies Regulation 2019"
 
     def test_chunk_id_format(self):
         p = NSWRegulationParser()
-        hierarchy = {"part": None, "part_title": None, "division": None, "division_title": None,
-                     "subdivision": None, "subdivision_title": None, "schedule": None, "schedule_title": None}
+        hierarchy = {
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
+        }
         chunk = p._build_chunk("1", "Name of Regulation", "Test text", hierarchy)
         assert chunk["chunk_id"] == "NSW-RTR2019-r1"
 
     def test_part_division_hierarchy_propagated(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": "1", "part_title": "Preliminary",
-            "division": "2", "division_title": "Interpretation",
-            "subdivision": None, "subdivision_title": None,
-            "schedule": None, "schedule_title": None,
+            "part": "1",
+            "part_title": "Preliminary",
+            "division": "2",
+            "division_title": "Interpretation",
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
         }
         chunk = p._build_chunk("3", "Definitions", "Test text", hierarchy)
         assert chunk["part"] == "1"
@@ -255,10 +345,14 @@ class TestNSWRegulationChunkSchema:
     def test_chunk_id_for_schedule_clause(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": "Schedule 1", "schedule_title": "Forms",
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": "Schedule 1",
+            "schedule_title": "Forms",
         }
         chunk = p._build_chunk("sch1", "Schedule 1\u2014Forms", "Test text", hierarchy)
         assert chunk["schedule"] == "Schedule 1"
@@ -272,10 +366,14 @@ class TestNSWRegulationBuildParentPrefix:
     def test_schedule_only(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": "Schedule 2", "schedule_title": "Forms",
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": "Schedule 2",
+            "schedule_title": "Forms",
         }
         result = p._build_parent_prefix(hierarchy)
         assert result == "[Schedule 2]"
@@ -283,10 +381,14 @@ class TestNSWRegulationBuildParentPrefix:
     def test_schedule_part_division(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": "1", "part_title": "Preliminary",
-            "division": "2", "division_title": "General",
-            "subdivision": None, "subdivision_title": None,
-            "schedule": None, "schedule_title": None,
+            "part": "1",
+            "part_title": "Preliminary",
+            "division": "2",
+            "division_title": "General",
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
         }
         result = p._build_parent_prefix(hierarchy)
         assert result == "[Part 1 - Division 2]"
@@ -294,10 +396,14 @@ class TestNSWRegulationBuildParentPrefix:
     def test_empty_hierarchy(self):
         p = NSWRegulationParser()
         hierarchy = {
-            "part": None, "part_title": None,
-            "division": None, "division_title": None,
-            "subdivision": None, "subdivision_title": None,
-            "schedule": None, "schedule_title": None,
+            "part": None,
+            "part_title": None,
+            "division": None,
+            "division_title": None,
+            "subdivision": None,
+            "subdivision_title": None,
+            "schedule": None,
+            "schedule_title": None,
         }
         result = p._build_parent_prefix(hierarchy)
         assert result == ""
@@ -362,6 +468,7 @@ class TestVICRegulationIntegration:
         with open(path) as f:
             chunks = json.load(f)
         from collections import Counter
+
         cids = Counter(c["chunk_id"] for c in chunks)
         dupes = {k: v for k, v in cids.items() if v > 1}
         assert len(dupes) == 0, f"Duplicate chunk IDs: {dupes}"
@@ -398,6 +505,7 @@ class TestNSWRegulationIntegration:
         with open(path) as f:
             chunks = json.load(f)
         from collections import Counter
+
         cids = Counter(c["chunk_id"] for c in chunks)
         dupes = {k: v for k, v in cids.items() if v > 1}
         assert len(dupes) == 0, f"Duplicate chunk IDs: {dupes}"

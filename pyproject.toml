@@ -9,6 +9,7 @@ dependencies = [
     "qdrant-client>=1.13.0",
     "flashrank",
     "openai",
+    "langgraph>=0.2.0,<0.3.0",
     "python-dotenv",
 ]
 [project.optional-dependencies]

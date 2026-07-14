@@ -10,7 +10,6 @@ Usage:
 
 import json
 import logging
-import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -23,23 +22,39 @@ OUTPUT_PATH = PROJECT_ROOT / "tests" / "evaluation" / "section_audit.json"
 
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
     "rent_increases": [
-        "rent increase", "increased rent", "proposed rent",
-        "notice of rent increase", "increase in rent",
-        "rent may be increased", "rent payable",
+        "rent increase",
+        "increased rent",
+        "proposed rent",
+        "notice of rent increase",
+        "increase in rent",
+        "rent may be increased",
+        "rent payable",
     ],
     "terminations": [
-        "termination", "notice to vacate", "possession",
-        "breach of duty", "terminate", "vacant possession",
+        "termination",
+        "notice to vacate",
+        "possession",
+        "breach of duty",
+        "terminate",
+        "vacant possession",
         "notice of termination",
     ],
     "repairs": [
-        "repair", "maintenance", "urgent repair",
-        "good repair", "duty to repair", "remedy",
+        "repair",
+        "maintenance",
+        "urgent repair",
+        "good repair",
+        "duty to repair",
+        "remedy",
         "fit for habitation",
     ],
     "bonds": [
-        "bond", "security deposit", "residential bond",
-        "bond lodgment", "bond claim", "rental bond",
+        "bond",
+        "security deposit",
+        "residential bond",
+        "bond lodgment",
+        "bond claim",
+        "rental bond",
     ],
 }
 
@@ -82,7 +97,9 @@ def find_sections(state: str, chunks: list[dict]) -> dict[str, list[dict]]:
             key=lambda x: x["keyword_hits"],
             reverse=True,
         )
-        sorted_results[domain] = [dict(item, keyword_hits=int(item["keyword_hits"])) for item in items]
+        sorted_results[domain] = [
+            dict(item, keyword_hits=int(item["keyword_hits"])) for item in items
+        ]
 
     return sorted_results
 

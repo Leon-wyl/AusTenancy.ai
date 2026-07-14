@@ -13,10 +13,10 @@ import logging
 import time
 from pathlib import Path
 
-from src.data_processing.nsw_parser import NSWParser
-from src.data_processing.nsw_regulation_parser import NSWRegulationParser
-from src.data_processing.vic_parser import VICParser
-from src.data_processing.vic_regulation_parser import VICRegulationParser
+from src.rag.data_processing.nsw_parser import NSWParser
+from src.rag.data_processing.nsw_regulation_parser import NSWRegulationParser
+from src.rag.data_processing.vic_parser import VICParser
+from src.rag.data_processing.vic_regulation_parser import VICRegulationParser
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)

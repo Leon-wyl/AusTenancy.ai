@@ -13,10 +13,10 @@ import logging
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from src.data_processing.base_parser import BaseParser
-from src.data_processing.nsw_parser import NSWParser
+from src.rag.data_processing.base_parser import BaseParser
+from src.rag.data_processing.nsw_parser import NSWParser
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)

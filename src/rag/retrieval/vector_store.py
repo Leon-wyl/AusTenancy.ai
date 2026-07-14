@@ -274,7 +274,8 @@ if __name__ == "__main__":
     logger.info("=" * 60)
 
     chunk_files = sorted(
-        f for f in Path("data/processed").glob("*_chunks.json")
+        f
+        for f in Path("data/processed").glob("*_chunks.json")
         if f.name not in {"all_australia_chunks.json", "vic_rta_chunks.json"}
     )
     if not chunk_files:
@@ -293,11 +294,11 @@ if __name__ == "__main__":
         "VIC": "How many days notice for unpaid rent in VIC?",
         "NSW": "How many days notice for unpaid rent in NSW?",
         "QLD": "How many days notice for unpaid rent in QLD?",
-        "SA":  "How many days notice for unpaid rent in South Australia?",
-        "WA":  "How many days notice for unpaid rent in Western Australia?",
+        "SA": "How many days notice for unpaid rent in South Australia?",
+        "WA": "How many days notice for unpaid rent in Western Australia?",
         "TAS": "What is the notice period for unpaid rent in Tasmania?",
         "ACT": "How many days notice for non-payment of rent in the ACT?",
-        "NT":  "How many days notice for unpaid rent in Northern Territory?",
+        "NT": "How many days notice for unpaid rent in Northern Territory?",
     }
 
     for state, query in test_queries.items():
@@ -314,7 +315,10 @@ if __name__ == "__main__":
         for i, r in enumerate(results, 1):
             logger.info(
                 "  #%d [score=%.4f] Section %s — %s",
-                i, r["score"], r["section_id"], r["section_title"],
+                i,
+                r["score"],
+                r["section_id"],
+                r["section_title"],
             )
             preview = r["text"].replace("\n", " ")[:150]
             logger.info("    Preview: %s...", preview)

@@ -16,7 +16,7 @@ import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
 from dotenv import load_dotenv
 
@@ -62,10 +62,7 @@ def rerank_context(
         return []
 
     ranker = _get_ranker()
-    passages = [
-        {"id": i, "text": c["text"]}
-        for i, c in enumerate(chunks)
-    ]
+    passages = [{"id": i, "text": c["text"]} for i, c in enumerate(chunks)]
 
     logger.info("Reranking %d candidates → top %d...", len(passages), top_n)
     from flashrank.Ranker import RerankRequest
@@ -89,8 +86,7 @@ class LLMProvider(ABC):
     """Abstract interface for LLM backends (swappable for AWS Bedrock in Phase 4)."""
 
     @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str) -> str:
-        ...
+    def generate(self, system_prompt: str, user_prompt: str) -> str: ...
 
 
 class DeepSeekLLMProvider(LLMProvider):
@@ -233,6 +229,7 @@ def _build_system_prompt(state: str | None) -> str:
     tribunal = ctx["tribunal"] if ctx else "your local tenancy tribunal"
     return _SYSTEM_PROMPT_TEMPLATE.format(act_cite=act_cite, tribunal=tribunal)
 
+
 # ── Prompt Builder ────────────────────────────────────────────────────
 
 
@@ -240,10 +237,11 @@ def build_legal_prompt(query: str, chunks: list[dict]) -> str:
     """Inject reranked chunk text into an IRAC-templated user prompt."""
     context_blocks = []
     for i, c in enumerate(chunks, 1):
-        section_ref = f"{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}"
+        section_ref = (
+            f"{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}"
+        )
         context_blocks.append(
-            f"--- Context {i} [{section_ref}] (score={c.get('score', 'N/A')}) ---\n"
-            f"{c['text']}\n"
+            f"--- Context {i} [{section_ref}] (score={c.get('score', 'N/A')}) ---\n{c['text']}\n"
         )
 
     context_text = "\n".join(context_blocks)
@@ -305,9 +303,7 @@ def verify_citations(answer: str, chunks: list[dict]) -> dict:
 
     if unverified:
         logger.warning("UNVERIFIED citations (not in retrieved context): %s", unverified)
-    logger.info(
-        "Citation check: %d verified, %d unverified", len(verified), len(unverified)
-    )
+    logger.info("Citation check: %d verified, %d unverified", len(verified), len(unverified))
 
     return {"verified": verified, "unverified": unverified}
 
@@ -433,11 +429,17 @@ def _rewrite_queries(query: str, state_filter: str | None = None) -> list[str]:
         raw = raw.strip()
         queries = _parse_multi_response(raw)
         if len(queries) >= 2 and all(bool(q.strip()) for q in queries):
-            logger.info("Multi-query: '%s' → [%s, %s, %s]",
-                        query[:60], queries[0][:40], queries[1][:40],
-                        queries[2][:40] if len(queries) > 2 else "?")
+            logger.info(
+                "Multi-query: '%s' → [%s, %s, %s]",
+                query[:60],
+                queries[0][:40],
+                queries[1][:40],
+                queries[2][:40] if len(queries) > 2 else "?",
+            )
             return queries[:3]
-        logger.warning("Multi-query parse returned %d labels — falling back to single query", len(queries))
+        logger.warning(
+            "Multi-query parse returned %d labels — falling back to single query", len(queries)
+        )
     except Exception as exc:
         logger.warning("Multi-query failed: %s — falling back to single query", exc)
 
@@ -473,11 +475,16 @@ def _rewrite_query(query: str, state_filter: str | None = None) -> str:
     return queries[0]
 
 
-def _retrieve_multi(query: str, state_filter: str | None, final_top_k: int,
-                    use_rewrite: bool = True, include_parts: list[str] | None = None,
-                    include_chapters: list[str] | None = None) -> list[dict]:
+def _retrieve_multi(
+    query: str,
+    state_filter: str | None,
+    final_top_k: int,
+    use_rewrite: bool = True,
+    include_parts: list[str] | None = None,
+    include_chapters: list[str] | None = None,
+) -> list[dict]:
     """Retrieve chunks via 3 complementary queries, fuse with RRF + reserve top-1 per query."""
-    from src.retrieval.vector_store import hybrid_retrieve
+    from src.rag.retrieval.vector_store import hybrid_retrieve
 
     filter_dict = {"state": state_filter} if state_filter else None
     per_query_k = 15
@@ -490,8 +497,11 @@ def _retrieve_multi(query: str, state_filter: str | None, final_top_k: int,
     all_rankings: list[list[dict]] = []
     for q in raw_queries:
         chunks = hybrid_retrieve(
-            query_text=q, state_filter=filter_dict, top_k=per_query_k,
-            include_parts=include_parts, include_chapters=include_chapters,
+            query_text=q,
+            state_filter=filter_dict,
+            top_k=per_query_k,
+            include_parts=include_parts,
+            include_chapters=include_chapters,
         )
         all_rankings.append(chunks)
 
@@ -562,7 +572,9 @@ def generate_compliance_answer(
         logger.info("Using %d golden override chunks (retrieval bypassed)", len(chunks))
     else:
         chunks = _retrieve_multi(
-            query, state_filter, final_top_k=15,
+            query,
+            state_filter,
+            final_top_k=15,
             use_rewrite=use_rewrite,
             include_parts=include_parts,
             include_chapters=include_chapters,
@@ -572,7 +584,10 @@ def generate_compliance_answer(
         for i, c in enumerate(chunks, 1):
             logger.info(
                 "  #%d [score=%.4f] Sec %s — %s",
-                i, c["score"], c["section_id"], c.get("section_title", ""),
+                i,
+                c["score"],
+                c["section_id"],
+                c.get("section_title", ""),
             )
 
         if use_reranker:
@@ -622,15 +637,22 @@ DEFAULT_QUERIES = {
 def main():
     parser = argparse.ArgumentParser(description="Run RAG compliance scenario")
     parser.add_argument(
-        "--state", choices=["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"],
-        default="VIC", help="Jurisdiction (default: VIC)",
+        "--state",
+        choices=["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"],
+        default="VIC",
+        help="Jurisdiction (default: VIC)",
     )
     parser.add_argument(
-        "--query", type=str, default=None,
+        "--query",
+        type=str,
+        default=None,
         help="Custom query (overrides built-in scenario)",
     )
     parser.add_argument(
-        "--include-chapters", type=str, nargs="*", default=None,
+        "--include-chapters",
+        type=str,
+        nargs="*",
+        default=None,
         help='Chapter IDs to carve back: "*" = all, "8" = QLD Ch 8 (shell-quote "*")',
     )
     args = parser.parse_args()

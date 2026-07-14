@@ -144,7 +144,7 @@ def empty_chunks_file(tmp_path):
 
 @pytest.fixture(scope="module")
 def qdrant_with_data():
-    from src.retrieval import vector_store as vs
+    from src.rag.retrieval import vector_store as vs
 
     with tempfile.TemporaryDirectory() as tmpdir:
         orig_path = vs.QDRANT_PATH

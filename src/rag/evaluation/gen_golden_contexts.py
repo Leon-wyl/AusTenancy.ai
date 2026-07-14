@@ -96,7 +96,9 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
 
     logger.info(
         "[%s] Act chunks: %d, Reg chunks: %d",
-        state, len(act_chunks), len(reg_chunks),
+        state,
+        len(act_chunks),
+        len(reg_chunks),
     )
 
     output: dict[str, list[dict]] = {}
@@ -129,17 +131,19 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
                 continue
 
             for m in matches:
-                golden.append({
-                    "chunk_id": m.get("chunk_id", ""),
-                    "text": m.get("text", ""),
-                    "section_id": m.get("section_id", ""),
-                    "section_title": m.get("section_title", ""),
-                    "part": m.get("part", ""),
-                    "state": m.get("state", ""),
-                    "year": m.get("year", ""),
-                    "act": m.get("act", ""),
-                    "score": 1.0,
-                })
+                golden.append(
+                    {
+                        "chunk_id": m.get("chunk_id", ""),
+                        "text": m.get("text", ""),
+                        "section_id": m.get("section_id", ""),
+                        "section_title": m.get("section_title", ""),
+                        "part": m.get("part", ""),
+                        "state": m.get("state", ""),
+                        "year": m.get("year", ""),
+                        "act": m.get("act", ""),
+                        "score": 1.0,
+                    }
+                )
 
         output[str(i)] = golden
 
