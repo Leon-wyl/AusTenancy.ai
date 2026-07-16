@@ -258,6 +258,9 @@ def hybrid_retrieve(
             "state": p.payload.get("state"),
             "year": p.payload.get("year"),
             "act": p.payload.get("act"),
+            "instrument_type": p.payload.get("instrument_type"),
+            "schedule": p.payload.get("schedule"),
+            "schedule_title": p.payload.get("schedule_title"),
         }
         for p in results.points
     ]

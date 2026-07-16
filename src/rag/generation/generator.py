@@ -230,27 +230,69 @@ def _build_system_prompt(state: str | None) -> str:
     return _SYSTEM_PROMPT_TEMPLATE.format(act_cite=act_cite, tribunal=tribunal)
 
 
+# ── Citation Label Formatting ──────────────────────────────────────────
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
+def _looks_like_form(part: str) -> bool:
+    return bool(re.match(r"form\d+", part, re.I))
+
+
+def _format_regulation_schedule_label(state: str, year: str, schedule: str, section_id: str) -> str:
+    sch_num = re.sub(r"^Schedule\s+", "", schedule, flags=re.I)
+    if "-" in section_id:
+        part = section_id.split("-", 1)[1]
+        if _looks_like_form(part):
+            return f"[{state} REG {year} Sch {sch_num} Form {part[4:]}]"
+        return f"[{state} REG {year} Sch {sch_num} Cl {part}]"
+    return f"[{state} REG {year} Sch {sch_num}]"
+
+
+def format_citation_label(chunk: dict) -> str:
+    """Canonical citation label from chunk metadata (Act or Regulation).
+
+    instrument_type absent → legacy Act chunk (backward compatible).
+    """
+    state = chunk.get("state") or chunk.get("jurisdiction") or "UNKNOWN"
+    year = chunk.get("year") or chunk.get("instrument_year") or "????"
+    section_id = chunk.get("section_id") or chunk.get("provision_id") or ""
+    instrument_type = chunk.get("instrument_type", "")
+
+    if instrument_type == "regulation":
+        schedule = chunk.get("schedule")
+        if schedule:
+            return _format_regulation_schedule_label(state, year, schedule, section_id)
+        return f"[{state} REG {year} Reg {section_id}]"
+
+    # instrument_type absent → legacy Act chunk
+    return f"[{state} RTA {year} Sec {section_id}]"
+
+
 # ── Prompt Builder ────────────────────────────────────────────────────
 
 
 def build_legal_prompt(query: str, chunks: list[dict]) -> str:
-    """Inject reranked chunk text into an IRAC-templated user prompt."""
+    """Inject chunk text into an IRAC-templated user prompt."""
     context_blocks = []
     for i, c in enumerate(chunks, 1):
-        section_ref = (
-            f"{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}"
-        )
+        label = format_citation_label(c).strip("[]")
         context_blocks.append(
-            f"--- Context {i} [{section_ref}] (score={c.get('score', 'N/A')}) ---\n{c['text']}\n"
+            f"--- Context {i} [{label}] (score={c.get('score', 'N/A')}) ---\n{c['text']}\n"
         )
 
     context_text = "\n".join(context_blocks)
 
-    citation_labels = [
-        f"[{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}]"
-        for c in chunks
-    ]
-    unique_labels = sorted(set(citation_labels))
+    citation_labels = [format_citation_label(c) for c in chunks]
+    unique_labels = _dedupe_preserve_order(citation_labels)
     whitelist = "\n".join(f"  - {label}" for label in unique_labels)
 
     return f"""CONTEXT (statutory text from the relevant legislation):
@@ -267,45 +309,63 @@ CITATION WHITELIST — You may cite ONLY the following retrieved sections:
 
 # ── Citation Verification ─────────────────────────────────────────────
 
-CITATION_RE = re.compile(r"\[(\w+) RTA (\d{4}) Sec (\d+\w*(?:\(\w+\))*)\]")
+CITATION_RE = re.compile(
+    r"\[[A-Z]{2,3}\s+(?:RTA|REG)\s+\d{4}\s+"
+    r"(?:Sec\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*|"
+    r"Reg\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*|"
+    r"Sch\s+[A-Za-z0-9]+"
+    r"(?:\s+(?:Form|Cl)\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*)?)"
+    r"\]"
+)
+
+
+_NORMALIZE_LEADING_ZEROS_RE = re.compile(r"(Sec|Reg|Sch|Form|Cl)\s+(0+)(\d+)")
+_NORMALIZE_SUBSECTION_RE = re.compile(r"\(\w+\)")
+
+
+def _normalize_citation_label(label: str) -> str:
+    """Normalize citation for comparison: strip leading zeros, remove (subsection)."""
+    result = _NORMALIZE_LEADING_ZEROS_RE.sub(r"\1 \3", label)
+    result = _NORMALIZE_SUBSECTION_RE.sub("", result)
+    return result
 
 
 def verify_citations(answer: str, chunks: list[dict]) -> dict:
     """
-    Extract citations from the LLM answer and cross-check against retrieved section IDs.
+    Extract citations from the LLM answer and cross-check against chunk-generated labels.
+
+    Uses label-based matching with normalization (leading zeros, subsections).
+    Prevents cross-instrument collisions (Act §21 ≠ Reg §21).
 
     Returns:
-        dict with 'verified' and 'unverified' lists of citation strings.
+        dict with 'verified' and 'unverified' lists of citation strings (deduplicated).
     """
     citations = CITATION_RE.findall(answer)
     if not citations:
         logger.warning("No citations found in LLM output. Answer may be ungrounded.")
         return {"verified": [], "unverified": []}
 
-    valid_ids = set()
-    for c in chunks:
-        sid = c.get("section_id", "")
-        if sid.isdigit():
-            valid_ids.add(sid.lstrip("0"))
-        valid_ids.add(sid)
+    valid_labels = {format_citation_label(c) for c in chunks}
+    normalized_map = {_normalize_citation_label(label): label for label in valid_labels}
 
     verified: list[str] = []
     unverified: list[str] = []
-
-    for state, year, section_spec in citations:
-        formatted = f"[{state} RTA {year} Sec {section_spec}]"
-        base_id = re.sub(r"\(\w+\)", "", section_spec)
-        normalized = base_id.lstrip("0") if base_id.isdigit() else base_id
-        if normalized in valid_ids:
-            verified.append(formatted)
+    for cite in citations:
+        if cite in valid_labels:
+            verified.append(cite)
+        elif _normalize_citation_label(cite) in normalized_map:
+            verified.append(cite)
         else:
-            unverified.append(formatted)
+            unverified.append(cite)
 
     if unverified:
         logger.warning("UNVERIFIED citations (not in retrieved context): %s", unverified)
     logger.info("Citation check: %d verified, %d unverified", len(verified), len(unverified))
 
-    return {"verified": verified, "unverified": unverified}
+    return {
+        "verified": _dedupe_preserve_order(verified),
+        "unverified": _dedupe_preserve_order(unverified),
+    }
 
 
 # ── Citation Guard ─────────────────────────────────────────────────────

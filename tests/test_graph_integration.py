@@ -322,3 +322,85 @@ class TestFallbackIntegration:
 
         last_msg = _get_last_assistant_message(result.get("messages", []))
         assert "vic" in last_msg.lower() or "nsw" in last_msg.lower()
+
+
+# ── Real E2E: Regulation-specific questions ─────────────────────────────
+
+
+@pytest.mark.integration
+class TestRealE2EVICRegulation:
+    def test_vic_rent_increase_notice_form(self, real_services_available):
+        """VIC Regulation E2E: text message vs prescribed form for rent increase."""
+        question = (
+            "Is a text message enough to notify me of a rent increase in VIC, "
+            "or is a specific form required?"
+        )
+        state = create_initial_state()
+        state["messages"] = [_user_message(question)]
+
+        graph = build_graph().compile()
+        result = graph.invoke(state)
+
+        _print_trace(question, result)
+
+        assert result["in_scope"] is True
+        assert result["jurisdiction"] == "VIC"
+        assert len(result.get("rewritten_queries", [])) == 3
+        assert len(result.get("retrieved_contexts", [])) > 0
+        assert len(result.get("answer", "")) > 0
+        assert result.get("fallback_reason") in ("", None)
+
+        reg_chunks = [
+            c
+            for c in result.get("retrieved_contexts", [])
+            if c.get("instrument_type") == "regulation"
+        ]
+        assert len(reg_chunks) > 0, "Regulation chunks should be retrieved"
+
+        errors = result.get("citation_errors", [])
+        answer = result.get("answer", "")
+        all_cits = CITATION_RE.findall(answer)
+        if all_cits:
+            assert len(errors) < len(all_cits), (
+                f"All {len(all_cits)} citations unverified: {errors}"
+            )
+        for err in errors:
+            assert err not in answer, f"Unverified citation still in answer: {err}"
+
+
+@pytest.mark.integration
+class TestRealE2ENSWRegulation:
+    def test_nsw_condition_report_format(self, real_services_available):
+        """NSW Regulation E2E: prescribed condition report format."""
+        question = "What condition report format must a landlord use in NSW?"
+        state = create_initial_state()
+        state["messages"] = [_user_message(question)]
+
+        graph = build_graph().compile()
+        result = graph.invoke(state)
+
+        _print_trace(question, result)
+
+        assert result["in_scope"] is True
+        assert result["jurisdiction"] == "NSW"
+        assert len(result.get("rewritten_queries", [])) == 3
+        assert len(result.get("retrieved_contexts", [])) > 0
+        assert len(result.get("answer", "")) > 0
+        assert result.get("fallback_reason") in ("", None)
+
+        reg_chunks = [
+            c
+            for c in result.get("retrieved_contexts", [])
+            if c.get("instrument_type") == "regulation"
+        ]
+        assert len(reg_chunks) > 0, "Regulation chunks should be retrieved"
+
+        errors = result.get("citation_errors", [])
+        answer = result.get("answer", "")
+        all_cits = CITATION_RE.findall(answer)
+        if all_cits:
+            assert len(errors) < len(all_cits), (
+                f"All {len(all_cits)} citations unverified: {errors}"
+            )
+        for err in errors:
+            assert err not in answer, f"Unverified citation still in answer: {err}"

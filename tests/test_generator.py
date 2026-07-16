@@ -75,7 +75,8 @@ class TestVerifyCitations:
     def test_duplicate_citations_both_verified(self, sample_chunks):
         answer = "[VIC RTA 1997 Sec 44] is the rule. Again, [VIC RTA 1997 Sec 44] applies."
         result = generator.verify_citations(answer, sample_chunks)
-        assert len(result["verified"]) == 2
+        assert len(result["verified"]) == 1
+        assert result["verified"] == ["[VIC RTA 1997 Sec 44]"]
         assert result["unverified"] == []
 
     def test_subsection_citation_verified(self, sample_chunks):
