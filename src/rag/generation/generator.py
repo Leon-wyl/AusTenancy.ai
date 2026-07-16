@@ -475,27 +475,25 @@ def _rewrite_query(query: str, state_filter: str | None = None) -> str:
     return queries[0]
 
 
-def _retrieve_multi(
-    query: str,
-    state_filter: str | None,
-    final_top_k: int,
-    use_rewrite: bool = True,
+def retrieve_from_queries(
+    queries: list[str],
+    jurisdiction: str | None,
+    final_top_k: int = 10,
+    per_query_k: int = 15,
     include_parts: list[str] | None = None,
     include_chapters: list[str] | None = None,
 ) -> list[dict]:
-    """Retrieve chunks via 3 complementary queries, fuse with RRF + reserve top-1 per query."""
+    """Run per-query hybrid retrieval, fuse with RRF, and reserve top-1 per query.
+
+    Caller is responsible for query rewriting. This function only handles
+    retrieval + RRF fusion + Top-1 preservation.
+    """
     from src.rag.retrieval.vector_store import hybrid_retrieve
 
-    filter_dict = {"state": state_filter} if state_filter else None
-    per_query_k = 15
-
-    if use_rewrite:
-        raw_queries = _rewrite_queries(query, state_filter)
-    else:
-        raw_queries = [query]
+    filter_dict = {"state": jurisdiction} if jurisdiction else None
 
     all_rankings: list[list[dict]] = []
-    for q in raw_queries:
+    for q in queries:
         chunks = hybrid_retrieve(
             query_text=q,
             state_filter=filter_dict,
@@ -537,6 +535,41 @@ def _retrieve_multi(
     return fused[:final_top_k]
 
 
+def _retrieve_multi(
+    query: str,
+    state_filter: str | None,
+    final_top_k: int,
+    use_rewrite: bool = True,
+    include_parts: list[str] | None = None,
+    include_chapters: list[str] | None = None,
+) -> list[dict]:
+    """Retrieve chunks via optional rewriting + RRF fusion (backward-compatible wrapper)."""
+    raw_queries = _rewrite_queries(query, state_filter) if use_rewrite else [query]
+
+    return retrieve_from_queries(
+        queries=raw_queries,
+        jurisdiction=state_filter,
+        final_top_k=final_top_k,
+        include_parts=include_parts,
+        include_chapters=include_chapters,
+    )
+
+
+def generate_answer_from_context(
+    query: str,
+    jurisdiction: str | None,
+    chunks: list[dict],
+) -> str:
+    """Build legal prompt and call LLM using provided chunks.
+
+    No retrieval, no citation verification. Caller is responsible for
+    providing the retrieved context and post-processing the answer.
+    """
+    user_prompt = build_legal_prompt(query, chunks)
+    llm = DeepSeekLLMProvider()
+    return llm.generate(_build_system_prompt(jurisdiction), user_prompt)
+
+
 # ── Orchestrator ──────────────────────────────────────────────────────
 
 
@@ -559,8 +592,6 @@ def generate_compliance_answer(
     Returns a dict with keys:
         retrieved_chunks, answer, citation_check
     """
-    filter_dict = {"state": state_filter} if state_filter else None
-
     logger.info("=" * 60)
     logger.info("PHASE 3: RAG Generation Pipeline")
     logger.info("=" * 60)
@@ -594,9 +625,7 @@ def generate_compliance_answer(
             rq = reranker_query if reranker_query is not None else query
             chunks = rerank_context(rq, chunks, top_n=5)
 
-    user_prompt = build_legal_prompt(query, chunks)
-    llm = DeepSeekLLMProvider()
-    answer = llm.generate(_build_system_prompt(state_filter), user_prompt)
+    answer = generate_answer_from_context(query, state_filter, chunks)
 
     logger.info("LLM response length: %d chars", len(answer))
 

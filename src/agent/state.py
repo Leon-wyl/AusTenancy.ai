@@ -14,7 +14,9 @@ class AgentState(TypedDict):
     jurisdiction: str
     tenancy_type: str
     dispute_category: str
+    rewritten_queries: list[str]
     retrieved_contexts: list[dict]
+    answer: str
     retry_count: int
     is_complex_case: bool
     in_scope: bool
@@ -29,7 +31,9 @@ def create_initial_state() -> AgentState:
         jurisdiction="",
         tenancy_type="",
         dispute_category="",
+        rewritten_queries=[],
         retrieved_contexts=[],
+        answer="",
         retry_count=0,
         is_complex_case=False,
         in_scope=True,
