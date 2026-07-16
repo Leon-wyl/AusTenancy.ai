@@ -243,6 +243,7 @@ def run_single_question(
         "question": question,
         "answer": answer,
         "contexts": contexts,
+        "retrieved_chunks": chunks,
         "ground_truth": "",
         "elapsed_seconds": round(elapsed, 1),
         "num_chunks": len(chunks),
@@ -362,8 +363,14 @@ def _run_eval_for_state(
             rq = question if args.reranker_query_original else None
             ctxs_override = None
             orig_idx = sample.get("_original_index", i)
-            if golden_ctxs is not None and str(orig_idx) in golden_ctxs:
-                ctxs_override = golden_ctxs[str(orig_idx)]
+            eval_mode = getattr(args, "eval_mode", "golden-context")
+            if eval_mode == "golden-context" and golden_ctxs is not None:
+                ctxs_override = golden_ctxs.get(str(orig_idx))
+                if ctxs_override is None:
+                    logger.warning(
+                        "Sample %d: no golden context found in golden-context mode, skipping", i
+                    )
+                    continue
                 logger.info(
                     "  [golden contexts] idx=%d → %d chunks: %s",
                     orig_idx,
@@ -383,6 +390,24 @@ def _run_eval_for_state(
             )
             row["ground_truth"] = ground_truth
             row["metadata"] = meta
+
+            golden_sections = meta.get("sections", [])
+            if golden_sections:
+                try:
+                    from src.rag.evaluation.citation_metrics import (
+                        cm_to_dict,
+                        compute_citation_metrics,
+                    )
+
+                    cm = compute_citation_metrics(
+                        question_idx=orig_idx,
+                        answer=row["answer"],
+                        chunks=row.get("retrieved_chunks", []),
+                        golden_sections=golden_sections,
+                    )
+                    row["_citation_metrics"] = cm
+                except Exception as e:
+                    logger.warning("Citation metrics failed for sample %d: %s", i, e)
         except Exception as e:
             logger.error("[%s] All retries exhausted for Q %d: %s", state, i + 1, question[:80])
             row = {
@@ -448,6 +473,18 @@ def _run_eval_for_state(
     import pandas as pd
 
     output_df = pd.DataFrame(rows)
+
+    citation_cols = []
+    for r in valid_results:
+        cm = r.get("_citation_metrics")
+        if cm is not None:
+            citation_cols.append(cm_to_dict(cm))
+        else:
+            citation_cols.append({})
+    if any(citation_cols):
+        cm_df = pd.DataFrame(citation_cols)
+        output_df = pd.concat([output_df, cm_df], axis=1)
+
     output_df.to_csv(output_csv, index=False)
     logger.info("[%s] Scores exported to %s", state, output_csv)
 
@@ -455,7 +492,7 @@ def _run_eval_for_state(
     num_used = len(samples)
     source_note = f"{num_used}/{num_total}" if is_vic and batch_vic_override else f"{num_used}"
 
-    return {
+    summary: dict = {
         "state": state,
         "source_note": source_note,
         "n_samples": len(output_df),
@@ -464,6 +501,17 @@ def _run_eval_for_state(
         "mean_context_precision": output_df["context_precision"].mean(),
         "mean_answer_relevancy": output_df["answer_relevancy"].mean(),
     }
+
+    for col in ["citation_count", "verified_count", "unverified_count",
+                 "citation_precision", "golden_recall_retrieval",
+                 "golden_recall_citation", "reg_citations_in_answer"]:
+        if col in output_df.columns:
+            summary[f"mean_{col}"] = output_df[col].mean()
+
+    if "reg_citation_verified" in output_df.columns:
+        summary["reg_citation_verified_rate"] = output_df["reg_citation_verified"].mean()
+
+    return summary
 
 
 def _smoke_test(state: str) -> bool:
@@ -512,6 +560,13 @@ def main():
         help="Golden dataset path (default: tests/evaluation/{state}_golden_dataset.json)",
     )
     parser.add_argument("--state", type=str, default="VIC", help="State filter: VIC | NSW | all")
+    parser.add_argument(
+        "--eval-mode",
+        type=str,
+        choices=["golden-context", "real-retrieval"],
+        default="golden-context",
+        help="Evaluation mode: golden-context (bypass retrieval) or real-retrieval (full pipeline)",
+    )
     parser.add_argument(
         "--batch",
         action="store_true",

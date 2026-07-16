@@ -19,7 +19,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 EVAL_DIR = PROJECT_ROOT / "tests" / "evaluation"
 ALL_CHUNKS_PATH = PROJECT_ROOT / "data" / "processed" / "all_australia_chunks.json"
 STATE_ORDER = ["VIC", "NSW"]  # only supported states (others have chunk quality issues)
@@ -55,9 +55,12 @@ def _load_chunks_by_state() -> dict[str, list[dict]]:
     return by_state
 
 
-def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool = False):
-    dataset_path = EVAL_DIR / f"{state.lower()}_golden_dataset.json"
-    output_path = EVAL_DIR / f"{state.lower()}_golden_contexts.json"
+def gen_golden_contexts(
+    state: str, by_state: dict[str, list[dict]], force: bool = False, regulation: bool = False
+):
+    suffix = "_regulation" if regulation else ""
+    dataset_path = EVAL_DIR / f"{state.lower()}{suffix}_golden_dataset.json"
+    output_path = EVAL_DIR / f"{state.lower()}{suffix}_golden_contexts.json"
 
     if not dataset_path.exists():
         logger.warning("[%s] Dataset not found: %s", state, dataset_path)
@@ -141,6 +144,9 @@ def gen_golden_contexts(state: str, by_state: dict[str, list[dict]], force: bool
                         "state": m.get("state", ""),
                         "year": m.get("year", ""),
                         "act": m.get("act", ""),
+                        "instrument_type": m.get("instrument_type"),
+                        "schedule": m.get("schedule"),
+                        "schedule_title": m.get("schedule_title"),
                         "score": 1.0,
                     }
                 )
@@ -169,15 +175,21 @@ def main():
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     parser.add_argument("--state", type=str, help="Process a single state (e.g. NSW)")
+    parser.add_argument(
+        "--regulation", action="store_true", help="Generate regulation golden contexts"
+    )
     args = parser.parse_args()
 
     by_state = _load_chunks_by_state()
 
     if args.state:
-        gen_golden_contexts(args.state.upper(), by_state, force=args.force)
+        gen_golden_contexts(
+            args.state.upper(), by_state, force=args.force, regulation=args.regulation
+        )
     else:
         for state in STATE_ORDER:
             gen_golden_contexts(state, by_state, force=args.force)
+            gen_golden_contexts(state, by_state, force=args.force, regulation=True)
 
 
 if __name__ == "__main__":
