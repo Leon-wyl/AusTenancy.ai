@@ -28,6 +28,13 @@ PREFETCH_LIMIT = 20
 # from general-purpose queries (rooming houses, caravan parks, boarding
 # premises, social housing, etc.).  Use ``include_parts`` to carve back
 # specific Parts or ``["*"]`` to disable exclusion entirely.
+#
+# Instrument-aware: the part exclusion applies only to Act (instrument_type
+# is missing) and not to Regulation chunks (instrument_type="regulation").
+# VIC Parts 3/4/4A and NSW Part 7 contain both Act and Regulation provisions;
+# the Regulation chunks (prescribed forms, procedures, requirements) remain
+# retrievable while Act chunks from those non-standard tenancy types are
+# still excluded.
 DEFAULT_EXCLUDE_PARTS: dict[str, list[str]] = {
     "VIC": ["3", "4", "4A", "12A"],
     "NSW": ["7"],
@@ -222,9 +229,23 @@ def hybrid_retrieve(
         )
 
     if must_conditions or must_not_conditions:
+        # Instrument-aware exclusion via Qdrant should (OR) filter.
+        # Condition 1: chunk NOT in any excluded part/chapter (Act chunks must pass).
+        # Condition 2: instrument_type=regulation (Regulation chunks always pass).
+        should_conditions = [
+            models.Filter(must_not=must_not_conditions),
+            models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="instrument_type",
+                        match=models.MatchValue(value="regulation"),
+                    )
+                ]
+            ),
+        ]
         prefetch_filter = models.Filter(
             must=must_conditions if must_conditions else None,
-            must_not=must_not_conditions if must_not_conditions else None,
+            should=should_conditions,
         )
 
     results = client.query_points(
