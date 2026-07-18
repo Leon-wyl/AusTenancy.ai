@@ -230,13 +230,13 @@ cp .env.example .env
 # Set DEEPSEEK_API_KEY in .env
 
 # Step 1: Parse VIC RTA PDF into hierarchical chunks
-python src/data_processing/vic_parser.py
+python src/rag/data_processing/vic_parser.py
 
 # Step 2: Index chunks into Qdrant vector store
-python src/retrieval/vector_store.py
+python src/rag/retrieval/vector_store.py
 
 # Step 3: Run RAG compliance pipeline
-python src/generation/generator.py
+python src/rag/generation/generator.py
 
 # Step 4: Run tests
 pytest tests/ -m "not slow"

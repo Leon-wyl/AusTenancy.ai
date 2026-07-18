@@ -17,7 +17,7 @@ evaluation/
 ├── tests/evaluation/
 │   ├── vic_golden_dataset.json      # 20 QA pairs (5 per domain)
 │   └── vic_golden_contexts.json     # Pre-computed golden contexts for diagnostics
-├── src/evaluation/
+├── src/rag/evaluation/
 │   ├── __init__.py
 │   └── run_ragas_eval.py            # Evaluation runner with CLI flags
 ├── docs/
@@ -357,24 +357,24 @@ next highest-impact work. Scaling will test whether:
 
 ```bash
 # Dry-run (validate dataset, no LLM calls)
-python src/evaluation/run_ragas_eval.py --dry-run
+python src/rag/evaluation/run_ragas_eval.py --dry-run
 
 # Baseline T2 config (reranker OFF by default, rewrite ON)
-python src/evaluation/run_ragas_eval.py --output report.csv
+python src/rag/evaluation/run_ragas_eval.py --output report.csv
 
 # Test with rooming houses included (exclude only caravan parks, site agreements, SDA)
-python src/evaluation/run_ragas_eval.py --exclude-parts "4,4A,12A"
+python src/rag/evaluation/run_ragas_eval.py --exclude-parts "4,4A,12A"
 
 # Test with all Parts (no filter)
-python src/evaluation/run_ragas_eval.py --exclude-parts ""
+python src/rag/evaluation/run_ragas_eval.py --exclude-parts ""
 
 # Full ablation — opt in to the (disabled-by-default) reranker
-python src/evaluation/run_ragas_eval.py \
+python src/rag/evaluation/run_ragas_eval.py \
     --rerank --no-rewrite --reranker-query-original \
     --limit 5 --output ablation.csv
 
 # Golden-context diagnostic
-python src/evaluation/run_ragas_eval.py \
+python src/rag/evaluation/run_ragas_eval.py \
     --golden-contexts tests/evaluation/vic_golden_contexts.json \
     --output golden.csv
 ```
@@ -401,10 +401,10 @@ python src/evaluation/run_ragas_eval.py \
 
 | File | Purpose |
 |------|---------|
-| `src/generation/generator.py` | RAG pipeline: rewrite → retrieve → prompt → LLM → verify (reranker disabled by default). Contains SYSTEM_PROMPT, QUERY_REWRITE_PROMPT, `generate_compliance_answer()`, `rerank_context()` (retained, opt-in only), `verify_citations()`. |
-| `src/retrieval/vector_store.py` | Qdrant ingestion and hybrid retrieval (dense + sparse RRF) with metadata filters, including `exclude_parts` parameter. |
-| `src/evaluation/run_ragas_eval.py` | Evaluation script with `DeepSeekRagasLLM`, `FastembedRagasEmbeddings`, CLI flags for all configurations, intermediate save/resume. |
-| `src/evaluation/__init__.py` | Package marker. |
+| `src/rag/generation/generator.py` | RAG pipeline: rewrite → retrieve → prompt → LLM → verify (reranker disabled by default). Contains SYSTEM_PROMPT, QUERY_REWRITE_PROMPT, `generate_compliance_answer()`, `rerank_context()` (retained, opt-in only), `verify_citations()`. |
+| `src/rag/retrieval/vector_store.py` | Qdrant ingestion and hybrid retrieval (dense + sparse RRF) with metadata filters, including `exclude_parts` parameter. |
+| `src/rag/evaluation/run_ragas_eval.py` | Evaluation script with `DeepSeekRagasLLM`, `FastembedRagasEmbeddings`, CLI flags for all configurations, intermediate save/resume. |
+| `src/rag/evaluation/__init__.py` | Package marker. |
 | `tests/evaluation/vic_golden_dataset.json` | 20 QA pairs with IRAC-format ground truths. Schema: `question`, `ground_truth`, `metadata` {domain, sections, difficulty, role, location}. |
 | `tests/evaluation/vic_golden_contexts.json` | Pre-computed golden contexts mapping QA index → list of chunk dicts (sections cited in ground truth). |
 | `data/processed/vic_rta_chunks.json` | Parsed and chunked VIC RTA 1997 (1029 chunks). |

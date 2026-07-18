@@ -28,6 +28,13 @@ PREFETCH_LIMIT = 20
 # from general-purpose queries (rooming houses, caravan parks, boarding
 # premises, social housing, etc.).  Use ``include_parts`` to carve back
 # specific Parts or ``["*"]`` to disable exclusion entirely.
+#
+# Instrument-aware: the part exclusion applies only to Act (instrument_type
+# is missing) and not to Regulation chunks (instrument_type="regulation").
+# VIC Parts 3/4/4A and NSW Part 7 contain both Act and Regulation provisions;
+# the Regulation chunks (prescribed forms, procedures, requirements) remain
+# retrievable while Act chunks from those non-standard tenancy types are
+# still excluded.
 DEFAULT_EXCLUDE_PARTS: dict[str, list[str]] = {
     "VIC": ["3", "4", "4A", "12A"],
     "NSW": ["7"],
@@ -222,9 +229,23 @@ def hybrid_retrieve(
         )
 
     if must_conditions or must_not_conditions:
+        # Instrument-aware exclusion via Qdrant should (OR) filter.
+        # Condition 1: chunk NOT in any excluded part/chapter (Act chunks must pass).
+        # Condition 2: instrument_type=regulation (Regulation chunks always pass).
+        should_conditions = [
+            models.Filter(must_not=must_not_conditions),
+            models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="instrument_type",
+                        match=models.MatchValue(value="regulation"),
+                    )
+                ]
+            ),
+        ]
         prefetch_filter = models.Filter(
             must=must_conditions if must_conditions else None,
-            must_not=must_not_conditions if must_not_conditions else None,
+            should=should_conditions,
         )
 
     results = client.query_points(
@@ -258,6 +279,9 @@ def hybrid_retrieve(
             "state": p.payload.get("state"),
             "year": p.payload.get("year"),
             "act": p.payload.get("act"),
+            "instrument_type": p.payload.get("instrument_type"),
+            "schedule": p.payload.get("schedule"),
+            "schedule_title": p.payload.get("schedule_title"),
         }
         for p in results.points
     ]
@@ -274,7 +298,8 @@ if __name__ == "__main__":
     logger.info("=" * 60)
 
     chunk_files = sorted(
-        f for f in Path("data/processed").glob("*_chunks.json")
+        f
+        for f in Path("data/processed").glob("*_chunks.json")
         if f.name not in {"all_australia_chunks.json", "vic_rta_chunks.json"}
     )
     if not chunk_files:
@@ -293,11 +318,11 @@ if __name__ == "__main__":
         "VIC": "How many days notice for unpaid rent in VIC?",
         "NSW": "How many days notice for unpaid rent in NSW?",
         "QLD": "How many days notice for unpaid rent in QLD?",
-        "SA":  "How many days notice for unpaid rent in South Australia?",
-        "WA":  "How many days notice for unpaid rent in Western Australia?",
+        "SA": "How many days notice for unpaid rent in South Australia?",
+        "WA": "How many days notice for unpaid rent in Western Australia?",
         "TAS": "What is the notice period for unpaid rent in Tasmania?",
         "ACT": "How many days notice for non-payment of rent in the ACT?",
-        "NT":  "How many days notice for unpaid rent in Northern Territory?",
+        "NT": "How many days notice for unpaid rent in Northern Territory?",
     }
 
     for state, query in test_queries.items():
@@ -314,7 +339,10 @@ if __name__ == "__main__":
         for i, r in enumerate(results, 1):
             logger.info(
                 "  #%d [score=%.4f] Section %s — %s",
-                i, r["score"], r["section_id"], r["section_title"],
+                i,
+                r["score"],
+                r["section_id"],
+                r["section_title"],
             )
             preview = r["text"].replace("\n", " ")[:150]
             logger.info("    Preview: %s...", preview)

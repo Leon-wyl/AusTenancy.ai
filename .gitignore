@@ -43,3 +43,6 @@ tmp/
 reports/
 vic_eval_*.csv
 vic_eval_*.json
+
+# Opencode
+.opencode/

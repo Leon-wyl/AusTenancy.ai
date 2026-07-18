@@ -14,7 +14,7 @@ with schedules and clause-based numbering.
 import logging
 import re
 
-from src.data_processing.base_parser import PAGE_FOOTER_RE, BaseParser
+from src.rag.data_processing.base_parser import PAGE_FOOTER_RE, BaseParser
 
 NSW_STATE = "NSW"
 NSW_ACT_NAME = "Residential Tenancies Regulation 2019"
@@ -33,23 +33,48 @@ FOOTER_LINE2_RE = re.compile(r"^Current version for \d+ \w+ \d+ to date.*$")
 FOOTER_DATE_RE = re.compile(r"^Page \d+ of \d+$")
 REPEALED_RE = re.compile(r"^.*\(Repealed\).*$")
 SCHEDULE_RE = re.compile(r"^Schedule\s+(\d+)\s+(.+)$")
-TITLE_BLOCKLIST = frozenset({
-    "Note", "Notes", "Important", "Example", "Examples",
-    "Copyright", "Disclaimer", "Privacy", "Warning",
-})
+TITLE_BLOCKLIST = frozenset(
+    {
+        "Note",
+        "Notes",
+        "Important",
+        "Example",
+        "Examples",
+        "Copyright",
+        "Disclaimer",
+        "Privacy",
+        "Warning",
+    }
+)
 
 SHORT_TITLE_THRESHOLD = 3
 TOC_END_PAGE = 7
 
-_SOCIAL_HOUSING_CLAUSES = frozenset({
-    "9", "24", "24A", "33", "36", "36A", "36B", "37", "38", "49", "53"
-})
+_SOCIAL_HOUSING_CLAUSES = frozenset(
+    {"9", "24", "24A", "33", "36", "36A", "36B", "37", "38", "49", "53"}
+)
 
 # Prepositions that start a sentence continuation, NOT a Division title
-_DIVISION_TITLE_BLOCK = frozenset({
-    "of", "against", "under", "for", "to", "in", "on", "with",
-    "or", "and", "but", "by", "as", "at", "from", "about",
-})
+_DIVISION_TITLE_BLOCK = frozenset(
+    {
+        "of",
+        "against",
+        "under",
+        "for",
+        "to",
+        "in",
+        "on",
+        "with",
+        "or",
+        "and",
+        "but",
+        "by",
+        "as",
+        "at",
+        "from",
+        "about",
+    }
+)
 
 
 def _is_valid_clause_title(title: str) -> bool:
@@ -72,10 +97,7 @@ def _is_toc_page(lines: list[str]) -> bool:
 
 
 def _is_boilerplate_page(text: str) -> bool:
-    return (
-        "Status Information" in text
-        or "Currency of version" in text
-    )
+    return "Status Information" in text or "Currency of version" in text
 
 
 def _is_boilerplate_line(stripped: str) -> bool:

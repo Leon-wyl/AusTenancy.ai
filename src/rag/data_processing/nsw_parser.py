@@ -10,7 +10,7 @@ Inherits from BaseParser and implements NSW-specific:
 
 import re
 
-from src.data_processing.base_parser import PAGE_FOOTER_RE, BaseParser
+from src.rag.data_processing.base_parser import PAGE_FOOTER_RE, BaseParser
 
 NSW_STATE = "NSW"
 NSW_ACT_NAME = "Residential Tenancies Act 2010"

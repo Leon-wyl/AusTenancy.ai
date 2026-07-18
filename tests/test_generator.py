@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from src.generation import generator
+from src.rag.generation import generator
 
 # ── Unit: build_legal_prompt ───────────────────────────────────────────
 
@@ -59,10 +59,7 @@ class TestVerifyCitations:
         assert result["unverified"] == []
 
     def test_mixed_verified_unverified(self, sample_chunks):
-        answer = (
-            "Under [VIC RTA 1997 Sec 44] and [VIC RTA 1997 Sec 999], "
-            "the notice is required."
-        )
+        answer = "Under [VIC RTA 1997 Sec 44] and [VIC RTA 1997 Sec 999], the notice is required."
         result = generator.verify_citations(answer, sample_chunks)
         assert "[VIC RTA 1997 Sec 44]" in result["verified"]
         assert "[VIC RTA 1997 Sec 999]" in result["unverified"]
@@ -78,7 +75,8 @@ class TestVerifyCitations:
     def test_duplicate_citations_both_verified(self, sample_chunks):
         answer = "[VIC RTA 1997 Sec 44] is the rule. Again, [VIC RTA 1997 Sec 44] applies."
         result = generator.verify_citations(answer, sample_chunks)
-        assert len(result["verified"]) == 2
+        assert len(result["verified"]) == 1
+        assert result["verified"] == ["[VIC RTA 1997 Sec 44]"]
         assert result["unverified"] == []
 
     def test_subsection_citation_verified(self, sample_chunks):
@@ -134,7 +132,9 @@ class TestSystemPrompt:
 # ── Integration: rerank_context (uses real FlashRank model) ────────────
 
 
-@pytest.mark.skip(reason="reranker disabled by default for legal RAG (kept for opt-in experimentation)")
+@pytest.mark.skip(
+    reason="reranker disabled by default for legal RAG (kept for opt-in experimentation)"
+)
 class TestRerankContext:
     def test_returns_at_most_top_n(self, sample_chunks):
         top_n = 3
@@ -201,7 +201,7 @@ class TestDeepSeekLLMProvider:
 )
 class TestE2E:
     def test_vic_rent_arrears_pipeline(self, monkeypatch, qdrant_with_data):
-        import src.retrieval.vector_store as vs
+        import src.rag.retrieval.vector_store as vs
 
         monkeypatch.setattr(vs, "QDRANT_PATH", qdrant_with_data["path"])
         monkeypatch.setattr(vs, "COLLECTION_NAME", qdrant_with_data["collection"])

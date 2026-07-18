@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from src.retrieval import vector_store as vs
+from src.rag.retrieval import vector_store as vs
 
 # ── Helpers ───────────────────────────────────────────────────────────
 
@@ -100,8 +100,13 @@ class TestRetrievalSmoke:
         results = vs.hybrid_retrieve("rent increase notice", top_k=3)
         assert len(results) >= 1
         required_keys = {
-            "chunk_id", "text", "score", "section_id",
-            "section_title", "part", "state",
+            "chunk_id",
+            "text",
+            "score",
+            "section_id",
+            "section_title",
+            "part",
+            "state",
         }
         for r in results:
             for key in required_keys:
@@ -127,9 +132,7 @@ class TestRetrievalSmoke:
 
 class TestHybridSearchQuality:
     def test_bm25_exact_keywords_top_result(self, qdrant_with_data):
-        results = vs.hybrid_retrieve(
-            "14 day notice non-payment rent", top_k=3
-        )
+        results = vs.hybrid_retrieve("14 day notice non-payment rent", top_k=3)
         assert len(results) >= 1
         top_ids = {r["section_id"] for r in results}
         assert "91ZM" in top_ids, f"91ZM not in top results: {top_ids}"
@@ -191,9 +194,7 @@ class TestEndToEnd:
             vs.QDRANT_PATH = tmpdir
             vs.COLLECTION_NAME = "tenancy_acts"
 
-            count = vs.ingest_chunks_to_qdrant(
-                "data/processed/vic_rta_chunks.json"
-            )
+            count = vs.ingest_chunks_to_qdrant("data/processed/vic_rta_chunks.json")
 
             data = {"count": count, "path": tmpdir}
             yield data

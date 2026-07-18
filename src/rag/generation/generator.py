@@ -16,7 +16,7 @@ import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
 from dotenv import load_dotenv
 
@@ -62,10 +62,7 @@ def rerank_context(
         return []
 
     ranker = _get_ranker()
-    passages = [
-        {"id": i, "text": c["text"]}
-        for i, c in enumerate(chunks)
-    ]
+    passages = [{"id": i, "text": c["text"]} for i, c in enumerate(chunks)]
 
     logger.info("Reranking %d candidates → top %d...", len(passages), top_n)
     from flashrank.Ranker import RerankRequest
@@ -89,8 +86,7 @@ class LLMProvider(ABC):
     """Abstract interface for LLM backends (swappable for AWS Bedrock in Phase 4)."""
 
     @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str) -> str:
-        ...
+    def generate(self, system_prompt: str, user_prompt: str) -> str: ...
 
 
 class DeepSeekLLMProvider(LLMProvider):
@@ -233,26 +229,70 @@ def _build_system_prompt(state: str | None) -> str:
     tribunal = ctx["tribunal"] if ctx else "your local tenancy tribunal"
     return _SYSTEM_PROMPT_TEMPLATE.format(act_cite=act_cite, tribunal=tribunal)
 
+
+# ── Citation Label Formatting ──────────────────────────────────────────
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
+def _looks_like_form(part: str) -> bool:
+    return bool(re.match(r"form\d+", part, re.I))
+
+
+def _format_regulation_schedule_label(state: str, year: str, schedule: str, section_id: str) -> str:
+    sch_num = re.sub(r"^Schedule\s+", "", schedule, flags=re.I)
+    if "-" in section_id:
+        part = section_id.split("-", 1)[1]
+        if _looks_like_form(part):
+            return f"[{state} REG {year} Sch {sch_num} Form {part[4:]}]"
+        return f"[{state} REG {year} Sch {sch_num} Cl {part}]"
+    return f"[{state} REG {year} Sch {sch_num}]"
+
+
+def format_citation_label(chunk: dict) -> str:
+    """Canonical citation label from chunk metadata (Act or Regulation).
+
+    instrument_type absent → legacy Act chunk (backward compatible).
+    """
+    state = chunk.get("state") or chunk.get("jurisdiction") or "UNKNOWN"
+    year = chunk.get("year") or chunk.get("instrument_year") or "????"
+    section_id = chunk.get("section_id") or chunk.get("provision_id") or ""
+    instrument_type = chunk.get("instrument_type", "")
+
+    if instrument_type == "regulation":
+        schedule = chunk.get("schedule")
+        if schedule:
+            return _format_regulation_schedule_label(state, year, schedule, section_id)
+        return f"[{state} REG {year} Reg {section_id}]"
+
+    # instrument_type absent → legacy Act chunk
+    return f"[{state} RTA {year} Sec {section_id}]"
+
+
 # ── Prompt Builder ────────────────────────────────────────────────────
 
 
 def build_legal_prompt(query: str, chunks: list[dict]) -> str:
-    """Inject reranked chunk text into an IRAC-templated user prompt."""
+    """Inject chunk text into an IRAC-templated user prompt."""
     context_blocks = []
     for i, c in enumerate(chunks, 1):
-        section_ref = f"{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}"
+        label = format_citation_label(c).strip("[]")
         context_blocks.append(
-            f"--- Context {i} [{section_ref}] (score={c.get('score', 'N/A')}) ---\n"
-            f"{c['text']}\n"
+            f"--- Context {i} [{label}] (score={c.get('score', 'N/A')}) ---\n{c['text']}\n"
         )
 
     context_text = "\n".join(context_blocks)
 
-    citation_labels = [
-        f"[{c.get('state', 'UNKNOWN')} RTA {c.get('year', '????')} Sec {c['section_id']}]"
-        for c in chunks
-    ]
-    unique_labels = sorted(set(citation_labels))
+    citation_labels = [format_citation_label(c) for c in chunks]
+    unique_labels = _dedupe_preserve_order(citation_labels)
     whitelist = "\n".join(f"  - {label}" for label in unique_labels)
 
     return f"""CONTEXT (statutory text from the relevant legislation):
@@ -269,47 +309,63 @@ CITATION WHITELIST — You may cite ONLY the following retrieved sections:
 
 # ── Citation Verification ─────────────────────────────────────────────
 
-CITATION_RE = re.compile(r"\[(\w+) RTA (\d{4}) Sec (\d+\w*(?:\(\w+\))*)\]")
+CITATION_RE = re.compile(
+    r"\[[A-Z]{2,3}\s+(?:RTA|REG)\s+\d{4}\s+"
+    r"(?:Sec\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*|"
+    r"Reg\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*|"
+    r"Sch\s+[A-Za-z0-9]+"
+    r"(?:\s+(?:Form|Cl)\s+[A-Za-z0-9.-]+(?:\([A-Za-z0-9]+\))*)?)"
+    r"\]"
+)
+
+
+_NORMALIZE_LEADING_ZEROS_RE = re.compile(r"(Sec|Reg|Sch|Form|Cl)\s+(0+)(\d+)")
+_NORMALIZE_SUBSECTION_RE = re.compile(r"\(\w+\)")
+
+
+def _normalize_citation_label(label: str) -> str:
+    """Normalize citation for comparison: strip leading zeros, remove (subsection)."""
+    result = _NORMALIZE_LEADING_ZEROS_RE.sub(r"\1 \3", label)
+    result = _NORMALIZE_SUBSECTION_RE.sub("", result)
+    return result
 
 
 def verify_citations(answer: str, chunks: list[dict]) -> dict:
     """
-    Extract citations from the LLM answer and cross-check against retrieved section IDs.
+    Extract citations from the LLM answer and cross-check against chunk-generated labels.
+
+    Uses label-based matching with normalization (leading zeros, subsections).
+    Prevents cross-instrument collisions (Act §21 ≠ Reg §21).
 
     Returns:
-        dict with 'verified' and 'unverified' lists of citation strings.
+        dict with 'verified' and 'unverified' lists of citation strings (deduplicated).
     """
     citations = CITATION_RE.findall(answer)
     if not citations:
         logger.warning("No citations found in LLM output. Answer may be ungrounded.")
         return {"verified": [], "unverified": []}
 
-    valid_ids = set()
-    for c in chunks:
-        sid = c.get("section_id", "")
-        if sid.isdigit():
-            valid_ids.add(sid.lstrip("0"))
-        valid_ids.add(sid)
+    valid_labels = {format_citation_label(c) for c in chunks}
+    normalized_map = {_normalize_citation_label(label): label for label in valid_labels}
 
     verified: list[str] = []
     unverified: list[str] = []
-
-    for state, year, section_spec in citations:
-        formatted = f"[{state} RTA {year} Sec {section_spec}]"
-        base_id = re.sub(r"\(\w+\)", "", section_spec)
-        normalized = base_id.lstrip("0") if base_id.isdigit() else base_id
-        if normalized in valid_ids:
-            verified.append(formatted)
+    for cite in citations:
+        if cite in valid_labels:
+            verified.append(cite)
+        elif _normalize_citation_label(cite) in normalized_map:
+            verified.append(cite)
         else:
-            unverified.append(formatted)
+            unverified.append(cite)
 
     if unverified:
         logger.warning("UNVERIFIED citations (not in retrieved context): %s", unverified)
-    logger.info(
-        "Citation check: %d verified, %d unverified", len(verified), len(unverified)
-    )
+    logger.info("Citation check: %d verified, %d unverified", len(verified), len(unverified))
 
-    return {"verified": verified, "unverified": unverified}
+    return {
+        "verified": _dedupe_preserve_order(verified),
+        "unverified": _dedupe_preserve_order(unverified),
+    }
 
 
 # ── Citation Guard ─────────────────────────────────────────────────────
@@ -372,16 +428,56 @@ def _apply_citation_guard(answer: str, citation_check: dict) -> str:
 
 # ── Query Rewriting ────────────────────────────────────────────────────
 
+_REGULATION_INTENT_KEYWORDS = [
+    "bond",
+    "condition report",
+    "minimum standard",
+    "rooming house",
+    "caravan park",
+    "site agreement",
+    "tenancy database",
+    "penalty notice",
+    "penalti",
+    "water efficien",
+    "prescribed form",
+    "notice to vacate",
+    "park rule",
+    "electrical safety",
+    "gas safety",
+    "crisis accommodation",
+    "refuge",
+    "social housing",
+    "residential park",
+    "septic",
+    "heater",
+    "heating",
+    "cooling",
+]
+
+_REGULATION_EXPANSION_SUFFIX = " Regulation"
+
+
+def _has_regulation_intent(question: str) -> bool:
+    """Check if the question suggests Regulation-backed or procedural topics."""
+    lower = question.lower()
+    return any(keyword in lower for keyword in _REGULATION_INTENT_KEYWORDS)
+
+
 _MULTI_QUERY_PROMPT = """Generate 3 complementary search queries for the user's tenancy law question using jurisdiction-correct terminology: "{landlord_term}", "{tenant_term}".
 
 1. SEMANTIC — factual scenario: preserve the key events, numbers, timeframes, and reasons.
-2. STATUTORY — legal terminology: use the jurisdiction's exact statutory vocabulary for the relevant provisions.
+2. STATUTORY — exact statutory vocabulary. For forms, procedures, schedules, standards, penalties and prescribed requirements, use Regulation-specific terms: "prescribed form", "Schedule", "minimum standards", "Regulation". The Regulation is a separate legal instrument from the Act — use its distinct terminology when the question involves procedural or prescriptive matters.
 3. CONCEPT — abstract legal domain: name the general legal principles and obligations involved.
 
 For example, for Victoria, "I need to break my 12-month lease early":
 SEMANTIC: break 12-month lease 4 months early new job relocation {tenant_term} notice period VIC
 STATUTORY: {tenant_term} notice of intention to vacate early termination fixed term agreement prescribed form VIC
 CONCEPT: early termination of lease by tenant compensation break fee notice requirements VIC
+
+For example, for NSW, "What condition report is required when a new tenant moves in?":
+SEMANTIC: new tenant move in condition report form inspection report at lease signing NSW
+STATUTORY: condition report prescribed form Residential Tenancies Regulation 2019 Schedule 2 landlord obligation NSW
+CONCEPT: pre-tenancy disclosure obligations condition report statutory requirements NSW
 
 Rules:
 - Include jurisdiction abbreviation (e.g. VIC, NSW) in each query
@@ -433,11 +529,26 @@ def _rewrite_queries(query: str, state_filter: str | None = None) -> list[str]:
         raw = raw.strip()
         queries = _parse_multi_response(raw)
         if len(queries) >= 2 and all(bool(q.strip()) for q in queries):
-            logger.info("Multi-query: '%s' → [%s, %s, %s]",
-                        query[:60], queries[0][:40], queries[1][:40],
-                        queries[2][:40] if len(queries) > 2 else "?")
+            if (
+                len(queries) >= 3
+                and _has_regulation_intent(query)
+                and _REGULATION_EXPANSION_SUFFIX not in queries[1]
+            ):
+                queries[1] = queries[1].rstrip() + _REGULATION_EXPANSION_SUFFIX
+                logger.info(
+                    "Regulation intent detected — enriched STATUTORY query"
+                )
+            logger.info(
+                "Multi-query: '%s' → [%s, %s, %s]",
+                query[:60],
+                queries[0][:40],
+                queries[1][:40],
+                queries[2][:40] if len(queries) > 2 else "?",
+            )
             return queries[:3]
-        logger.warning("Multi-query parse returned %d labels — falling back to single query", len(queries))
+        logger.warning(
+            "Multi-query parse returned %d labels — falling back to single query", len(queries)
+        )
     except Exception as exc:
         logger.warning("Multi-query failed: %s — falling back to single query", exc)
 
@@ -473,25 +584,31 @@ def _rewrite_query(query: str, state_filter: str | None = None) -> str:
     return queries[0]
 
 
-def _retrieve_multi(query: str, state_filter: str | None, final_top_k: int,
-                    use_rewrite: bool = True, include_parts: list[str] | None = None,
-                    include_chapters: list[str] | None = None) -> list[dict]:
-    """Retrieve chunks via 3 complementary queries, fuse with RRF + reserve top-1 per query."""
-    from src.retrieval.vector_store import hybrid_retrieve
+def retrieve_from_queries(
+    queries: list[str],
+    jurisdiction: str | None,
+    final_top_k: int = 10,
+    per_query_k: int = 15,
+    include_parts: list[str] | None = None,
+    include_chapters: list[str] | None = None,
+) -> list[dict]:
+    """Run per-query hybrid retrieval, fuse with RRF, and reserve top-1 per query.
 
-    filter_dict = {"state": state_filter} if state_filter else None
-    per_query_k = 15
+    Caller is responsible for query rewriting. This function only handles
+    retrieval + RRF fusion + Top-1 preservation.
+    """
+    from src.rag.retrieval.vector_store import hybrid_retrieve
 
-    if use_rewrite:
-        raw_queries = _rewrite_queries(query, state_filter)
-    else:
-        raw_queries = [query]
+    filter_dict = {"state": jurisdiction} if jurisdiction else None
 
     all_rankings: list[list[dict]] = []
-    for q in raw_queries:
+    for q in queries:
         chunks = hybrid_retrieve(
-            query_text=q, state_filter=filter_dict, top_k=per_query_k,
-            include_parts=include_parts, include_chapters=include_chapters,
+            query_text=q,
+            state_filter=filter_dict,
+            top_k=per_query_k,
+            include_parts=include_parts,
+            include_chapters=include_chapters,
         )
         all_rankings.append(chunks)
 
@@ -527,6 +644,41 @@ def _retrieve_multi(query: str, state_filter: str | None, final_top_k: int,
     return fused[:final_top_k]
 
 
+def _retrieve_multi(
+    query: str,
+    state_filter: str | None,
+    final_top_k: int,
+    use_rewrite: bool = True,
+    include_parts: list[str] | None = None,
+    include_chapters: list[str] | None = None,
+) -> list[dict]:
+    """Retrieve chunks via optional rewriting + RRF fusion (backward-compatible wrapper)."""
+    raw_queries = _rewrite_queries(query, state_filter) if use_rewrite else [query]
+
+    return retrieve_from_queries(
+        queries=raw_queries,
+        jurisdiction=state_filter,
+        final_top_k=final_top_k,
+        include_parts=include_parts,
+        include_chapters=include_chapters,
+    )
+
+
+def generate_answer_from_context(
+    query: str,
+    jurisdiction: str | None,
+    chunks: list[dict],
+) -> str:
+    """Build legal prompt and call LLM using provided chunks.
+
+    No retrieval, no citation verification. Caller is responsible for
+    providing the retrieved context and post-processing the answer.
+    """
+    user_prompt = build_legal_prompt(query, chunks)
+    llm = DeepSeekLLMProvider()
+    return llm.generate(_build_system_prompt(jurisdiction), user_prompt)
+
+
 # ── Orchestrator ──────────────────────────────────────────────────────
 
 
@@ -549,8 +701,6 @@ def generate_compliance_answer(
     Returns a dict with keys:
         retrieved_chunks, answer, citation_check
     """
-    filter_dict = {"state": state_filter} if state_filter else None
-
     logger.info("=" * 60)
     logger.info("PHASE 3: RAG Generation Pipeline")
     logger.info("=" * 60)
@@ -562,7 +712,9 @@ def generate_compliance_answer(
         logger.info("Using %d golden override chunks (retrieval bypassed)", len(chunks))
     else:
         chunks = _retrieve_multi(
-            query, state_filter, final_top_k=15,
+            query,
+            state_filter,
+            final_top_k=15,
             use_rewrite=use_rewrite,
             include_parts=include_parts,
             include_chapters=include_chapters,
@@ -572,16 +724,17 @@ def generate_compliance_answer(
         for i, c in enumerate(chunks, 1):
             logger.info(
                 "  #%d [score=%.4f] Sec %s — %s",
-                i, c["score"], c["section_id"], c.get("section_title", ""),
+                i,
+                c["score"],
+                c["section_id"],
+                c.get("section_title", ""),
             )
 
         if use_reranker:
             rq = reranker_query if reranker_query is not None else query
             chunks = rerank_context(rq, chunks, top_n=5)
 
-    user_prompt = build_legal_prompt(query, chunks)
-    llm = DeepSeekLLMProvider()
-    answer = llm.generate(_build_system_prompt(state_filter), user_prompt)
+    answer = generate_answer_from_context(query, state_filter, chunks)
 
     logger.info("LLM response length: %d chars", len(answer))
 
@@ -622,15 +775,22 @@ DEFAULT_QUERIES = {
 def main():
     parser = argparse.ArgumentParser(description="Run RAG compliance scenario")
     parser.add_argument(
-        "--state", choices=["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"],
-        default="VIC", help="Jurisdiction (default: VIC)",
+        "--state",
+        choices=["VIC", "NSW", "QLD", "SA", "WA", "TAS", "ACT", "NT"],
+        default="VIC",
+        help="Jurisdiction (default: VIC)",
     )
     parser.add_argument(
-        "--query", type=str, default=None,
+        "--query",
+        type=str,
+        default=None,
         help="Custom query (overrides built-in scenario)",
     )
     parser.add_argument(
-        "--include-chapters", type=str, nargs="*", default=None,
+        "--include-chapters",
+        type=str,
+        nargs="*",
+        default=None,
         help='Chapter IDs to carve back: "*" = all, "8" = QLD Ch 8 (shell-quote "*")',
     )
     args = parser.parse_args()

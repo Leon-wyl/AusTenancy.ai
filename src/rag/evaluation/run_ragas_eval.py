@@ -38,8 +38,10 @@ _RAGAS_METRICS = [faithfulness, context_precision, answer_relevancy]
 
 def _score_metric_safe(metric, row: dict) -> float:
     """Score a single row with a Ragas metric using a fresh asyncio event loop."""
+
     async def _run():
         return await metric._ascore(row=row, callbacks=None)
+
     return asyncio.run(_run())
 
 
@@ -87,12 +89,14 @@ def _state_intermediate_path(state: str) -> Path:
 
 def _lazy_exclude_parts(state: str) -> list[str] | None:
     """Return default exclude_parts per state, lazy-loading to avoid Qdrant side effects."""
-    from src.retrieval.vector_store import DEFAULT_EXCLUDE_PARTS
+    from src.rag.retrieval.vector_store import DEFAULT_EXCLUDE_PARTS
+
     return list(DEFAULT_EXCLUDE_PARTS.get(state, []))
 
 
 def _lazy_exclude_chapters(state: str) -> list[str] | None:
-    from src.retrieval.vector_store import DEFAULT_EXCLUDE_CHAPTERS
+    from src.rag.retrieval.vector_store import DEFAULT_EXCLUDE_CHAPTERS
+
     return list(DEFAULT_EXCLUDE_CHAPTERS.get(state, []))
 
 
@@ -101,6 +105,7 @@ class FastembedRagasEmbeddings:
 
     def __init__(self):
         from fastembed import TextEmbedding
+
         self._model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
     def embed_texts(self, texts: list[str]) -> list[list[float]]:
@@ -130,48 +135,64 @@ class DeepSeekRagasLLM(BaseRagasLLM):
         self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
     def generate_text(
-        self, prompt: Any, n: int = 1, temperature: float = 1e-8,
-        stop: list[str] | None = None, callbacks: Any = None,
+        self,
+        prompt: Any,
+        n: int = 1,
+        temperature: float = 1e-8,
+        stop: list[str] | None = None,
+        callbacks: Any = None,
     ) -> Any:
         from langchain_core.outputs import Generation, LLMResult
+
         text = prompt.to_string()
         all_generations: list[Generation] = []
         for _ in range(n):
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": text}],
-                temperature=temperature, n=1, stop=stop,
+                temperature=temperature,
+                n=1,
+                stop=stop,
             )
             for choice in response.choices:
                 all_generations.append(Generation(text=choice.message.content or ""))
         return LLMResult(generations=[all_generations])
 
     async def agenerate_text(
-        self, prompt: Any, n: int = 1, temperature: float = 1e-8,
-        stop: list[str] | None = None, callbacks: Any = None,
+        self,
+        prompt: Any,
+        n: int = 1,
+        temperature: float = 1e-8,
+        stop: list[str] | None = None,
+        callbacks: Any = None,
     ) -> Any:
-        return await asyncio.to_thread(
-            self.generate_text, prompt, n, temperature, stop, callbacks
-        )
+        return await asyncio.to_thread(self.generate_text, prompt, n, temperature, stop, callbacks)
 
 
 def _run_pipeline(
-    question: str, state: str, top_k: int,
-    use_rewrite: bool = True, use_reranker: bool = True,
+    question: str,
+    state: str,
+    top_k: int,
+    use_rewrite: bool = True,
+    use_reranker: bool = True,
     reranker_query: str | None = None,
     contexts_override: list[dict] | None = None,
     include_parts: list[str] | None = None,
     include_chapters: list[str] | None = None,
 ) -> dict:
-    from src.generation.generator import generate_compliance_answer
+    from src.rag.generation.generator import generate_compliance_answer
 
     max_retries = 5
     for attempt in range(max_retries):
         try:
             return generate_compliance_answer(
-                query=question, state_filter=state, top_k_retrieve=top_k,
-                use_rewrite=use_rewrite, use_reranker=use_reranker,
-                reranker_query=reranker_query, contexts_override=contexts_override,
+                query=question,
+                state_filter=state,
+                top_k_retrieve=top_k,
+                use_rewrite=use_rewrite,
+                use_reranker=use_reranker,
+                reranker_query=reranker_query,
+                contexts_override=contexts_override,
                 include_parts=include_parts,
                 include_chapters=include_chapters,
             )
@@ -181,14 +202,20 @@ def _run_pipeline(
             wait = 2 ** (attempt + 1)
             logger.warning(
                 "Pipeline error — retrying in %ds (attempt %d/%d): %s",
-                wait, attempt + 2, max_retries, e,
+                wait,
+                attempt + 2,
+                max_retries,
+                e,
             )
             time.sleep(wait)
 
 
 def run_single_question(
-    question: str, state: str = "VIC", top_k: int = 10,
-    use_rewrite: bool = True, use_reranker: bool = True,
+    question: str,
+    state: str = "VIC",
+    top_k: int = 10,
+    use_rewrite: bool = True,
+    use_reranker: bool = True,
     reranker_query: str | None = None,
     contexts_override: list[dict] | None = None,
     include_parts: list[str] | None = None,
@@ -196,8 +223,15 @@ def run_single_question(
 ) -> dict[str, Any]:
     start = time.time()
     result = _run_pipeline(
-        question, state, top_k, use_rewrite, use_reranker, reranker_query,
-        contexts_override, include_parts, include_chapters,
+        question,
+        state,
+        top_k,
+        use_rewrite,
+        use_reranker,
+        reranker_query,
+        contexts_override,
+        include_parts,
+        include_chapters,
     )
     elapsed = time.time() - start
     answer = result.get("answer", "") or ""
@@ -206,14 +240,21 @@ def run_single_question(
         logger.warning("Empty answer for question: %s", question[:80])
     contexts = [c["text"] for c in chunks] if chunks else []
     return {
-        "question": question, "answer": answer, "contexts": contexts,
-        "ground_truth": "", "elapsed_seconds": round(elapsed, 1),
-        "num_chunks": len(chunks), "answer_length": len(answer),
+        "question": question,
+        "answer": answer,
+        "contexts": contexts,
+        "retrieved_chunks": chunks,
+        "ground_truth": "",
+        "elapsed_seconds": round(elapsed, 1),
+        "num_chunks": len(chunks),
+        "answer_length": len(answer),
     }
 
 
 def _run_eval_for_state(
-    state: str, args, evaluator_llm,
+    state: str,
+    args,
+    evaluator_llm,
     batch_vic_override: bool = False,
 ) -> dict | None:
     """Run full eval pipeline for a single state. Returns summary dict or None on skip."""
@@ -242,7 +283,10 @@ def _run_eval_for_state(
 
     logger.info(
         "State=%s | exclude_parts=%s | include_parts=%s | exclude_chapters=%s",
-        state, exclude_parts, include_parts, exclude_chapters,
+        state,
+        exclude_parts,
+        include_parts,
+        exclude_chapters,
     )
 
     if not dataset_path.exists():
@@ -278,11 +322,13 @@ def _run_eval_for_state(
 
     per_state_limit = args.limit if args.limit > 0 else 0
     if per_state_limit > 0:
-        samples = samples[: per_state_limit]
+        samples = samples[:per_state_limit]
 
     logger.info(
         "[%s] Loaded %d samples (from %d total)",
-        state, len(samples), len(raw_samples),
+        state,
+        len(samples),
+        len(raw_samples),
     )
 
     if args.dry_run:
@@ -317,29 +363,62 @@ def _run_eval_for_state(
             rq = question if args.reranker_query_original else None
             ctxs_override = None
             orig_idx = sample.get("_original_index", i)
-            if golden_ctxs is not None and str(orig_idx) in golden_ctxs:
-                ctxs_override = golden_ctxs[str(orig_idx)]
+            eval_mode = getattr(args, "eval_mode", "golden-context")
+            if eval_mode == "golden-context" and golden_ctxs is not None:
+                ctxs_override = golden_ctxs.get(str(orig_idx))
+                if ctxs_override is None:
+                    logger.warning(
+                        "Sample %d: no golden context found in golden-context mode, skipping", i
+                    )
+                    continue
                 logger.info(
                     "  [golden contexts] idx=%d → %d chunks: %s",
-                    orig_idx, len(ctxs_override),
+                    orig_idx,
+                    len(ctxs_override),
                     ", ".join(c["section_id"] for c in ctxs_override),
                 )
             row = run_single_question(
-                question, state=state, top_k=args.top_k,
+                question,
+                state=state,
+                top_k=args.top_k,
                 use_rewrite=not args.no_rewrite,
                 use_reranker=False if ctxs_override else args.rerank,
-                reranker_query=rq, contexts_override=ctxs_override,
+                reranker_query=rq,
+                contexts_override=ctxs_override,
                 include_parts=include_parts,
                 include_chapters=include_chapters,
             )
             row["ground_truth"] = ground_truth
             row["metadata"] = meta
+
+            golden_sections = meta.get("sections", [])
+            if golden_sections:
+                try:
+                    from src.rag.evaluation.citation_metrics import (
+                        cm_to_dict,
+                        compute_citation_metrics,
+                    )
+
+                    cm = compute_citation_metrics(
+                        question_idx=orig_idx,
+                        answer=row["answer"],
+                        chunks=row.get("retrieved_chunks", []),
+                        golden_sections=golden_sections,
+                    )
+                    row["_citation_metrics"] = cm
+                except Exception as e:
+                    logger.warning("Citation metrics failed for sample %d: %s", i, e)
         except Exception as e:
             logger.error("[%s] All retries exhausted for Q %d: %s", state, i + 1, question[:80])
             row = {
-                "question": question, "answer": "", "contexts": [],
-                "ground_truth": ground_truth, "metadata": meta,
-                "elapsed_seconds": -1, "num_chunks": 0, "answer_length": 0,
+                "question": question,
+                "answer": "",
+                "contexts": [],
+                "ground_truth": ground_truth,
+                "metadata": meta,
+                "elapsed_seconds": -1,
+                "num_chunks": 0,
+                "answer_length": 0,
                 "error": str(e),
             }
         results.append(row)
@@ -369,7 +448,9 @@ def _run_eval_for_state(
         contexts = r["contexts"]
         ground_truth = r.get("ground_truth", "")
         row = {
-            "question": question, "answer": answer, "contexts": contexts,
+            "question": question,
+            "answer": answer,
+            "contexts": contexts,
             "ground_truth": ground_truth if ground_truth else "N/A",
         }
         scores = {}
@@ -381,13 +462,29 @@ def _run_eval_for_state(
                 scores[metric.name] = float("nan")
         logger.info(
             "[%s] Sample %d: f=%.3f  cp=%.3f  ar=%.3f",
-            state, i + 1, scores["faithfulness"],
-            scores["context_precision"], scores["answer_relevancy"],
+            state,
+            i + 1,
+            scores["faithfulness"],
+            scores["context_precision"],
+            scores["answer_relevancy"],
         )
         rows.append({"question": question, **scores})
 
     import pandas as pd
+
     output_df = pd.DataFrame(rows)
+
+    citation_cols = []
+    for r in valid_results:
+        cm = r.get("_citation_metrics")
+        if cm is not None:
+            citation_cols.append(cm_to_dict(cm))
+        else:
+            citation_cols.append({})
+    if any(citation_cols):
+        cm_df = pd.DataFrame(citation_cols)
+        output_df = pd.concat([output_df, cm_df], axis=1)
+
     output_df.to_csv(output_csv, index=False)
     logger.info("[%s] Scores exported to %s", state, output_csv)
 
@@ -395,7 +492,7 @@ def _run_eval_for_state(
     num_used = len(samples)
     source_note = f"{num_used}/{num_total}" if is_vic and batch_vic_override else f"{num_used}"
 
-    return {
+    summary: dict = {
         "state": state,
         "source_note": source_note,
         "n_samples": len(output_df),
@@ -405,14 +502,27 @@ def _run_eval_for_state(
         "mean_answer_relevancy": output_df["answer_relevancy"].mean(),
     }
 
+    for col in ["citation_count", "verified_count", "unverified_count",
+                 "citation_precision", "golden_recall_retrieval",
+                 "golden_recall_citation", "reg_citations_in_answer"]:
+        if col in output_df.columns:
+            summary[f"mean_{col}"] = output_df[col].mean()
+
+    if "reg_citation_verified" in output_df.columns:
+        summary["reg_citation_verified_rate"] = output_df["reg_citation_verified"].mean()
+
+    return summary
+
 
 def _smoke_test(state: str) -> bool:
     """Run query rewrite + retrieval for a default query to confirm Qdrant works."""
     try:
-        from src.generation.generator import (
-            DEFAULT_QUERIES, _rewrite_query,
+        from src.rag.generation.generator import (
+            DEFAULT_QUERIES,
+            _rewrite_query,
         )
-        from src.retrieval.vector_store import hybrid_retrieve
+        from src.rag.retrieval.vector_store import hybrid_retrieve
+
         query = DEFAULT_QUERIES.get(state, "What is the maximum bond?")
         rewritten = _rewrite_query(query, state)
         results = hybrid_retrieve(rewritten, state_filter=state, top_k=3)
@@ -429,39 +539,88 @@ def main():
     parser = argparse.ArgumentParser(
         description="Ragas evaluation runner for Australian tenancy RAG pipeline (all jurisdictions)"
     )
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Validate datasets without LLM calls; --state all runs smoke test per state")
-    parser.add_argument("--limit", type=int, default=0,
-                        help="Per-state limit in batch mode (0 = all)")
-    parser.add_argument("--output", type=str, default=None,
-                        help="CSV output path (default: reports/{state}_eval_report.csv)")
-    parser.add_argument("--dataset", type=str, default=None,
-                        help="Golden dataset path (default: tests/evaluation/{state}_golden_dataset.json)")
-    parser.add_argument("--state", type=str, default="VIC",
-                        help="State filter: VIC | NSW | all")
-    parser.add_argument("--batch", action="store_true",
-                        help="[VIC only] Use curated 10-QA subset; --state all applies VIC batch automatically")
-    parser.add_argument("--top-k", type=int, default=10,
-                        help="Chunks to retrieve (default: 10)")
-    parser.add_argument("--rerank", action="store_true",
-                        help="Enable FlashRank reranking (DISABLED by default — "
-                             "degrades legal RAG; see docs/EVALUATION_IMPLEMENTATION.md)")
-    parser.add_argument("--no-rerank", action="store_true",
-                        help="[deprecated no-op] reranker is disabled by default; kept for compat")
-    parser.add_argument("--no-rewrite", action="store_true",
-                        help="Disable LLM query rewrite")
-    parser.add_argument("--reranker-query-original", action="store_true",
-                        help="Pass original query to the reranker (only applies with --rerank)")
-    parser.add_argument("--golden-contexts", dest="golden_contexts_path", type=str, default=None,
-                        help="Override golden contexts path (ignored in --state all)")
-    parser.add_argument("--exclude-parts", type=str, default=None,
-                        help="Override auto-populated exclude_parts; empty string = no filter")
-    parser.add_argument("--include-parts", type=str, default=None,
-                        help="Parts to include (carveback), comma-separated")
-    parser.add_argument("--include-chapters", type=str, default=None,
-                        help="Chapters to include (carveback), comma-separated (QLD only)")
-    parser.add_argument("--samples", type=str, default=None,
-                        help="Comma-separated 0-indexed sample indices to evaluate (e.g. '15,16,18')")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate datasets without LLM calls; --state all runs smoke test per state",
+    )
+    parser.add_argument(
+        "--limit", type=int, default=0, help="Per-state limit in batch mode (0 = all)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="CSV output path (default: reports/{state}_eval_report.csv)",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Golden dataset path (default: tests/evaluation/{state}_golden_dataset.json)",
+    )
+    parser.add_argument("--state", type=str, default="VIC", help="State filter: VIC | NSW | all")
+    parser.add_argument(
+        "--eval-mode",
+        type=str,
+        choices=["golden-context", "real-retrieval"],
+        default="golden-context",
+        help="Evaluation mode: golden-context (bypass retrieval) or real-retrieval (full pipeline)",
+    )
+    parser.add_argument(
+        "--batch",
+        action="store_true",
+        help="[VIC only] Use curated 10-QA subset; --state all applies VIC batch automatically",
+    )
+    parser.add_argument("--top-k", type=int, default=10, help="Chunks to retrieve (default: 10)")
+    parser.add_argument(
+        "--rerank",
+        action="store_true",
+        help="Enable FlashRank reranking (DISABLED by default — "
+        "degrades legal RAG; see docs/EVALUATION_IMPLEMENTATION.md)",
+    )
+    parser.add_argument(
+        "--no-rerank",
+        action="store_true",
+        help="[deprecated no-op] reranker is disabled by default; kept for compat",
+    )
+    parser.add_argument("--no-rewrite", action="store_true", help="Disable LLM query rewrite")
+    parser.add_argument(
+        "--reranker-query-original",
+        action="store_true",
+        help="Pass original query to the reranker (only applies with --rerank)",
+    )
+    parser.add_argument(
+        "--golden-contexts",
+        dest="golden_contexts_path",
+        type=str,
+        default=None,
+        help="Override golden contexts path (ignored in --state all)",
+    )
+    parser.add_argument(
+        "--exclude-parts",
+        type=str,
+        default=None,
+        help="Override auto-populated exclude_parts; empty string = no filter",
+    )
+    parser.add_argument(
+        "--include-parts",
+        type=str,
+        default=None,
+        help="Parts to include (carveback), comma-separated",
+    )
+    parser.add_argument(
+        "--include-chapters",
+        type=str,
+        default=None,
+        help="Chapters to include (carveback), comma-separated (QLD only)",
+    )
+    parser.add_argument(
+        "--samples",
+        type=str,
+        default=None,
+        help="Comma-separated 0-indexed sample indices to evaluate (e.g. '15,16,18')",
+    )
     args = parser.parse_args()
 
     if args.state == "all" and not args.dry_run and not DEEPSEEK_API_KEY:
@@ -483,14 +642,18 @@ def main():
         evaluator_llm = None
         if not args.dry_run:
             evaluator_llm = DeepSeekRagasLLM(
-                api_key=DEEPSEEK_API_KEY, model=LLM_MODEL_ID, base_url=DEEPSEEK_BASE_URL,
+                api_key=DEEPSEEK_API_KEY,
+                model=LLM_MODEL_ID,
+                base_url=DEEPSEEK_BASE_URL,
             )
             logger.info("Evaluator LLM: DeepSeek (%s)", LLM_MODEL_ID)
 
         if args.dry_run:
             logger.info("── DRY RUN + BATCH — validating datasets + smoke tests ──")
             for state in STATE_ORDER:
-                summary = _run_eval_for_state(state, args, evaluator_llm=None, batch_vic_override=True)
+                summary = _run_eval_for_state(
+                    state, args, evaluator_llm=None, batch_vic_override=True
+                )
                 _smoke_test(state)
             logger.info("══ Batch dry-run complete — %d states validated ══", len(STATE_ORDER))
             return
@@ -505,12 +668,20 @@ def main():
                 if summary:
                     summaries.append(summary)
             except Exception as e:
-                logger.error("[%s] Batch evaluation failed: %s — continuing with remaining states", state, e)
-                summaries.append({
-                    "state": state, "source_note": "ERROR", "n_samples": 0, "n_skipped": 0,
-                    "mean_faithfulness": float("nan"), "mean_context_precision": float("nan"),
-                    "mean_answer_relevancy": float("nan"),
-                })
+                logger.error(
+                    "[%s] Batch evaluation failed: %s — continuing with remaining states", state, e
+                )
+                summaries.append(
+                    {
+                        "state": state,
+                        "source_note": "ERROR",
+                        "n_samples": 0,
+                        "n_skipped": 0,
+                        "mean_faithfulness": float("nan"),
+                        "mean_context_precision": float("nan"),
+                        "mean_answer_relevancy": float("nan"),
+                    }
+                )
 
         print("\n" + "=" * 70)
         print("CROSS-STATE SUMMARY (faithfulness / context_precision / answer_relevancy)")
@@ -533,7 +704,9 @@ def main():
     evaluator_llm = None
     if not args.dry_run:
         evaluator_llm = DeepSeekRagasLLM(
-            api_key=DEEPSEEK_API_KEY, model=LLM_MODEL_ID, base_url=DEEPSEEK_BASE_URL,
+            api_key=DEEPSEEK_API_KEY,
+            model=LLM_MODEL_ID,
+            base_url=DEEPSEEK_BASE_URL,
         )
     summary = _run_eval_for_state(state, args, evaluator_llm, batch_vic_override=is_vic_batch)
 

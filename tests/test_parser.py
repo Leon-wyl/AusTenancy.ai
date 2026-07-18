@@ -2,24 +2,24 @@
 
 import re
 
-from src.data_processing.nsw_parser import (
+from src.rag.data_processing.nsw_parser import (
     DIVISION_RE as NSW_DIVISION_RE,
 )
-from src.data_processing.nsw_parser import (
+from src.rag.data_processing.nsw_parser import (
     PART_RE as NSW_PART_RE,
 )
-from src.data_processing.nsw_parser import (
+from src.rag.data_processing.nsw_parser import (
     SECTION_ID_RE,
     SECTION_LINE_RE,
     NSWParser,
 )
-from src.data_processing.nsw_parser import (
+from src.rag.data_processing.nsw_parser import (
     SUBDIVISION_RE as NSW_SUBDIVISION_RE,
 )
-from src.data_processing.nsw_parser import (
+from src.rag.data_processing.nsw_parser import (
     _is_valid_section_title as _nsw_is_valid_title,
 )
-from src.data_processing.vic_parser import (
+from src.rag.data_processing.vic_parser import (
     ACT_NUMBER_RE,
     AMENDMENT_RE,
     AUTHORISED_RE,
@@ -31,13 +31,13 @@ from src.data_processing.vic_parser import (
     _is_valid_section_title,
     _looks_like_date,
 )
-from src.data_processing.vic_parser import (
+from src.rag.data_processing.vic_parser import (
     DIVISION_RE as VIC_DIVISION_RE,
 )
-from src.data_processing.vic_parser import (
+from src.rag.data_processing.vic_parser import (
     PART_RE as VIC_PART_RE,
 )
-from src.data_processing.vic_parser import (
+from src.rag.data_processing.vic_parser import (
     SUBDIVISION_RE as VIC_SUBDIVISION_RE,
 )
 
@@ -97,7 +97,9 @@ class TestVICStandaloneNumRE:
 
 class TestVICPartDivisionSubdivisionRE:
     def test_part(self):
-        match = VIC_PART_RE.match("Part 2\u2014Residential tenancies\u2014residential rental agreements")
+        match = VIC_PART_RE.match(
+            "Part 2\u2014Residential tenancies\u2014residential rental agreements"
+        )
         assert match is not None
         assert match.group(1) == "2"
         assert "Residential tenancies" in match.group(2)
@@ -109,7 +111,9 @@ class TestVICPartDivisionSubdivisionRE:
         assert match.group(2) == "Rent Increases"
 
     def test_subdivision(self):
-        match = VIC_SUBDIVISION_RE.match("Subdivision 1\u2014Application to residential rental agreements")
+        match = VIC_SUBDIVISION_RE.match(
+            "Subdivision 1\u2014Application to residential rental agreements"
+        )
         assert match is not None
         assert match.group(1) == "1"
         assert "Application" in match.group(2)
@@ -318,7 +322,9 @@ class TestNSWBuildParentPrefix:
 
 class TestVICExtractPartFromHeader:
     def test_valid_part(self):
-        result = VIC_PART_RE.match("Part 2\u2014Residential tenancies\u2014residential rental agreements")
+        result = VIC_PART_RE.match(
+            "Part 2\u2014Residential tenancies\u2014residential rental agreements"
+        )
         assert result is not None
         assert result.group(1) == "2"
         assert "Residential tenancies" in result.group(2)
@@ -348,9 +354,19 @@ class TestVICParserInstantiation:
         assert chunk["part"] == "2"
         assert chunk["state"] == "VIC"
         for field in [
-            "chunk_id", "text", "state", "act", "year", "section_id",
-            "section_title", "part", "part_title", "division",
-            "division_title", "subdivision", "subdivision_title",
+            "chunk_id",
+            "text",
+            "state",
+            "act",
+            "year",
+            "section_id",
+            "section_title",
+            "part",
+            "part_title",
+            "division",
+            "division_title",
+            "subdivision",
+            "subdivision_title",
             "subsection_range",
         ]:
             assert field in chunk, f"Missing field: {field}"
@@ -369,9 +385,19 @@ class TestNSWParserInstantiation:
         assert chunk["part"] == "3"
         assert chunk["state"] == "NSW"
         for field in [
-            "chunk_id", "text", "state", "act", "year", "section_id",
-            "section_title", "part", "part_title", "division",
-            "division_title", "subdivision", "subdivision_title",
+            "chunk_id",
+            "text",
+            "state",
+            "act",
+            "year",
+            "section_id",
+            "section_title",
+            "part",
+            "part_title",
+            "division",
+            "division_title",
+            "subdivision",
+            "subdivision_title",
             "subsection_range",
         ]:
             assert field in chunk, f"Missing field: {field}"
@@ -483,5 +509,3 @@ class TestVICSectionTruncation:
         assert "challenging" in chunks["91ZZS"]["text"], "s91ZZS body truncated"
         # 91ZZO form-of-notice list must include 91ZZC
         assert "91ZZC" in chunks["91ZZO"]["text"], "s91ZZO cross-reference list truncated"
-
-
