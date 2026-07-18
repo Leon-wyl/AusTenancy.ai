@@ -1,10 +1,13 @@
 """Tests for the interactive CLI REPL."""
 
+import types
+
 from src.agent.cli import (
     CLARIFICATION_PREFIX,
     _extract_reply,
     _is_exit,
     _merge_clarification,
+    _render_status,
 )
 from src.agent.graph_skeleton import request_clarification
 
@@ -109,13 +112,19 @@ class TestClarificationPrefixContract:
 
 
 class FakeCompiledGraph:
-    def __init__(self, results):
+    def __init__(self, results, events=None):
         self._results = list(results)
+        self._events = list(events) if events is not None else [[] for _ in self._results]
         self.invocations = []
+        self._current = None
 
-    def invoke(self, payload, config):
+    def stream(self, payload, config, stream_mode="updates"):
         self.invocations.append(payload)
-        return self._results.pop(0)
+        self._current = self._results.pop(0)
+        yield from self._events.pop(0)
+
+    def get_state(self, config):
+        return types.SimpleNamespace(values=self._current)
 
 
 class FakeWorkflow:
@@ -134,6 +143,47 @@ def _run_main(monkeypatch, fake_graph, inputs):
     input_iter = iter(inputs)
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(input_iter))
     cli.main()
+
+
+class TestRenderStatus:
+    def test_intake_with_jurisdiction(self):
+        assert _render_status("intake_analyzer", {"jurisdiction": "NSW"}) == [
+            "  ✓ Jurisdiction: NSW"
+        ]
+
+    def test_intake_without_jurisdiction(self):
+        assert _render_status("intake_analyzer", {"jurisdiction": ""}) == []
+
+    def test_query_rewriter_counts(self):
+        assert _render_status("query_rewriter", {"rewritten_queries": ["a", "b", "c"]}) == [
+            "  ⟳ Rewrote into 3 search queries"
+        ]
+
+    def test_retriever_with_contexts_adds_generating_line(self):
+        lines = _render_status("rag_retriever", {"retrieved_contexts": [{}, {}]})
+        assert lines == [
+            "  ⟳ Retrieved 2 statutory provisions",
+            "  ⟳ Generating legal analysis…",
+        ]
+
+    def test_retriever_empty_no_generating_line(self):
+        assert _render_status("rag_retriever", {"retrieved_contexts": []}) == [
+            "  ⟳ Retrieved 0 statutory provisions"
+        ]
+
+    def test_citation_verifier_dedup_count(self):
+        answer = (
+            "A [VIC RTA 1997 Sec 44] and again [VIC RTA 1997 Sec 44] plus [VIC RTA 1997 Sec 91ZM]"
+        )
+        assert _render_status("citation_verifier", {"answer": answer}) == [
+            "  ✓ 2 citations verified"
+        ]
+
+    def test_citation_verifier_zero_silent(self):
+        assert _render_status("citation_verifier", {"answer": "no citations here"}) == []
+
+    def test_unknown_node_silent(self):
+        assert _render_status("legal_reasoner", {"answer": "x"}) == []
 
 
 class TestMainLoop:
@@ -179,7 +229,7 @@ class TestMainLoop:
 
     def test_empty_input_skipped_and_error_does_not_crash(self, monkeypatch, capsys):
         class ExplodingGraph:
-            def invoke(self, payload, config):
+            def stream(self, payload, config, stream_mode="updates"):
                 raise RuntimeError("boom")
 
         _run_main(monkeypatch, ExplodingGraph(), ["", "some question", "quit"])
@@ -221,15 +271,21 @@ class TestMainLoop:
             def __init__(self):
                 self.calls = 0
                 self.invocations = []
+                self._current = None
 
-            def invoke(self, payload, config):
+            def stream(self, payload, config, stream_mode="updates"):
                 self.calls += 1
                 self.invocations.append(payload)
                 if self.calls == 1:
-                    return turn1
-                if self.calls == 2:
+                    self._current = turn1
+                elif self.calls == 2:
                     raise RuntimeError("transient boom")
-                return turn3
+                else:
+                    self._current = turn3
+                yield from []
+
+            def get_state(self, config):
+                return types.SimpleNamespace(values=self._current)
 
         fake = FlakyGraph()
         _run_main(monkeypatch, fake, ["Can I be evicted?", "VIC", "VIC", "exit"])
@@ -242,15 +298,20 @@ class TestMainLoop:
         class InterruptedThenAnswer:
             def __init__(self):
                 self.calls = 0
+                self._current = None
 
-            def invoke(self, payload, config):
+            def stream(self, payload, config, stream_mode="updates"):
                 self.calls += 1
                 if self.calls == 1:
                     raise KeyboardInterrupt
-                return {
+                self._current = {
                     "messages": [{"role": "user", "content": "q"}],
                     "answer": "Answer [VIC RTA 1997 Sec 44]",
                 }
+                yield from []
+
+            def get_state(self, config):
+                return types.SimpleNamespace(values=self._current)
 
         _run_main(
             monkeypatch,
@@ -260,3 +321,40 @@ class TestMainLoop:
         out = capsys.readouterr().out
         assert "(interrupted)" in out
         assert "Answer [VIC RTA 1997 Sec 44]" in out
+
+    def test_status_lines_printed_from_stream_events(self, monkeypatch, capsys):
+        fake = FakeCompiledGraph(
+            [
+                {
+                    "messages": [{"role": "user", "content": "q"}],
+                    "answer": "Answer [NSW RTA 2010 Sec 41]",
+                }
+            ],
+            events=[
+                [
+                    {"intake_analyzer": {"jurisdiction": "NSW", "in_scope": True}},
+                    {"query_rewriter": {"rewritten_queries": ["a", "b", "c"]}},
+                    {"rag_retriever": {"retrieved_contexts": [{}] * 10}},
+                    {"legal_reasoner": {"answer": "Answer [NSW RTA 2010 Sec 41]"}},
+                    {"citation_verifier": {"answer": "Answer [NSW RTA 2010 Sec 41]"}},
+                ]
+            ],
+        )
+        _run_main(monkeypatch, fake, ["Lease question in NSW?", "exit"])
+        out = capsys.readouterr().out
+        assert "  ✓ Jurisdiction: NSW" in out
+        assert "  ⟳ Rewrote into 3 search queries" in out
+        assert "  ⟳ Retrieved 10 statutory provisions" in out
+        assert "  ⟳ Generating legal analysis…" in out
+        assert "  ✓ 1 citations verified" in out
+        assert "Answer [NSW RTA 2010 Sec 41]" in out
+
+    def test_logging_quieted(self, monkeypatch):
+        import logging as logging_mod
+
+        fake = FakeCompiledGraph(
+            [{"messages": [{"role": "user", "content": "q"}], "answer": "A [VIC RTA 1997 Sec 44]"}]
+        )
+        _run_main(monkeypatch, fake, ["exit"])
+        assert logging_mod.getLogger().level == logging_mod.WARNING
+        assert logging_mod.getLogger("langsmith").level == logging_mod.CRITICAL
