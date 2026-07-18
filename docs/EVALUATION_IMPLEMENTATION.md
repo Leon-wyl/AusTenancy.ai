@@ -511,7 +511,7 @@ python src/rag/evaluation/run_ragas_eval.py \
 | `tests/evaluation/vic_regulation_golden_contexts.json` | Pre-computed VIC Regulation golden contexts. |
 | `tests/evaluation/nsw_regulation_golden_dataset.json` | NSW Regulation golden QA pairs with `reg:` section refs. |
 | `tests/evaluation/nsw_regulation_golden_contexts.json` | Pre-computed NSW Regulation golden contexts. |
-| `data/processed/vic_rta_chunks.json` | Parsed and chunked VIC RTA 1997 (1011 chunks after truncation fix). |
+| `data/processed/vic_rta_chunks.json` | Parsed and chunked VIC RTA 1997 (1011 chunks with the current parser; copies generated before the truncation fix contain 1029 — re-run `vic_parser.py` to regenerate). |
 | `reports/*.csv` | Evaluation output reports. |
 | `requirements.txt` | Pinned dependencies including `ragas==0.1.22`. |
 | `pyproject.toml` | Project config with `[project.optional-dependencies].eval` for Ragas tooling. |
