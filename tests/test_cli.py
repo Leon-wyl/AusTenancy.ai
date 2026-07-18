@@ -119,12 +119,15 @@ class FakeCompiledGraph:
         self._current = None
 
     def stream(self, payload, config, stream_mode="updates"):
-        self.invocations.append(payload)
-        self._current = self._results.pop(0)
-        yield from self._events.pop(0)
+        def _gen():
+            self.invocations.append(payload)
+            self._current = self._results.pop(0)
+            yield from self._events.pop(0)
+
+        return _gen()
 
     def get_state(self, config):
-        return types.SimpleNamespace(values=self._current)
+        return types.SimpleNamespace(values=self._current if self._current is not None else {})
 
 
 class FakeWorkflow:
@@ -232,6 +235,9 @@ class TestMainLoop:
             def stream(self, payload, config, stream_mode="updates"):
                 raise RuntimeError("boom")
 
+            def get_state(self, config):
+                return types.SimpleNamespace(values={})
+
         _run_main(monkeypatch, ExplodingGraph(), ["", "some question", "quit"])
         out = capsys.readouterr().out
         assert "boom" in out
@@ -251,41 +257,30 @@ class TestMainLoop:
 
     def test_error_between_clarification_and_reply_keeps_msg_count(self, monkeypatch, capsys):
         clarification = CLARIFICATION_PREFIX + ". Please specify: state (e.g. VIC, NSW)."
-        turn1 = {
-            "messages": [
-                {"role": "user", "content": "Can I be evicted?"},
-                {"role": "assistant", "content": clarification},
-            ],
-            "answer": "",
-        }
-        turn3 = {
-            "messages": [
-                {"role": "user", "content": "Can I be evicted?"},
-                {"role": "assistant", "content": clarification},
-                {"role": "user", "content": "Can I be evicted? VIC"},
-            ],
-            "answer": "Yes, with notice [VIC RTA 1997 Sec 91ZM]",
-        }
 
         class FlakyGraph:
             def __init__(self):
                 self.calls = 0
                 self.invocations = []
-                self._current = None
+                self._messages = []
+                self._answer = ""
 
             def stream(self, payload, config, stream_mode="updates"):
                 self.calls += 1
                 self.invocations.append(payload)
+                self._messages.append(payload["messages"][0])
                 if self.calls == 1:
-                    self._current = turn1
-                elif self.calls == 2:
+                    self._messages.append({"role": "assistant", "content": clarification})
+                    return iter([])
+                if self.calls == 2:
                     raise RuntimeError("transient boom")
-                else:
-                    self._current = turn3
-                yield from []
+                self._answer = "Yes, with notice [VIC RTA 1997 Sec 91ZM]"
+                return iter([])
 
             def get_state(self, config):
-                return types.SimpleNamespace(values=self._current)
+                return types.SimpleNamespace(
+                    values={"messages": list(self._messages), "answer": self._answer}
+                )
 
         fake = FlakyGraph()
         _run_main(monkeypatch, fake, ["Can I be evicted?", "VIC", "VIC", "exit"])
@@ -293,12 +288,13 @@ class TestMainLoop:
         assert "transient boom" in out
         assert fake.invocations[2]["messages"][0]["content"] == "Can I be evicted? VIC"
         assert "Yes, with notice [VIC RTA 1997 Sec 91ZM]" in out
+        assert "\nAgent: Can I be evicted? VIC\n" not in out
 
     def test_keyboard_interrupt_during_invoke_continues(self, monkeypatch, capsys):
         class InterruptedThenAnswer:
             def __init__(self):
                 self.calls = 0
-                self._current = None
+                self._current = {}
 
             def stream(self, payload, config, stream_mode="updates"):
                 self.calls += 1

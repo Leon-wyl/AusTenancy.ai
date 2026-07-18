@@ -91,7 +91,6 @@ def main() -> None:
 
     awaiting_clarification = False
     last_question = ""
-    msg_count = 0
 
     while True:
         try:
@@ -112,6 +111,7 @@ def main() -> None:
             last_question = user_input
 
         try:
+            baseline = len(graph.get_state(config).values.get("messages", []))
             result = _run_turn(graph, config, query)
         except KeyboardInterrupt:
             print("\n(interrupted)")
@@ -120,8 +120,7 @@ def main() -> None:
             print(f"Error: {e}")
             continue
 
-        reply, awaiting_clarification = _extract_reply(result, msg_count)
-        msg_count = len(result.get("messages", []))
+        reply, awaiting_clarification = _extract_reply(result, baseline)
         print(f"\nAgent: {reply}\n")
 
 
