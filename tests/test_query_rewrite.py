@@ -5,6 +5,7 @@ Proves:
 - Normal Act-only questions are NOT polluted with Regulation terms.
 - _rewrite_queries always returns exactly 3 queries when successful.
 - The SEMANTIC and CONCEPT queries are never modified.
+- The _MULTI_QUERY_PROMPT includes Regulation-specific guidance and examples.
 """
 
 from __future__ import annotations
@@ -12,14 +13,15 @@ from __future__ import annotations
 from unittest.mock import patch
 
 from src.rag.generation.generator import (
-    _REGULATION_EXPANSION_SUFFIX,
     _has_regulation_intent,
+    _MULTI_QUERY_PROMPT,
     _parse_multi_response,
+    _REGULATION_EXPANSION_SUFFIX,
     _rewrite_queries,
 )
 
 _MOCK_RESPONSE = """SEMANTIC: renter bond lodgement dispute 4 weeks maximum VIC
-STATUTORY: rental provider bond amount maximum prescribed form lodgement VIC
+STATUTORY: rental provider bond amount maximum prescribed form lodgement Regulation VIC
 CONCEPT: residential bond maximum amount statutory limit rental provider obligation VIC"""
 
 
@@ -89,7 +91,7 @@ def test_parse_multi_response_returns_labels():
 
 @patch("src.rag.generation.generator.DeepSeekLLMProvider")
 def test_enriches_statutory_query_when_intent_detected(_mock_llm):
-    """Regulation intent → STATUTORY query gets ' Regulation' appended."""
+    """Regulation intent → STATUTORY query includes 'Regulation' (prompt-driven)."""
     instance = _mock_llm.return_value
     instance.generate.return_value = _MOCK_RESPONSE
 
@@ -99,25 +101,28 @@ def test_enriches_statutory_query_when_intent_detected(_mock_llm):
     )
     assert len(queries) == 3
     # SEMANTIC unchanged
-    assert _REGULATION_EXPANSION_SUFFIX not in queries[0]
-    # STATUTORY enriched
-    assert queries[1].rstrip().endswith(_REGULATION_EXPANSION_SUFFIX)
+    assert "Regulation" not in queries[0]
+    # STATUTORY contains Regulation (from prompt, not post-processing)
+    assert "Regulation" in queries[1]
     # CONCEPT unchanged
-    assert _REGULATION_EXPANSION_SUFFIX not in queries[2]
+    assert "Regulation" not in queries[2]
 
 
 @patch("src.rag.generation.generator.DeepSeekLLMProvider")
 def test_does_not_enrich_statutory_for_normal_question(_mock_llm):
-    """Non-Regulation question → STATUTORY query is NOT modified."""
+    """Non-Regulation question → STATUTORY query is NOT modified by post-processing."""
     instance = _mock_llm.return_value
-    instance.generate.return_value = _MOCK_RESPONSE
+    no_reg_response = """SEMANTIC: landlord raised rent without notice renter VIC
+STATUTORY: rental provider rent increase without notice prescribed notice period VIC
+CONCEPT: unlawful rent increase notice requirements rental provider obligations VIC"""
+    instance.generate.return_value = no_reg_response
 
     queries = _rewrite_queries(
         "My landlord raised the rent without notice, is that legal?",
         state_filter="VIC",
     )
     assert len(queries) == 3
-    assert _REGULATION_EXPANSION_SUFFIX not in queries[1]
+    assert "Regulation" not in queries[1]
 
 
 @patch("src.rag.generation.generator.DeepSeekLLMProvider")
@@ -140,7 +145,7 @@ CONCEPT: bond maximum statutory limit VIC"""
 
 @patch("src.rag.generation.generator.DeepSeekLLMProvider")
 def test_semantic_and_concept_unmodified(_mock_llm):
-    """Only the STATUTORY (index 1) query is ever modified."""
+    """Only the STATUTORY (index 1) query ever contains Regulation terms."""
     instance = _mock_llm.return_value
     instance.generate.return_value = _MOCK_RESPONSE
 
@@ -149,6 +154,26 @@ def test_semantic_and_concept_unmodified(_mock_llm):
         state_filter="VIC",
     )
     assert len(queries) == 3
-    assert _REGULATION_EXPANSION_SUFFIX in queries[1]
-    assert _REGULATION_EXPANSION_SUFFIX not in queries[0]
-    assert _REGULATION_EXPANSION_SUFFIX not in queries[2]
+    assert "Regulation" in queries[1]
+    assert "Regulation" not in queries[0]
+    assert "Regulation" not in queries[2]
+
+
+def test_prompt_contains_regulation_guidance():
+    """The STATUTORY description in the prompt includes Regulation-specific guidance."""
+    assert "Regulation-specific" in _MULTI_QUERY_PROMPT
+    assert "Regulation is a separate" in _MULTI_QUERY_PROMPT
+    assert "prescribed form" in _MULTI_QUERY_PROMPT
+    assert "Schedule" in _MULTI_QUERY_PROMPT
+    assert "minimum standards" in _MULTI_QUERY_PROMPT
+
+
+def test_prompt_contains_regulation_example():
+    """The prompt includes a NSW condition-report example with Regulation terminology."""
+    assert "condition report prescribed form Residential Tenancies Regulation 2019" in _MULTI_QUERY_PROMPT
+    assert "Schedule 2" in _MULTI_QUERY_PROMPT
+
+
+def test_prompt_still_has_vic_lease_break_example():
+    """The original VIC lease break example is preserved."""
+    assert "notice of intention to vacate early termination fixed term agreement prescribed form VIC" in _MULTI_QUERY_PROMPT

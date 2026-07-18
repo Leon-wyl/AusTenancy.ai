@@ -466,13 +466,18 @@ def _has_regulation_intent(question: str) -> bool:
 _MULTI_QUERY_PROMPT = """Generate 3 complementary search queries for the user's tenancy law question using jurisdiction-correct terminology: "{landlord_term}", "{tenant_term}".
 
 1. SEMANTIC — factual scenario: preserve the key events, numbers, timeframes, and reasons.
-2. STATUTORY — legal terminology: use the jurisdiction's exact statutory vocabulary for the relevant provisions.
+2. STATUTORY — exact statutory vocabulary. For forms, procedures, schedules, standards, penalties and prescribed requirements, use Regulation-specific terms: "prescribed form", "Schedule", "minimum standards", "Regulation". The Regulation is a separate legal instrument from the Act — use its distinct terminology when the question involves procedural or prescriptive matters.
 3. CONCEPT — abstract legal domain: name the general legal principles and obligations involved.
 
 For example, for Victoria, "I need to break my 12-month lease early":
 SEMANTIC: break 12-month lease 4 months early new job relocation {tenant_term} notice period VIC
 STATUTORY: {tenant_term} notice of intention to vacate early termination fixed term agreement prescribed form VIC
 CONCEPT: early termination of lease by tenant compensation break fee notice requirements VIC
+
+For example, for NSW, "What condition report is required when a new tenant moves in?":
+SEMANTIC: new tenant move in condition report form inspection report at lease signing NSW
+STATUTORY: condition report prescribed form Residential Tenancies Regulation 2019 Schedule 2 landlord obligation NSW
+CONCEPT: pre-tenancy disclosure obligations condition report statutory requirements NSW
 
 Rules:
 - Include jurisdiction abbreviation (e.g. VIC, NSW) in each query
