@@ -16,10 +16,10 @@ def _merge_clarification(prev_question: str, reply: str) -> str:
     return f"{prev_question} {reply}".strip()
 
 
-def _msg_content(msg) -> str:
+def _msg_content(msg: object) -> str:
     if isinstance(msg, dict):
-        return msg.get("content", "")
-    return getattr(msg, "content", "")
+        return msg.get("content", "") or ""
+    return getattr(msg, "content", "") or ""
 
 
 def _extract_reply(result: dict, prev_msg_count: int) -> tuple[str, bool]:

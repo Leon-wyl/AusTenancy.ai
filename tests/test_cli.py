@@ -80,6 +80,18 @@ class TestExtractReply:
         assert text == fallback
         assert awaiting is False
 
+    def test_none_content_treated_as_empty(self):
+        result = {
+            "messages": [
+                {"role": "user", "content": "q"},
+                {"role": "assistant", "content": None},
+            ],
+            "answer": "",
+        }
+        text, awaiting = _extract_reply(result, prev_msg_count=0)
+        assert text == ""
+        assert awaiting is False
+
     def test_message_object_content_supported(self):
         class FakeMessage:
             content = CLARIFICATION_PREFIX + ". Please specify: state."
