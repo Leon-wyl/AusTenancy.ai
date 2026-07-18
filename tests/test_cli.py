@@ -106,3 +106,95 @@ class TestClarificationPrefixContract:
     def test_prefix_matches_graph_wording(self):
         message = request_clarification({})["messages"][0]["content"]
         assert message.startswith(CLARIFICATION_PREFIX)
+
+
+class FakeCompiledGraph:
+    def __init__(self, results):
+        self._results = list(results)
+        self.invocations = []
+
+    def invoke(self, payload, config):
+        self.invocations.append(payload)
+        return self._results.pop(0)
+
+
+class FakeWorkflow:
+    def __init__(self, compiled):
+        self._compiled = compiled
+
+    def compile(self, checkpointer=None):
+        return self._compiled
+
+
+def _run_main(monkeypatch, fake_graph, inputs):
+    from src.agent import cli
+
+    monkeypatch.setattr(cli, "build_graph", lambda: FakeWorkflow(fake_graph))
+    monkeypatch.setattr(cli, "load_dotenv", lambda: None)
+    input_iter = iter(inputs)
+    monkeypatch.setattr("builtins.input", lambda _prompt="": next(input_iter))
+    cli.main()
+
+
+class TestMainLoop:
+    def test_prints_answer_and_exits(self, monkeypatch, capsys):
+        fake = FakeCompiledGraph(
+            [
+                {
+                    "messages": [{"role": "user", "content": "q"}],
+                    "answer": "Answer [VIC RTA 1997 Sec 44]",
+                }
+            ]
+        )
+        _run_main(monkeypatch, fake, ["Rent increase notice in VIC?", "exit"])
+        out = capsys.readouterr().out
+        assert "Answer [VIC RTA 1997 Sec 44]" in out
+
+    def test_clarification_round_trip_merges_query(self, monkeypatch, capsys):
+        clarification = CLARIFICATION_PREFIX + ". Please specify: state (e.g. VIC, NSW)."
+        fake = FakeCompiledGraph(
+            [
+                {
+                    "messages": [
+                        {"role": "user", "content": "Can I be evicted?"},
+                        {"role": "assistant", "content": clarification},
+                    ],
+                    "answer": "",
+                },
+                {
+                    "messages": [
+                        {"role": "user", "content": "Can I be evicted?"},
+                        {"role": "assistant", "content": clarification},
+                        {"role": "user", "content": "Can I be evicted? VIC"},
+                    ],
+                    "answer": "Yes, with notice [VIC RTA 1997 Sec 91ZM]",
+                },
+            ]
+        )
+        _run_main(monkeypatch, fake, ["Can I be evicted?", "VIC", "exit"])
+        assert fake.invocations[1]["messages"][0]["content"] == "Can I be evicted? VIC"
+        out = capsys.readouterr().out
+        assert clarification in out
+        assert "Yes, with notice [VIC RTA 1997 Sec 91ZM]" in out
+
+    def test_empty_input_skipped_and_error_does_not_crash(self, monkeypatch, capsys):
+        class ExplodingGraph:
+            def invoke(self, payload, config):
+                raise RuntimeError("boom")
+
+        _run_main(monkeypatch, ExplodingGraph(), ["", "some question", "quit"])
+        out = capsys.readouterr().out
+        assert "boom" in out
+
+    def test_eof_exits_gracefully(self, monkeypatch, capsys):
+        from src.agent import cli
+
+        monkeypatch.setattr(cli, "build_graph", lambda: FakeWorkflow(FakeCompiledGraph([])))
+        monkeypatch.setattr(cli, "load_dotenv", lambda: None)
+
+        def raise_eof(_prompt=""):
+            raise EOFError
+
+        monkeypatch.setattr("builtins.input", raise_eof)
+        cli.main()
+        assert "Bye." in capsys.readouterr().out
