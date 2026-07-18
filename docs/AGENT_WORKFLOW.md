@@ -1,6 +1,89 @@
 # Agent Workflow: LangGraph Orchestration
 
+> **Note:** This document began as the Phase C design draft. The implemented graph lives in `src/agent/graph_skeleton.py` and diverges (different node names and topology from the original design). Sections below are tagged `[IMPLEMENTED]` or `[STATUS: planned — not implemented]` to distinguish actual code from future design.
+
+## Implemented Graph (Current)
+
+### AgentState (`src/agent/state.py`)
+
+```python
+from typing import Annotated, TypedDict
+
+from langgraph.graph.message import add_messages
+
+
+class AgentState(TypedDict):
+    """State schema for the 7-node tenancy compliance agent."""
+
+    messages: Annotated[list, add_messages]
+    jurisdiction: str
+    tenancy_type: str
+    dispute_category: str
+    rewritten_queries: list[str]
+    retrieved_contexts: list[dict]
+    answer: str
+    retry_count: int
+    is_complex_case: bool
+    in_scope: bool
+    citations_verified: bool
+    fallback_reason: str
+    citation_errors: list[str]
+```
+
+### Nodes (7)
+
+| Node | Purpose | Type |
+|------|---------|------|
+| `intake_analyzer` | Detect jurisdiction (regex) and check scope (keyword triggers) | Rule-based |
+| `request_clarification` | Ask user for missing jurisdiction or tenancy type | Rule-based |
+| `query_rewriter` | Rewrite user query into SEMANTIC, STATUTORY, CONCEPT queries | LLM (DeepSeek) |
+| `rag_retriever` | Hybrid search per query (dense + BM25 → RRF fusion) → `retrieved_contexts` | Rule-based + Qdrant |
+| `legal_reasoner` | Generate IRAC answer from retrieved contexts | LLM (DeepSeek) |
+| `citation_verifier` | Cross-check citations against retrieved chunks; apply citation guard | Rule-based |
+| `fallback_node` | Produce graceful rejection message by fallback reason | Rule-based |
+
+### Routers (3)
+
+| Router | Condition |
+|--------|-----------|
+| `route_after_intake` | `fallback_node` if out of scope or unsupported jurisdiction; `request_clarification` if no jurisdiction; `query_rewriter` otherwise |
+| `route_after_retrieval` | `fallback_node` if empty retrieval; `legal_reasoner` otherwise |
+| `route_after_verify` | `fallback_node` if zero citations or all unverified; `__end__` otherwise |
+
+### Mermaid Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> intake_analyzer
+
+    intake_analyzer --> fallback_node : out of scope / unsupported jurisdiction
+    intake_analyzer --> request_clarification : missing jurisdiction
+    intake_analyzer --> query_rewriter : all slots filled
+
+    request_clarification --> [*]
+
+    query_rewriter --> rag_retriever
+
+    rag_retriever --> fallback_node : empty retrieval
+    rag_retriever --> legal_reasoner : contexts available
+
+    legal_reasoner --> citation_verifier
+
+    citation_verifier --> fallback_node : verification failed
+    citation_verifier --> [*] : citations verified
+
+    fallback_node --> [*]
+```
+
+### CLI (`python -m src.agent.cli`)
+
+Interactive multi-turn REPL with `MemorySaver` checkpointing and per-session `thread_id`. Streams node progress as status lines (✓ Jurisdiction, ⟳ Rewrote into N search queries, ⟳ Retrieved N statutory provisions, ⟳ Generating legal analysis…, ✓ N citations verified). Supports CLI-side clarification merging: short replies like "VIC" are merged with the original question. Exit with `exit`/`quit`/`q`.
+
+---
+
 ## Design Principle: Hybrid Type System
+
+> **[STATUS: planned — not implemented]** Pydantic boundary schemas are not yet wired; current implementation uses `AgentState` TypedDict throughout.
 
 | Boundary | Schema Tool | Why |
 |---|---|---|
@@ -236,6 +319,8 @@ def route_after_verification(state: AgentState) -> str:
 
 ## 2B. Error Resilience & Timeout Management
 
+> **[STATUS: planned — not implemented]** Per-node timeout budgets and degradation chains are not built; current graph relies on external process timeouts.
+
 Each node executes within a Lambda invocation with a hard 30s timeout. Per-node budgets prevent a single slow call from starving the rest of the graph.
 
 ### Per-Node Timeout Budget
@@ -328,6 +413,8 @@ class AgentState(TypedDict):
 ---
 
 ## 3. Tool Inventory
+
+> **[STATUS: planned — not implemented]** Bedrock Converse API `toolConfig` is deferred to Phase D; current graph calls generator functions directly.
 
 Each tool is defined in two forms: (a) a human-readable signature, (b) a Bedrock Converse API `toolSpec` that enables native Function Calling — the LLM requests tool execution via structured `toolUse` blocks instead of parsing tool calls from raw text.
 
@@ -649,6 +736,8 @@ mcp.run(transport="sse")  # or "stdio" for local dev
 
 ## 4. MCP Server Integration
 
+> **[STATUS: planned — not implemented]** MCP server not built; tools are called as Python functions within the graph.
+
 All three tools are exposed as a **Model Context Protocol (MCP) server**, making the agent SDK-agnostic. Any MCP host (Claude Desktop, VS Code, Cursor, custom client) can discover and invoke these tools without knowing the Lambda transport.
 
 ### Protocol Architecture
@@ -706,6 +795,8 @@ All three tools are exposed as a **Model Context Protocol (MCP) server**, making
 ---
 
 ## 5. Cross-Session Memory with Mem0
+
+> **[STATUS: planned — not implemented]** Mem0 integration is deferred to a future Phase C step.
 
 The agent uses **Mem0** to persist user preferences across sessions, reducing slot-filler turns and personalizing responses for returning users.
 
