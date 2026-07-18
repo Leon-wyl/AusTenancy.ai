@@ -428,6 +428,41 @@ def _apply_citation_guard(answer: str, citation_check: dict) -> str:
 
 # ── Query Rewriting ────────────────────────────────────────────────────
 
+_REGULATION_INTENT_KEYWORDS = [
+    "bond",
+    "condition report",
+    "minimum standard",
+    "rooming house",
+    "caravan park",
+    "site agreement",
+    "tenancy database",
+    "penalty notice",
+    "penalti",
+    "water efficien",
+    "prescribed form",
+    "notice to vacate",
+    "park rule",
+    "electrical safety",
+    "gas safety",
+    "crisis accommodation",
+    "refuge",
+    "social housing",
+    "residential park",
+    "septic",
+    "heater",
+    "heating",
+    "cooling",
+]
+
+_REGULATION_EXPANSION_SUFFIX = " Regulation"
+
+
+def _has_regulation_intent(question: str) -> bool:
+    """Check if the question suggests Regulation-backed or procedural topics."""
+    lower = question.lower()
+    return any(keyword in lower for keyword in _REGULATION_INTENT_KEYWORDS)
+
+
 _MULTI_QUERY_PROMPT = """Generate 3 complementary search queries for the user's tenancy law question using jurisdiction-correct terminology: "{landlord_term}", "{tenant_term}".
 
 1. SEMANTIC — factual scenario: preserve the key events, numbers, timeframes, and reasons.
@@ -489,6 +524,15 @@ def _rewrite_queries(query: str, state_filter: str | None = None) -> list[str]:
         raw = raw.strip()
         queries = _parse_multi_response(raw)
         if len(queries) >= 2 and all(bool(q.strip()) for q in queries):
+            if (
+                len(queries) >= 3
+                and _has_regulation_intent(query)
+                and _REGULATION_EXPANSION_SUFFIX not in queries[1]
+            ):
+                queries[1] = queries[1].rstrip() + _REGULATION_EXPANSION_SUFFIX
+                logger.info(
+                    "Regulation intent detected — enriched STATUTORY query"
+                )
             logger.info(
                 "Multi-query: '%s' → [%s, %s, %s]",
                 query[:60],
