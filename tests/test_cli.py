@@ -198,3 +198,65 @@ class TestMainLoop:
         monkeypatch.setattr("builtins.input", raise_eof)
         cli.main()
         assert "Bye." in capsys.readouterr().out
+
+    def test_error_between_clarification_and_reply_keeps_msg_count(self, monkeypatch, capsys):
+        clarification = CLARIFICATION_PREFIX + ". Please specify: state (e.g. VIC, NSW)."
+        turn1 = {
+            "messages": [
+                {"role": "user", "content": "Can I be evicted?"},
+                {"role": "assistant", "content": clarification},
+            ],
+            "answer": "",
+        }
+        turn3 = {
+            "messages": [
+                {"role": "user", "content": "Can I be evicted?"},
+                {"role": "assistant", "content": clarification},
+                {"role": "user", "content": "Can I be evicted? VIC"},
+            ],
+            "answer": "Yes, with notice [VIC RTA 1997 Sec 91ZM]",
+        }
+
+        class FlakyGraph:
+            def __init__(self):
+                self.calls = 0
+                self.invocations = []
+
+            def invoke(self, payload, config):
+                self.calls += 1
+                self.invocations.append(payload)
+                if self.calls == 1:
+                    return turn1
+                if self.calls == 2:
+                    raise RuntimeError("transient boom")
+                return turn3
+
+        fake = FlakyGraph()
+        _run_main(monkeypatch, fake, ["Can I be evicted?", "VIC", "VIC", "exit"])
+        out = capsys.readouterr().out
+        assert "transient boom" in out
+        assert fake.invocations[2]["messages"][0]["content"] == "Can I be evicted? VIC"
+        assert "Yes, with notice [VIC RTA 1997 Sec 91ZM]" in out
+
+    def test_keyboard_interrupt_during_invoke_continues(self, monkeypatch, capsys):
+        class InterruptedThenAnswer:
+            def __init__(self):
+                self.calls = 0
+
+            def invoke(self, payload, config):
+                self.calls += 1
+                if self.calls == 1:
+                    raise KeyboardInterrupt
+                return {
+                    "messages": [{"role": "user", "content": "q"}],
+                    "answer": "Answer [VIC RTA 1997 Sec 44]",
+                }
+
+        _run_main(
+            monkeypatch,
+            InterruptedThenAnswer(),
+            ["Rent increase in VIC?", "Rent increase in VIC?", "exit"],
+        )
+        out = capsys.readouterr().out
+        assert "(interrupted)" in out
+        assert "Answer [VIC RTA 1997 Sec 44]" in out
