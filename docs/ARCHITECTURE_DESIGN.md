@@ -2,6 +2,8 @@
 
 ## 1. Cloud Infrastructure & Security
 
+> **Current agent implementation:** The LangGraph agent is in `src/agent/` (graph_skeleton.py, state.py, cli.py). See [AGENT_WORKFLOW.md](./AGENT_WORKFLOW.md) "Implemented Graph" for the actual node topology and state schema.
+
 ### Why AWS Bedrock
 
 AWS Bedrock is chosen over direct Anthropic API or self-hosted models for three enterprise constraints that apply even at demo scale:
@@ -66,7 +68,7 @@ Bedrock Converse API enforces per-model rate limits. At demo scale these are rar
 | Claude Sonnet | 1,000 | 100,000 | Degrade to Nova Lite with warning |
 | Titan Embeddings | 5,000 | 500,000 | Retry after backoff |
 
-**Implementation (`src/utils/rate_limiter.py`):**
+**Implementation (`src/utils/rate_limiter.py` — planned, not yet extracted):**
 
 ```python
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
@@ -259,6 +261,11 @@ Using a single model for all tasks is wasteful. Classifying jurisdiction require
 ┌───────────────────────────────────────────────────────┐
 │ Layer 1: Intent & Slot Classifier                     │
 │ Model: Amazon Nova Lite ($0.06/M input tokens)        │
+│                                                        │
+│ Implementation note: Currently implemented as          │
+│ rule-based `intake_analyzer` (regex jurisdiction       │
+│ detection + keyword scope checks, no LLM, ~0 cost and  │
+│ latency). Nova Lite classifier remains a future option. │
 │ Task:                                                   │
 │   - Extract: {jurisdiction, role, question_type,       │
 │                entities (dates, sections)}              │
@@ -277,6 +284,8 @@ Using a single model for all tasks is wasteful. Classifying jurisdiction require
                             ▼
 ┌───────────────────────────────────────────────────────┐
 │ Layer 2.5: Tool Binding via Bedrock Converse toolConfig│
+│ > [STATUS: planned — not implemented; current graph    │
+│ > calls generator functions directly]                   │
 │ Model: None (API layer)                                │
 │ Task:                                                    │
 │   - The 3 tools (rag_retriever, date_calculator,        │
@@ -330,6 +339,8 @@ Using a single model for all tasks is wasteful. Classifying jurisdiction require
 | 3. Legal Reasoner | Claude Sonnet | ~2,000 | ~500 | ~$0.008 |
 | 4. Citation Verifier | Rule-based | — | — | $0 |
 | **Total** | | | | **~$0.008/query** |
+
+> **Note:** This table reflects the planned Bedrock architecture. The current dev implementation uses DeepSeek + rule-based intake_analyzer (classifier row: $0; query_rewriter adds one LLM call).
 
 At **50 queries/day** (demo traffic): **~$0.40/day → ~$12/month**.
 
@@ -412,6 +423,8 @@ Query:     "What notice is needed?" → retrieves S44 (with S12 context) → LLM
 
 ### MCP Protocol Layer
 
+> **[STATUS: not implemented]**
+
 Expose the three tools as a **Model Context Protocol (MCP) server** (Python, `mcp` SDK). This makes the agent SDK-agnostic — any MCP host can invoke the tools without knowing the LangGraph infrastructure.
 
 ```
@@ -434,6 +447,8 @@ Expose the three tools as a **Model Context Protocol (MCP) server** (Python, `mc
 **Implementation effort:** ~4 hours. Python `mcp` SDK, wrap existing tool functions with `@mcp.tool()`, deploy via Lambda SSE endpoint or stdio for local dev.
 
 ### Mem0 Cross-Session Memory
+
+> **[STATUS: not implemented]**
 
 Integrate **Mem0** to persist user preferences (jurisdiction, role) across sessions, reducing slot-filler retries for returning users.
 

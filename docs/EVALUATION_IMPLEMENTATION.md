@@ -1,8 +1,8 @@
-# Evaluation Implementation — VIC Tenancy RAG Pipeline
+# Evaluation Implementation — VIC & NSW Tenancy RAG Pipeline
 
 ## Overview
 
-A production-grade evaluation suite for the Victorian Residential Tenancies Act 1997 (RTA 1997) RAG compliance pipeline. Built with the Ragas framework (v0.1.22), measuring three core metrics:
+A production-grade evaluation suite for Australian Residential Tenancies legislation, covering the Victorian (VIC) and New South Wales (NSW) tenancy Acts and Regulations. Built with the Ragas framework (v0.1.22), measuring three core metrics:
 
 | Metric | What it measures | Final score |
 |--------|-----------------|-------------|
@@ -15,16 +15,28 @@ A production-grade evaluation suite for the Victorian Residential Tenancies Act 
 ```
 evaluation/
 ├── tests/evaluation/
-│   ├── vic_golden_dataset.json      # 20 QA pairs (5 per domain)
-│   └── vic_golden_contexts.json     # Pre-computed golden contexts for diagnostics
+│   ├── vic_golden_dataset.json          # 20 QA pairs (5 per domain)
+│   ├── vic_golden_contexts.json         # Pre-computed golden contexts for diagnostics
+│   ├── vic_regulation_golden_dataset.json   # VIC Regulation golden QA pairs
+│   ├── vic_regulation_golden_contexts.json  # VIC Regulation golden contexts
+│   ├── nsw_golden_dataset.json          # 20 NSW QA pairs
+│   ├── nsw_golden_contexts.json         # NSW golden contexts
+│   ├── nsw_regulation_golden_dataset.json   # NSW Regulation golden QA pairs
+│   └── nsw_regulation_golden_contexts.json  # NSW Regulation golden contexts
 ├── src/rag/evaluation/
 │   ├── __init__.py
-│   └── run_ragas_eval.py            # Evaluation runner with CLI flags
+│   ├── run_ragas_eval.py                # Evaluation runner with CLI flags
+│   ├── citation_metrics.py              # Deterministic citation metrics
+│   ├── gen_golden_contexts.py           # Golden context pre-computation
+│   └── audit_sections.py               # Section audit utility
+└── reports/
+    ├── vic_eval_report.csv              # VIC baseline
+    ├── nsw_eval_report.csv              # NSW baseline
+    ├── vic_regulation_eval_report.csv   # VIC Regulation
+    ├── nsw_regulation_eval_report.csv   # NSW Regulation
+    └── ... (experiment reports)
 ├── docs/
-│   └── EVALUATION_IMPLEMENTATION.md # This document
-├── vic_eval_faithfix.csv            # Final baseline result (T2 config)
-├── vic_eval_results.json            # Intermediate save (pipeline answers + contexts)
-└── vic_eval_report.csv              # Initial baseline (before any fixes)
+│   └── EVALUATION_IMPLEMENTATION.md     # This document
 ```
 
 ### Key architectural decisions
@@ -316,6 +328,69 @@ Python 3.14 introduced stricter asyncio behavior (no automatic event loop creati
 
 ---
 
+## Citation Metrics (deterministic)
+
+The `citation_metrics.py` module provides deterministic, LLM-free citation evaluation. It computes:
+
+| Field | Description |
+|-------|-------------|
+| `citation_precision` | Fraction of citations in the answer that are verified against retrieved contexts |
+| `golden_recall_retrieval` | Fraction of golden section refs found in retrieved contexts |
+| `golden_recall_citation` | Fraction of golden section refs found in verified citations |
+| `reg_citations_in_answer` | Count of Regulation citations in the answer |
+| `reg_citation_verified` | Whether at least one Regulation citation is verified |
+
+The module understands the `reg:` prefix convention for golden section references and matches them to actual citation labels using a combination of chunk section_id lookup and canonical label formatting.
+
+**Integration:** `run_ragas_eval.py` automatically computes citation metrics alongside Ragas metrics when golden section references (`metadata.sections`) are present in the dataset. Both sets of metrics appear in the output CSV.
+
+---
+
+## Regulation Retrieval Workflow
+
+Regulation support is implemented for both VIC and NSW:
+
+| Component | File |
+|-----------|------|
+| VIC Regulation parser | `src/rag/data_processing/vic_regulation_parser.py` |
+| NSW Regulation parser | `src/rag/data_processing/nsw_regulation_parser.py` |
+
+### Citation formats
+
+- Act sections: `[VIC RTA 1997 Sec 44(1)]`, `[NSW RTA 2010 Sec 85]`
+- Regulation provisions: `[VIC REG 2021 Reg 21]`, `[NSW REG 2019 Reg 15]`
+- Schedule/Form references: `[VIC REG 2021 Sch 1 Form 6]`
+
+### STATUTORY prompt reformulation
+
+When the query is classified as STATUTORY:
+- Regulation keyword expansion is gated and instrument-aware
+- Prompt vocabulary is reformulated (Act vs Regulation language)
+- NSW condition-report few-shot examples are injected
+
+### Measured impact
+
+| Metric | Delta |
+|--------|-------|
+| VIC context_precision | +0.167 (31% improvement) |
+| VIC Regulation verified rate | 70% → 85% |
+| NSW Regulation verified rate | 80% → 90% |
+
+---
+
+## Multi-State Batch Evaluation
+
+`--state all` runs evaluation across all supported states (currently VIC + NSW) in sequence:
+
+- Per-state golden datasets, contexts, and output paths
+- VIC automatically uses the curated 10-QA batch subset
+- 3-second pause between states (rate limit guard)
+- Cross-state summary printed at the end with per-state metric means
+- Errors in one state do not halt evaluation of remaining states
+- Requires `DEEPSEEK_API_KEY` set (unless `--dry-run`)
+
+---
+
 ## Roadmap Adjustments
 
 Based on the evaluation results, two roadmap decisions were made:
@@ -343,13 +418,12 @@ between the metric (designed for factual QA) and IRAC (designed for legal reason
 not a format deficiency. Revisit if multi-state evaluation or user feedback
 identifies format-specific issues.
 
-### Next Priority: Phase B (Multi-State Scaling)
+### Next Priority: Phase B (Multi-State Scaling — in progress)
 
 Steps 4-6 (NSW → all 8 jurisdictions → multi-state RAGAS evaluation) are the
-next highest-impact work. Scaling will test whether:
-- The PDF parser is reusable across different legislative formats
-- The Part filter strategy generalises (each state has different section grouping)
-- Retrieval quality holds across jurisdictions with different legal terminology
+next highest-impact work. **Shipped so far:** NSW golden datasets (20 QA pairs),
+batch evaluation (`--state all`), VIC + NSW Regulation parsers and citation
+support. **Deferred:** QLD, SA, WA, TAS, ACT, NT (6 jurisdictions).
 
 ---
 
@@ -359,14 +433,23 @@ next highest-impact work. Scaling will test whether:
 # Dry-run (validate dataset, no LLM calls)
 python src/rag/evaluation/run_ragas_eval.py --dry-run
 
-# Baseline T2 config (reranker OFF by default, rewrite ON)
+# Baseline T2 config (golden-context mode, reranker OFF by default, rewrite ON)
 python src/rag/evaluation/run_ragas_eval.py --output report.csv
+
+# Real retrieval mode (full pipeline: hybrid search → generation)
+python src/rag/evaluation/run_ragas_eval.py --eval-mode real-retrieval --output real_eval.csv
 
 # Test with rooming houses included (exclude only caravan parks, site agreements, SDA)
 python src/rag/evaluation/run_ragas_eval.py --exclude-parts "4,4A,12A"
 
 # Test with all Parts (no filter)
 python src/rag/evaluation/run_ragas_eval.py --exclude-parts ""
+
+# NSW evaluation
+python src/rag/evaluation/run_ragas_eval.py --state NSW --output nsw_eval.csv
+
+# Multi-state batch evaluation (VIC + NSW)
+python src/rag/evaluation/run_ragas_eval.py --state all
 
 # Full ablation — opt in to the (disabled-by-default) reranker
 python src/rag/evaluation/run_ragas_eval.py \
@@ -379,21 +462,34 @@ python src/rag/evaluation/run_ragas_eval.py \
     --output golden.csv
 ```
 
+### Evaluation modes
+
+| Mode | What it does | Default |
+|------|-------------|---------|
+| `golden-context` | Bypasses retrieval entirely; uses pre-computed golden contexts. Tests LLM generation quality in isolation. | Yes |
+| `real-retrieval` | Runs the full pipeline (hybrid search + generation). Tests end-to-end retrieval + generation quality. | No |
+
 ### CLI reference
 
 | Flag | Effect |
 |------|--------|
-| `--dry-run` | Validate dataset, print first prompt, exit |
-| `--limit N` | Evaluate only first N questions |
-| `--rerank` | Enable FlashRank reranking (OFF by default — degrades legal RAG) |
-| `--no-rerank` | Deprecated no-op; reranker is already OFF by default (kept for compat) |
-| `--no-rewrite` | Use original query for retrieval (skip LLM rewrite) |
-| `--reranker-query-original` | Pass original query to reranker (only applies with `--rerank`) |
-| `--golden-contexts PATH` | Use pre-computed contexts as retrieval override |
-| `--exclude-parts PARTS` | Parts to exclude from retrieval, comma-separated (default: pipeline default for standard residential). Use `""` for no filtering. Part 3=rooming houses, 4=caravan parks, 4A=site agreements, 12A=SDA |
-| `--state STATE` | State filter (default: VIC) |
+| `--state STATE` | State filter: `VIC`, `NSW`, or `all` (batch across all states) |
+| `--dry-run` | Validate datasets without LLM calls; `--state all` runs smoke test per state |
+| `--limit N` | Per-state limit in batch mode (0 = all) |
+| `--eval-mode MODE` | `golden-context` (bypass retrieval) or `real-retrieval` (full pipeline, default: `golden-context`) |
+| `--batch` | [VIC only] Use curated 10-QA subset; `--state all` applies VIC batch automatically |
 | `--top-k N` | Chunks to retrieve (default: 10) |
-| `--output PATH` | CSV output path |
+| `--rerank` | Enable FlashRank reranking (DISABLED by default — degrades legal RAG) |
+| `--no-rerank` | [Deprecated no-op] reranker is disabled by default; kept for compat |
+| `--no-rewrite` | Disable LLM query rewrite |
+| `--reranker-query-original` | Pass original query to the reranker (only applies with `--rerank`) |
+| `--golden-contexts PATH` | Override golden contexts path (ignored in `--state all`) |
+| `--exclude-parts PARTS` | Override auto-populated exclude_parts; empty string = no filter |
+| `--include-parts PARTS` | Parts to include (carveback), comma-separated |
+| `--include-chapters PARTS` | Chapters to include (carveback), comma-separated (QLD only) |
+| `--samples IDX` | Comma-separated 0-indexed sample indices to evaluate (e.g. `'15,16,18'`) |
+| `--dataset PATH` | Golden dataset path (default: `tests/evaluation/{state}_golden_dataset.json`) |
+| `--output PATH` | CSV output path (default: `reports/{state}_eval_report.csv`) |
 
 ---
 
@@ -404,14 +500,20 @@ python src/rag/evaluation/run_ragas_eval.py \
 | `src/rag/generation/generator.py` | RAG pipeline: rewrite → retrieve → prompt → LLM → verify (reranker disabled by default). Contains SYSTEM_PROMPT, QUERY_REWRITE_PROMPT, `generate_compliance_answer()`, `rerank_context()` (retained, opt-in only), `verify_citations()`. |
 | `src/rag/retrieval/vector_store.py` | Qdrant ingestion and hybrid retrieval (dense + sparse RRF) with metadata filters, including `exclude_parts` parameter. |
 | `src/rag/evaluation/run_ragas_eval.py` | Evaluation script with `DeepSeekRagasLLM`, `FastembedRagasEmbeddings`, CLI flags for all configurations, intermediate save/resume. |
+| `src/rag/evaluation/citation_metrics.py` | Deterministic citation metrics: citation precision, golden provision recall, Regulation indicators. No LLM calls needed. |
+| `src/rag/evaluation/gen_golden_contexts.py` | Pre-compute golden contexts for diagnostic mode. |
 | `src/rag/evaluation/__init__.py` | Package marker. |
-| `tests/evaluation/vic_golden_dataset.json` | 20 QA pairs with IRAC-format ground truths. Schema: `question`, `ground_truth`, `metadata` {domain, sections, difficulty, role, location}. |
-| `tests/evaluation/vic_golden_contexts.json` | Pre-computed golden contexts mapping QA index → list of chunk dicts (sections cited in ground truth). |
-| `data/processed/vic_rta_chunks.json` | Parsed and chunked VIC RTA 1997 (1029 chunks). |
-| `vic_eval_faithfix.csv` | Final baseline evaluation results (20 rows, T2 config). |
-| `vic_eval_results.json` | Intermediate pipeline outputs (answers + contexts) from the last run, enables resume. |
+| `tests/evaluation/vic_golden_dataset.json` | 20 VIC QA pairs with IRAC-format ground truths. |
+| `tests/evaluation/vic_golden_contexts.json` | Pre-computed VIC golden contexts. |
+| `tests/evaluation/nsw_golden_dataset.json` | 20 NSW QA pairs with IRAC-format ground truths. |
+| `tests/evaluation/nsw_golden_contexts.json` | Pre-computed NSW golden contexts. |
+| `tests/evaluation/vic_regulation_golden_dataset.json` | VIC Regulation golden QA pairs with `reg:` section refs. |
+| `tests/evaluation/vic_regulation_golden_contexts.json` | Pre-computed VIC Regulation golden contexts. |
+| `tests/evaluation/nsw_regulation_golden_dataset.json` | NSW Regulation golden QA pairs with `reg:` section refs. |
+| `tests/evaluation/nsw_regulation_golden_contexts.json` | Pre-computed NSW Regulation golden contexts. |
+| `data/processed/vic_rta_chunks.json` | Parsed and chunked VIC RTA 1997 (1011 chunks with the current parser; copies generated before the truncation fix contain 1029 — re-run `vic_parser.py` to regenerate). |
+| `reports/*.csv` | Evaluation output reports. |
 | `requirements.txt` | Pinned dependencies including `ragas==0.1.22`. |
 | `pyproject.toml` | Project config with `[project.optional-dependencies].eval` for Ragas tooling. |
-| `prompt.xml` | Original task specification for this evaluation module. |
 | `docs/EVALUATION_PLAN.md` | Original evaluation strategy document (pre-implementation). |
 | `docs/EVALUATION_IMPLEMENTATION.md` | This document. |
