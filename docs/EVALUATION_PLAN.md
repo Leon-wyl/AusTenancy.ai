@@ -85,11 +85,12 @@ Note: Ragas requires an LLM-as-judge (typically GPT-4 or Claude) for the NLI-bas
 
 ### Dataset Structure
 
-The golden dataset lives in `eval/golden_dataset.json` (version-controlled) and contains **30–50 samples** evenly distributed across:
+The golden dataset lives in `tests/evaluation/{state}_golden_dataset.json` (VIC + NSW, version-controlled) and contains **20 QA pairs per state** (30–50 remains the target for broader coverage).
 
 | Dimension | Values |
 |---|---|
-| **Jurisdictions** | VIC, NSW, QLD, SA, WA, TAS, ACT, NT + cross-jurisdiction comparisons |
+| **Jurisdictions** | VIC, NSW (current implementation covers VIC + NSW; QLD, SA, WA, TAS, ACT, NT planned) |
+| **Question types** | rent_increase, notice_to_vacate, bond_dispute, maintenance, lease_renewal, general |
 | **Question types** | rent_increase, notice_to_vacate, bond_dispute, maintenance, lease_renewal, general |
 | **Roles** | tenant, property_manager, landlord, legal_researcher |
 | **Difficulty** | direct (has section ref), colloquial (paraphrased), ambiguous (no state specified), out-of-scope (litigation advice) |
@@ -116,6 +117,32 @@ Each sample is a JSON object with the following schema (Ragas `EvaluationDataset
         "expected_jurisdictions": ["VIC"],
         "notes": "Tenant does not use legal terminology. Does not specify state."
     }
+}
+```
+
+#### Regulation Provision Convention
+
+Regulation provisions use a `reg:` prefix in `metadata.sections` to distinguish them from Act sections:
+
+| Prefix | Meaning | Example |
+|--------|---------|---------|
+| (no prefix) | Act section | `"44"`, `"44(1)"` |
+| `reg:` | Regulation provision | `"reg:21"` |
+| `reg:sch1-form5` | Schedule/Form citation | `"reg:sch1-form5"` |
+
+**Regulation golden sample:**
+
+```json
+{
+    "question": "I live in a flat in Melbourne and my landlord just sent me a text message saying the rent is going up by $50 a week from next month. He didn't send any proper form or anything. Is a text message enough to notify me of a rent increase?",
+    "metadata": {
+        "domain": "rent_increases",
+        "sections": ["reg:21", "reg:sch1-form5"],
+        "difficulty": "colloquial",
+        "role": "tenant",
+        "location": "Melbourne, VIC"
+    },
+    "ground_truth": "ISSUE: Whether a text message constitutes valid notice of a proposed rent increase under the Residential Tenancies Act 1997 (Vic) and the Residential Tenancies Regulations 2021.\n\nRULE: Regulation 21 of the Residential Tenancies Regulations 2021 prescribes that for the purposes of section 44(1) of the Act, the prescribed form of notice of rent increase is Form 5 in Schedule 1.\n\nAPPLICATION: A text message is not Form 5 in Schedule 1. The regulation explicitly requires use of the prescribed form.\n\nCONCLUSION: The text message is not valid notice. The prescribed Form 5 must be used with the required 60 days' notice."
 }
 ```
 
@@ -233,6 +260,26 @@ Below is a fully populated sample of the evaluation dataset with **four diverse 
 
 ### Using the Dataset
 
+**Canonical evaluation runner:** `src/rag/evaluation/run_ragas_eval.py` — see [EVALUATION_IMPLEMENTATION.md](./EVALUATION_IMPLEMENTATION.md) for full CLI reference. The script bypasses `ragas.evaluate()` for Python 3.14 compatibility and supports `--state VIC|NSW|all`, `--eval-mode golden-context|real-retrieval`, `--limit`, `--dry-run`, and citation metrics integration.
+
+Example invocation:
+
+```bash
+# Dry-run (validate dataset, no LLM calls)
+python src/rag/evaluation/run_ragas_eval.py --state VIC --dry-run
+
+# Full evaluation (golden-context mode)
+python src/rag/evaluation/run_ragas_eval.py --state VIC --output vic_eval.csv
+
+# Real retrieval mode
+python src/rag/evaluation/run_ragas_eval.py --state NSW --eval-mode real-retrieval
+
+# Multi-state batch
+python src/rag/evaluation/run_ragas_eval.py --state all
+```
+
+Legacy approach using Ragas API directly (replaced by the runner above):
+
 ```python
 from datasets import Dataset
 from ragas import evaluate
@@ -240,7 +287,7 @@ from ragas.metrics import faithfulness, context_precision, answer_relevance
 
 # Load golden dataset
 import json
-with open("eval/golden_dataset.json") as f:
+with open("tests/evaluation/vic_golden_dataset.json") as f:
     samples = json.load(f)
 
 # Convert to Hugging Face Dataset

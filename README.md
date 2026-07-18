@@ -15,7 +15,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 
 | Layer                 | Technology                                                        |
 | --------------------- | ----------------------------------------------------------------- |
-| Orchestration         | LangGraph (state graphs, multi-agent supervisor) — planned        |
+| Orchestration         | LangGraph (7-node state machine, 3 conditional routers) — built; multi-agent supervisor planned (Phase F) |
 | Retrieval             | Qdrant (dense + BM25 hybrid with RRF fusion)                      |
 | Embeddings            | BGE-small-en-v1.5 via fastembed (fine-tuned on legal text planned)|
 | Embeddings (prod)     | Amazon Titan Text Embeddings v2 (via Bedrock)                     |
@@ -37,7 +37,55 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 
 ## System Architecture
 
-### RAG Pipeline (Current)
+### Agent Graph (Current)
+
+```
+                         ┌──────────────────────┐
+                         │    intake_analyzer   │
+                         │    (rule-based)      │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┼──────────────────┐
+                    │               │                  │
+                    ▼               ▼                  ▼
+           ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+           │  fallback    │  │ request_     │  │ query_       │
+           │  _node       │  │ clarification│  │ rewriter     │
+           │  → END       │  │ → END        │  │ (LLM)        │
+           └──────────────┘  └──────────────┘  └──────┬───────┘
+                                                      │
+                                                      ▼
+                                              ┌──────────────┐
+                                              │ rag_retriever│
+                                              │ (hybrid RRF) │
+                                              └──────┬───────┘
+                                                     │
+                                          ┌──────────┼──────────┐
+                                          │                     │
+                                          ▼                     ▼
+                                  ┌──────────────┐     ┌──────────────┐
+                                  │  fallback    │     │ legal_       │
+                                  │  _node → END │     │ reasoner     │
+                                  └──────────────┘     │ (LLM IRAC)   │
+                                                       └──────┬───────┘
+                                                              │
+                                                              ▼
+                                                       ┌──────────────┐
+                                                       │ citation_    │
+                                                       │ verifier     │
+                                                       │ (rule-based) │
+                                                       └──────┬───────┘
+                                                              │
+                                                   ┌──────────┼──────────┐
+                                                   │                     │
+                                                   ▼                     ▼
+                                           ┌──────────────┐     ┌──────────────┐
+                                           │  fallback    │     │   __end__    │
+                                           │  _node → END │     │ (response)   │
+                                           └──────────────┘     └──────────────┘
+```
+
+### RAG Pipeline (internal)
 
 ```
 rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_citations
@@ -94,7 +142,7 @@ rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_cita
        └───────────────────────────┘
 ```
 
-*Phase A complete (RAGAS evaluation). Phase B (NSW ingestion + multi-state RAGAS complete, other 6 jurisdictions deferred). See full roadmap below.*
+*Phase A complete (RAGAS evaluation). Phase B (NSW ingestion + multi-state RAGAS) complete. Phase C Step 7 complete (LangGraph agent + interactive CLI). See full roadmap below.*
 
 ## Roadmap
 
@@ -117,7 +165,7 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ### Phase C: Conversational Agent
 | Step | Status | What |
 |------|--------|------|
-| 7 | ⬜ | LangGraph agent (7-node state machine: memory_recall → intent_classifier → slot_filler → rag_retriever → legal_reasoner → citation_verifier → fallback) |
+| 7 | ✅ | LangGraph agent (7-node state machine: intake_analyzer → request_clarification → query_rewriter → rag_retriever → legal_reasoner → citation_verifier → fallback_node) |
 | 8 | ⬜ | Agent RAGAS evaluation (faithfulness + context precision on multi-turn scenarios) |
 | 9 | ⬜ | LangSmith tracing (per-node latency/cost, trace replay, bottleneck identification) |
 
@@ -161,8 +209,13 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 | Phase A | RAGAS evaluation suite (20 golden QA pairs, 3 metrics: faithfulness/context_precision/answer_relevancy) |
 | Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
 | Phase A | Golden-context diagnostic confirming LLM/format as faithfulness bottleneck |
+| Phase B | NSW legislation ingestion + multi-state RAGAS evaluation |
+| Phase B | VIC + NSW Regulation parsers (`vic_regulation_parser.py`, `nsw_regulation_parser.py`) with Regulation citation support (`[VIC REG 2021 Reg X]`, `[NSW REG 2019 Reg X]`, Schedule/Form citations `[VIC REG 2021 Sch 1 Form 6]`) |
+| Phase B | Citation metrics evaluation (`citation_metrics.py`: deterministic citation precision, golden provision recall, Regulation indicators) |
+| Phase C | LangGraph 7-node agent (`intake_analyzer` → `request_clarification` → `query_rewriter` → `rag_retriever` → `legal_reasoner` → `citation_verifier` → `fallback_node`) with 3 conditional routers |
+| Phase C | Interactive streaming CLI (`python -m src.agent.cli`, MemorySaver checkpointing, per-session thread_id) |
 
-**Timeline:** ~25 steps, ~50-70 hours with AI assistance. Critical path: 1→7→12→16→20→25.
+**Timeline:** ~25 steps, ~50-70 hours with AI assistance. Critical path: 8→12→16→20→25.
 
 ## Environment Variables
 
@@ -204,8 +257,10 @@ cp .env.example .env
 ### Application
 | Variable               | Description                       | Required |
 | ---------------------- | --------------------------------- | -------- |
-| `LANGCHAIN_TRACING_V2` | Enable LangSmith tracing          | No       |
-| `LANGCHAIN_API_KEY`    | LangSmith API key                 | No       |
+| `LANGSMITH_TRACING`   | Enable LangSmith tracing (default false) | No       |
+| `LANGSMITH_API_KEY`    | LangSmith API key                 | No       |
+| `LANGSMITH_PROJECT`    | LangSmith project name            | No       |
+| `LANGSMITH_ENDPOINT`   | LangSmith endpoint URL            | No       |
 | `LOG_LEVEL`            | Logging level (`INFO`/`DEBUG`)    | No       |
 | `CHUNK_SIZE`           | Document chunk size (tokens)      | No       |
 | `CHUNK_OVERLAP`        | Chunk overlap (tokens)            | No       |
@@ -238,13 +293,18 @@ python src/rag/retrieval/vector_store.py
 # Step 3: Run RAG compliance pipeline
 python src/rag/generation/generator.py
 
+# Step 3b: Interactive multi-turn REPL (LangGraph agent)
+python -m src.agent.cli
+
 # Step 4: Run tests
-pytest tests/ -m "not slow"
+pytest tests/                     # unit tests (integration excluded by default)
+pytest tests/ -m integration -v   # real-service integration tests (needs DEEPSEEK_API_KEY + indexed Qdrant)
 ```
 
 ### Full-Stack Dev (Phase E)
 
 ```bash
+# Phase E — not yet built
 # Start local dev environment
 docker compose up
 

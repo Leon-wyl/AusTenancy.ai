@@ -16,10 +16,14 @@ Add to `.env`:
 LANGSMITH_API_KEY=lsv2_...
 LANGSMITH_PROJECT=aus-tenancy-agent
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
-LANGSMITH_TRACING=true
+LANGSMITH_TRACING=false
 ```
 
+> **Note:** `LANGSMITH_TRACING` defaults to `false` — tracing is deferred to roadmap Step 9. Setting it to `true` without a valid `LANGSMITH_API_KEY` causes background 401 warnings. The interactive CLI additionally silences the langsmith logger (`logging.getLogger("langsmith").setLevel(logging.CRITICAL)`).
+
 ### Verify Connection
+
+> **Precondition:** Requires `LANGSMITH_TRACING=true` and a valid `LANGSMITH_API_KEY`.
 
 ```python
 from langsmith import Client
@@ -67,46 +71,46 @@ For finer-grained control, decorate each node function with `@traceable`:
 from langsmith.run_helpers import traceable
 
 
-@traceable(name="intent_classifier", run_type="chain")
-def intent_classifier_node(state: AgentState) -> AgentState:
-    # Nova Lite classification
+@traceable(name="intake_analyzer", run_type="chain")
+def intake_analyzer_node(state: AgentState) -> dict:
+    # Rule-based jurisdiction + scope detection
     # ...
-    return state
+    return result
+
+
+@traceable(name="query_rewriter", run_type="chain")
+def query_rewriter_node(state: AgentState) -> dict:
+    # Multi-query rewrite (SEMANTIC, STATUTORY, CONCEPT)
+    # ...
+    return result
 
 
 @traceable(name="rag_retriever", run_type="retriever")
-def rag_retriever_node(state: AgentState) -> AgentState:
+def rag_retriever_node(state: AgentState) -> dict:
     # Qdrant hybrid search
     # ...
-    return state
+    return result
 
 
 @traceable(name="legal_reasoner", run_type="llm")
-def legal_reasoner_node(state: AgentState) -> AgentState:
-    # Claude Sonnet IRAC generation
+def legal_reasoner_node(state: AgentState) -> dict:
+    # DeepSeek IRAC generation
     # ...
-    return state
+    return result
 
 
 @traceable(name="citation_verifier", run_type="tool")
-def citation_verifier_node(state: AgentState) -> AgentState:
+def citation_verifier_node(state: AgentState) -> dict:
     # Rule-based verification
     # ...
-    return state
-
-
-@traceable(name="slot_filler", run_type="chain")
-def slot_filler_node(state: AgentState) -> AgentState:
-    # Clarifying questions
-    # ...
-    return state
+    return result
 
 
 @traceable(name="fallback", run_type="chain")
-def fallback_node(state: AgentState) -> AgentState:
-    # Uncertainty + redirect
+def fallback_node(state: AgentState) -> dict:
+    # Graceful rejection by fallback reason
     # ...
-    return state
+    return result
 ```
 
 ### Trace Structure (per query)
@@ -114,22 +118,24 @@ def fallback_node(state: AgentState) -> AgentState:
 ```
 aus-tenancy-agent/
 ├── Root Run (invoke)
-│   ├── memory_recall          [latency, cost]
-│   ├── intent_classifier      [latency, cost, jurisdiction extracted]
-│   ├── slot_filler            [latency, slots filled]
-│   ├── rag_retriever          [latency, chunks retrieved, confidence]
-│   │   ├── dense_search       [Qdrant API call]
-│   │   └── bm25_search        [Qdrant API call]
-│   ├── legal_reasoner         [latency, cost, tool calls]
-│   │   ├── tool: date_calculator  [toolUse → result]
-│   │   └── tool: rent_increase_validator  [toolUse → result]
-│   ├── citation_verifier      [latency, citations verified]
-│   └── memory_store           [latency, data persisted]
+│   ├── intake_analyzer             [latency, jurisdiction detected]
+│   ├── request_clarification       [latency, clarification asked]
+│   ├── query_rewriter              [latency, cost, queries generated]
+│   ├── rag_retriever               [latency, chunks retrieved]
+│   │   ├── dense_search            [Qdrant API call]
+│   │   └── bm25_search             [Qdrant API call]
+│   ├── legal_reasoner              [latency, cost]
+│   ├── citation_verifier           [latency, citations verified]
+│   └── fallback_node               [latency (only on failure path)]
 ```
+
+> **Note:** `memory_recall` and `memory_store` nodes are planned (Mem0 integration, deferred). The current graph does not include them.
 
 ---
 
 ## 3. Dataset Testing
+
+> **Note:** The canonical evaluation runner is `src/rag/evaluation/run_ragas_eval.py` (see [EVALUATION_IMPLEMENTATION.md](./EVALUATION_IMPLEMENTATION.md) for full CLI reference). LangSmith experiments are a future/monitoring alternative.
 
 ### Upload Golden Dataset
 

@@ -55,38 +55,43 @@ A property manager overseeing 200+ properties across multiple states currently r
 
 ## 3. Functional Requirements (MVP Scope)
 
-### FR-1: Multi-Turn Conversational Onboarding
+> **Note:** Multi-query rewriting (SEMANTIC, STATUTORY, CONCEPT) is implemented in the `query_rewriter` node of the LangGraph pipeline. Regulation keyword expansion for STATUTORY queries is gated and instrument-aware.
+
+### FR-1: Multi-Turn Conversational Onboarding **[Partially implemented]**
 
 - The system identifies the user's jurisdiction, role, and intent early in the conversation.
+- **Implemented:** heuristic jurisdiction detection (regex) + one-shot clarification (`request_clarification` node) + checkpointed multi-turn state (`MemorySaver`).
+- **Not implemented:** role/intent classification (tenant, property_manager, landlord, legal_researcher).
 - Onboarding is conversational, not a fixed questionnaire — the system infers jurisdiction from the query and can re-confirm if ambiguous.
 - State metadata is persisted across the conversation graph so follow-up questions remain jurisdiction-scoped.
 
-### FR-2: Automated State-Based Metadata Routing
+### FR-2: Automated State-Based Metadata Routing **[Implemented]**
 
-- Incoming queries are classified to a jurisdiction (VIC, NSW, QLD, SA, WA, TAS, ACT, NT) or flagged as cross-jurisdiction.
+- Incoming queries are classified to a jurisdiction (VIC, NSW) — supported jurisdictions: `SUPPORTED_JURISDICTIONS = {VIC, NSW}`.
 - Retrieval is pre-filtered by jurisdiction metadata tag to prevent cross-state leakage.
 - Cross-jurisdiction queries return per-state comparisons with explicit labeling.
 
-### FR-3: Compliance Timeline Calculations
+### FR-3: Compliance Timeline Calculations **[Not implemented]**
 
 - For queries involving notice periods, cooling-off windows, or bond deadlines, the system calculates absolute dates relative to a user-provided event date.
 - Timelines cite the specific section and subsection that mandates the duration.
 
-### FR-4: Strict Mandatory Legal Source Citation
+### FR-4: Strict Mandatory Legal Source Citation **[Implemented]**
 
 - Every claim in the generated answer must be followed by a citation in the format: `[Act Name, Section X, Subsection Y]`.
 - If a claim cannot be supported by a retrieved chunk, the system must state uncertainty rather than hallucinate.
-- A verification step checks each citation against the retrieved chunk IDs before final output.
+- A verification step (`citation_verifier` node) checks each citation against the retrieved chunk IDs before final output. Applies citation guard: removes unverified markers and adds warnings.
 
-### FR-5: Jurisdiction Disambiguation
+### FR-5: Jurisdiction Disambiguation **[Implemented]**
 
-- If the user's query does not specify a jurisdiction, the system asks a clarifying question before retrieving.
+- If the user's query does not specify a jurisdiction, the system asks a clarifying question (`request_clarification` node) before retrieving.
 - If the user references a jurisdiction that does not match the metadata of retrieved chunks, the system flags the mismatch and re-routes.
 
-### FR-6: Fallback / Escalation
+### FR-6: Fallback / Escalation **[Partially implemented]**
 
-- For queries the system cannot answer with high confidence (low retrieval/RRF score), it defaults to: "I cannot answer this with confidence. Here are the relevant sections for manual review: …"
-- Option to export the conversation and citations for human legal review.
+- For queries the system cannot answer with high confidence, the `fallback_node` produces reason-specific messages (out_of_scope, unsupported_jurisdiction, empty_retrieval, citation_verification_failed).
+- **Not implemented:** export the conversation and citations for human legal review.
+- **Implemented:** reason-specific messages per fallback trigger.
 
 ---
 
@@ -96,7 +101,7 @@ A property manager overseeing 200+ properties across multiple states currently r
 
 - **Target:** <3 seconds at the 95th percentile for single-turn queries.
 - **Measurement:** Time from API Gateway receipt to response body sent.
-- Budget: intent classification (~200ms) + retrieval (~500ms) + generation (~1500ms) + verification (~200ms). (Reranking disabled — see docs/EVALUATION_IMPLEMENTATION.md.)
+- **Actual node profile (estimates):** intake_analyzer ~0ms (rule-based, no LLM) → query_rewriter ~one LLM call (~500ms) → rag_retriever (hybrid search + RRF, ~800ms) → legal_reasoner (LLM generation, ~1500ms) → citation_verifier (rule-based, ~50ms).
 
 ### NFR-2: Hallucination Containment
 

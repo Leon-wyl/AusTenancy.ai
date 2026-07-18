@@ -10,7 +10,7 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 
 | Layer | Technology |
 |---|---|
-| Orchestration | LangGraph (state graphs, multi-agent supervisor) — planned |
+| Orchestration | LangGraph (7-node state machine, 3 conditional routers) — built; multi-agent supervisor planned (Phase F) |
 | Retrieval | Qdrant (dense BGE-small + BM25 hybrid, RRF fusion) |
 | Embeddings | BGE-small-en-v1.5 via fastembed (fine-tuning planned) |
 | Embeddings (prod) | Amazon Titan Text Embeddings v2 (via Bedrock) |
@@ -43,6 +43,7 @@ cp .env.example .env
 ```
 
 ```bash
+# Phase E — not yet built
 # Full-stack dev env (Phase E)
 docker compose up          # Supabase local + Qdrant + FastAPI + Next.js
 cd backend && alembic upgrade head  # Run DB migrations
@@ -55,10 +56,13 @@ cd frontend && npm install           # Install frontend deps
 python src/rag/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
 python src/rag/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/rag/generation/generator.py            # Run RAG compliance pipeline
-pytest tests/ -m "not slow"                   # Run tests
+python -m src.agent.cli                      # Interactive multi-turn REPL
+pytest tests/                    # unit tests (integration excluded by default)
+pytest tests/ -m integration -v  # real-service integration tests (needs DEEPSEEK_API_KEY + indexed Qdrant)
 ```
 
 ```bash
+# Phase E — not yet built
 # Full-stack (Phase E)
 cd backend && uvicorn main:app --reload       # FastAPI CRUD API
 cd frontend && npm run dev                     # Next.js dev server
@@ -66,25 +70,24 @@ cd frontend && npm run dev                     # Next.js dev server
 
 ## Architecture
 
-### Current (Phase 3 — Linear RAG Pipeline)
+### Current (Phase C — LangGraph Agent)
+
+7-node LangGraph state machine with 3 conditional routers:
 
 ```
-rewrite_query → hybrid_retrieve → build_legal_prompt → LLM → verify_citations
+intake_analyzer → request_clarification | query_rewriter → rag_retriever → legal_reasoner → citation_verifier → fallback_node
 ```
 
-### Planned (Phase C — LangGraph Agent)
-
-LangGraph state machine with these nodes:
-
-```
-memory_recall → intent_classifier → slot_filler → rag_retriever → legal_reasoner → citation_verifier → fallback | final
-```
-
-- **State:** `TypedDict` for internal (node→node), Pydantic for boundaries (API, LLM output, tool I/O)
+- **State:** `AgentState` TypedDict (13 fields) — see `src/agent/state.py`
+- **Routers:** `route_after_intake` (fallback/clarification/rewriter), `route_after_retrieval` (fallback/reasoner), `route_after_verify` (fallback/__end__)
+- **CLI:** Interactive multi-turn REPL with `MemorySaver` checkpointing + per-session `thread_id` (`python -m src.agent.cli`)
 - **LLM prompt:** IRAC format (Issue → Rule → Application → Conclusion)
-- **Tools (Converse API toolConfig):** `rag_retriever`, `date_calculator`, `rent_increase_validator`, `get_suburb_price_stats` (HTAG AI, planned)
-- **Cross-session memory:** Mem0 for jurisdiction/role persistence
-- **Multi-agent supervisor:** Route legislation vs pricing queries (Phase F, planned)
+
+### Planned (future phases)
+
+- **Bedrock toolConfig tools** — Converse API function calling for `rag_retriever`, `date_calculator`, `rent_increase_validator` (Phase D) — `[STATUS: planned — not implemented]`
+- **Mem0 cross-session memory** — jurisdiction/role persistence across sessions (Phase C Step 9, deferred) — `[STATUS: planned — not implemented]`
+- **Multi-agent supervisor** — route legislation vs pricing queries (Phase F) — `[STATUS: planned — not implemented]`
 
 ### Planned (Phase E — Full-Stack Deployment Architecture)
 
@@ -166,7 +169,7 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ### Phase C: Conversational Agent
 | Step | Status | What |
 |------|--------|------|
-| 7 | ⬜ | LangGraph agent (7-node state machine) |
+| 7 | ✅ | LangGraph agent (7-node state machine: intake_analyzer → request_clarification → query_rewriter → rag_retriever → legal_reasoner → citation_verifier → fallback_node) |
 | 8 | ⬜ | Agent RAGAS evaluation |
 | 9 | ⬜ | LangSmith tracing |
 
@@ -209,24 +212,36 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 | Phase A | RAGAS evaluation suite (20 golden QA pairs, faithfulness/context_precision/answer_relevancy, ablation study, golden-context diagnostic) |
 | Phase A | Pipeline improvements (Part metadata filter, reranker removal, AR disclaimer fix, citation trust signal) |
 | Phase A | IRAC format retained over two-section alternative (industry standard for legal analysis; faithfulness ceiling is a metric problem, not a format problem) |
+| Phase B | NSW legislation ingestion + multi-state RAGAS evaluation |
+| Phase B | VIC + NSW Regulation parsers with Regulation citation support (`[VIC REG 2021 Reg X]`, `[NSW REG 2019 Reg X]`, `[VIC REG 2021 Sch 1 Form 6]`) |
+| Phase B | Citation metrics evaluation (`citation_metrics.py`: deterministic citation precision, golden provision recall, Regulation indicators) |
+| Phase C | LangGraph 7-node agent + interactive streaming CLI |
 
 **Timeline:** ~25 steps, ~50-70 hours with AI assistance. Critical path: 1→7→12→16→20→25.
 
 ## Project Structure
 
 ```
-src/                          # RAG pipeline (Python)
-  data_processing/            # PDF parsing → hierarchical chunks
+src/                          # RAG pipeline + agent (Python)
+  rag/data_processing/        # PDF parsing → hierarchical chunks
     vic_parser.py             #   VIC RTA PDF parser (PyMuPDF + regex)
     nsw_parser.py             #   NSW RTA PDF parser
     base_parser.py            #   Abstract BaseParser (shared pipeline)
-  retrieval/                  # Vector store indexing + hybrid search
+    vic_regulation_parser.py  #   VIC Regulations 2021 parser
+    nsw_regulation_parser.py  #   NSW Regulations 2019 parser
+  rag/retrieval/              # Vector store indexing + hybrid search
     vector_store.py           #   Qdrant ingestion with dense + BM25
-  generation/                 # RAG compliance pipeline
+  rag/generation/             # RAG compliance pipeline
     generator.py              #   Query rewrite → retrieve → LLM → citation verify
-  evaluation/                 # RAGAS evaluation scripts + golden dataset
-  pricing/                    # Market intelligence (Phase F)
-    htag_client.py            #   HTAG AI API client
+  rag/evaluation/             # RAGAS evaluation scripts + golden dataset
+    run_ragas_eval.py         #   Evaluation runner with CLI flags
+    citation_metrics.py       #   Deterministic citation metrics
+    gen_golden_contexts.py    #   Golden context pre-computation
+    audit_sections.py         #   Section audit utility
+  agent/                      # LangGraph agent
+    state.py                  #   AgentState TypedDict (13 fields)
+    graph_skeleton.py         #   7-node state machine, 3 routers
+    cli.py                    #   Interactive multi-turn REPL
   processing/                 # Document parsing (planned)
     document_parser.py        #   PDF/JPG extraction, clause metadata
 backend/                      # FastAPI CRUD Lambda (Phase E)
@@ -240,12 +255,12 @@ frontend/                     # Next.js app (Phase E)
   app/                        # App Router pages + layouts
   components/                 # React components (sidebar, chat, citations)
   lib/                        # Supabase client, auth helpers, SSE client
-api/                          # FastAPI + Lambda handler (planned)
 tests/                        # Pytest suite
+  evaluation/                 # Golden datasets + contexts
 docs/                         # Design docs, PRD, workflows
 data/raw/                     # PDF legislation files (gitignored)
 data/processed/               # Generated hierarchical chunks (gitignored)
 qdrant_storage/               # Local Qdrant database (gitignored)
-docker-compose.yml            # Phase E: local dev env (Supabase + Qdrant + FastAPI + Next.js)
+docker-compose.yml            # Phase E: local dev env
 agent.md                      # This file
 ```
