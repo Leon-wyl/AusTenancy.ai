@@ -238,6 +238,9 @@ python src/rag/retrieval/vector_store.py
 # Step 3: Run RAG compliance pipeline
 python src/rag/generation/generator.py
 
+# Step 3b: Interactive multi-turn REPL (LangGraph agent)
+python -m src.agent.cli
+
 # Step 4: Run tests
 pytest tests/ -m "not slow"
 ```

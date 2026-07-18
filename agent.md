@@ -55,6 +55,7 @@ cd frontend && npm install           # Install frontend deps
 python src/rag/data_processing/vic_parser.py        # Parse VIC RTA PDF → chunks
 python src/rag/retrieval/vector_store.py           # Index chunks → Qdrant
 python src/rag/generation/generator.py            # Run RAG compliance pipeline
+python -m src.agent.cli                      # Interactive multi-turn REPL
 pytest tests/ -m "not slow"                   # Run tests
 ```
 
