@@ -320,6 +320,52 @@ cd frontend && npm install && npm run dev
 
 See [Roadmap](#roadmap) above for complete development plan.
 
+## Observability
+
+### Local Run Summaries
+
+Run the agent with structured observability output:
+
+```bash
+python scripts/run_agent_observed.py \
+  --question "Can my landlord increase rent by text message in VIC?"
+```
+
+This prints the final answer and a JSON run summary containing:
+
+- **Retrieval stats**: context count, Act vs Regulation counts, top provisions
+  with labels and scores
+- **Citation stats**: verified/unverified citations, Act vs Regulation split,
+  verification rate
+- **Performance**: total latency in milliseconds
+- **Status**: `success`, `fallback`, or `clarification`
+
+Save summaries to disk:
+
+```bash
+python scripts/run_agent_observed.py --question "..." --save
+# → reports/runs/run_20260718_143022.json
+```
+
+Full statutory text is **not** logged by default.
+
+### LangSmith Tracing (Optional)
+
+```bash
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=ls__your_key
+export LANGCHAIN_PROJECT=aus-tenancy-agent
+```
+
+Then pass `--langsmith`:
+
+```bash
+python scripts/run_agent_observed.py --question "..." --langsmith
+```
+
+If LangSmith env vars are not set, the system runs normally — tracing is
+purely opt-in.
+
 ## Development
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for branch strategy, commit conventions, and linting setup.
