@@ -1,10 +1,13 @@
 """Tests for Phase 3 generator — reranking, prompt engineering, and LLM generation."""
 
 import os
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from src.rag.generation import generator
+from src.rag.generation.llm_provider import DeepSeekLLMProvider
 
 # ── Unit: build_legal_prompt ───────────────────────────────────────────
 
@@ -174,7 +177,7 @@ class TestDeepSeekLLMProvider:
     def test_raises_without_api_key(self, monkeypatch):
         monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
         with pytest.raises(ValueError, match="DEEPSEEK_API_KEY"):
-            generator.DeepSeekLLMProvider()
+            DeepSeekLLMProvider()
 
     @pytest.mark.slow
     @pytest.mark.skipif(
@@ -182,13 +185,69 @@ class TestDeepSeekLLMProvider:
         reason="DEEPSEEK_API_KEY not set — skipping LLM integration test",
     )
     def test_generates_non_empty_response(self):
-        provider = generator.DeepSeekLLMProvider()
+        provider = DeepSeekLLMProvider()
         response = provider.generate(
-            system_prompt="You are a helpful assistant. Keep answers brief.",
-            user_prompt="What is 2+2?",
+            [
+                {"role": "system", "content": "You are a helpful assistant. Keep answers brief."},
+                {"role": "user", "content": "What is 2+2?"},
+            ]
         )
         assert isinstance(response, str)
         assert len(response) > 0
+
+
+# ── Unit: provider wiring preserves prompts and citations (offline) ────
+
+
+class TestGenerateAnswerFromContextMessages:
+    @patch("src.rag.generation.generator.get_llm_provider")
+    def test_uses_citation_system_prompt_and_whitelist(self, mock_get, sample_chunks):
+        fake = mock_get.return_value
+        fake.generate.return_value = "stub answer"
+
+        answer = generator.generate_answer_from_context(
+            "Can my landlord evict me for rent arrears?", "VIC", sample_chunks
+        )
+
+        assert answer == "stub answer"
+        messages = fake.generate.call_args.args[0]
+        assert [m["role"] for m in messages] == ["system", "user"]
+        system = messages[0]["content"]
+        assert "CRITICAL RULES" in system
+        assert "Residential Tenancies Act 1997 (VIC)" in system
+        assert "You MUST ONLY cite sections that appear in the CONTEXT" in system
+        user = messages[1]["content"]
+        assert "CITATION WHITELIST" in user
+        assert "Can my landlord evict me for rent arrears?" in user
+
+
+class TestBedrockWiringPreservesCitations:
+    def test_fake_bedrock_answer_passes_citation_verification(
+        self, monkeypatch, sample_chunks
+    ):
+        """End-to-end offline: LLM_PROVIDER=bedrock -> BedrockLLMProvider ->
+        fake boto3 converse -> canonical citation -> verify_citations."""
+        monkeypatch.setenv("LLM_PROVIDER", "bedrock")
+        monkeypatch.setenv("AWS_REGION", "ap-southeast-2")
+        monkeypatch.setenv("BEDROCK_MODEL_ID", "test.model-id:0")
+        canned = (
+            "A residential rental provider must give at least 90 days notice "
+            "of a rent increase [VIC RTA 1997 Sec 44]."
+        )
+        fake_boto3 = MagicMock()
+        fake_boto3.client.return_value.converse.return_value = {
+            "output": {"message": {"content": [{"text": canned}]}}
+        }
+        monkeypatch.setitem(sys.modules, "boto3", fake_boto3)
+
+        answer = generator.generate_answer_from_context(
+            "How much notice is required for a rent increase?", "VIC", sample_chunks
+        )
+        result = generator.verify_citations(answer, sample_chunks)
+
+        assert answer == canned
+        assert result["verified"] == ["[VIC RTA 1997 Sec 44]"]
+        assert result["unverified"] == []
 
 
 # ── E2E: full pipeline ─────────────────────────────────────────────────

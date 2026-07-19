@@ -10,15 +10,15 @@ Usage:
 
 import argparse
 import logging
-import os
 import re
 import sys
-from abc import ABC, abstractmethod
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
 from dotenv import load_dotenv
+
+from src.rag.generation.llm_provider import get_llm_provider
 
 load_dotenv()
 
@@ -77,46 +77,6 @@ def rerank_context(
         reranked.append(chunk)
 
     return reranked
-
-
-# ── LLM Provider Abstraction ──────────────────────────────────────────
-
-
-class LLMProvider(ABC):
-    """Abstract interface for LLM backends (swappable for AWS Bedrock in Phase 4)."""
-
-    @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str) -> str: ...
-
-
-class DeepSeekLLMProvider(LLMProvider):
-    """OpenAI-compatible SDK targeting DeepSeek's API endpoint."""
-
-    def __init__(self, model: str | None = None):
-        api_key = os.environ.get("DEEPSEEK_API_KEY", "")
-        if not api_key:
-            raise ValueError("DEEPSEEK_API_KEY is not set. Add it to .env or export it.")
-
-        from openai import OpenAI
-
-        self._client = OpenAI(
-            api_key=api_key,
-            base_url="https://api.deepseek.com",
-        )
-        self._model = model or os.environ.get("LLM_MODEL_ID", "deepseek-chat")
-
-    def generate(self, system_prompt: str, user_prompt: str) -> str:
-        logger.info("Calling LLM (%s)...", self._model)
-        response = self._client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=0.0,
-        )
-        content = response.choices[0].message.content
-        return content if content else ""
 
 
 # ── State Context ─────────────────────────────────────────────────────
@@ -524,8 +484,13 @@ def _rewrite_queries(query: str, state_filter: str | None = None) -> list[str]:
     user_prompt = f"User question: {query}{state_hint}"
 
     try:
-        llm = DeepSeekLLMProvider()
-        raw = llm.generate(_build_multi_query_prompt(state_filter), user_prompt)
+        llm = get_llm_provider()
+        raw = llm.generate(
+            [
+                {"role": "system", "content": _build_multi_query_prompt(state_filter)},
+                {"role": "user", "content": user_prompt},
+            ]
+        )
         raw = raw.strip()
         queries = _parse_multi_response(raw)
         if len(queries) >= 2 and all(bool(q.strip()) for q in queries):
@@ -562,12 +527,17 @@ def _rewrite_single(query: str, state_filter: str | None = None) -> str:
     user_prompt = f"User question: {query}{state_hint}"
 
     try:
-        llm = DeepSeekLLMProvider()
+        llm = get_llm_provider()
         prompt = (
             """Rewrite this tenancy law question into a concise legal keyword search query. """
             """Include the jurisdiction abbreviation. Remove conversational filler but keep key facts. Return ONLY the query."""
         )
-        rewritten = llm.generate(prompt, user_prompt)
+        rewritten = llm.generate(
+            [
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+        )
         rewritten = rewritten.strip()
         if rewritten:
             logger.info("Query rewritten (single): '%s' → '%s'", query[:60], rewritten)
@@ -675,8 +645,13 @@ def generate_answer_from_context(
     providing the retrieved context and post-processing the answer.
     """
     user_prompt = build_legal_prompt(query, chunks)
-    llm = DeepSeekLLMProvider()
-    return llm.generate(_build_system_prompt(jurisdiction), user_prompt)
+    llm = get_llm_provider()
+    return llm.generate(
+        [
+            {"role": "system", "content": _build_system_prompt(jurisdiction)},
+            {"role": "user", "content": user_prompt},
+        ]
+    )
 
 
 # ── Orchestrator ──────────────────────────────────────────────────────

@@ -8,3 +8,4 @@ python-dotenv
 ragas==0.1.22
 datasets
 tqdm
+boto3>=1.34.116

@@ -19,7 +19,7 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | Retrieval             | Qdrant (dense + BM25 hybrid with RRF fusion)                      |
 | Embeddings            | BGE-small-en-v1.5 via fastembed (fine-tuned on legal text planned)|
 | Embeddings (prod)     | Amazon Titan Text Embeddings v2 (via Bedrock)                     |
-| LLM (current dev)     | DeepSeek (OpenAI-compatible SDK, swappable to Bedrock)            |
+| LLM (current dev)     | DeepSeek (default) or AWS Bedrock Converse — selected via `LLM_PROVIDER` |
 | LLM (prod target)     | Anthropic Claude 3.5 Sonnet (via AWS Bedrock)                     |
 | Evaluation            | RAGAS (faithfulness, context precision, answer relevance)         |
 | Auth + DB + Realtime  | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E)    |
@@ -172,7 +172,7 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ### Phase D: Production Deployment
 | Step | Status | What |
 |------|--------|------|
-| 10 | ⬜ | Migrate to AWS Bedrock (BedrockLLMProvider, Claude Sonnet, Converse API) |
+| 10 | 🔶 | Migrate to AWS Bedrock — `BedrockLLMProvider` (Converse API) + `LLM_PROVIDER` selection built and offline-tested; real AWS validation pending (env setup, model access, provider comparison) |
 | 11 | ⬜ | Containerize (Dockerfile, fastembed models baked in, push to ECR) |
 | 12 | ⬜ | Deploy Lambda + API Gateway (FastAPI + Mangum, RAG endpoint) |
 | 12a | ⬜ | File upload & contract analysis (PDF/JPG parsing, clause extraction, dual-source citation [Contract, Clause X] + [VIC RTA 1997 Sec Y], cross-reference detection) |
@@ -225,20 +225,29 @@ Copy `.env.example` to `.env` and populate all values:
 cp .env.example .env
 ```
 
-### DeepSeek (Current Dev)
+### LLM Provider Selection
+| Variable       | Description                                        | Required |
+| -------------- | -------------------------------------------------- | -------- |
+| `LLM_PROVIDER` | `deepseek` (default when unset/blank) or `bedrock` | No       |
+
+### DeepSeek (Current Dev, default)
 | Variable            | Description           | Required |
 | ------------------- | --------------------- | -------- |
 | `DEEPSEEK_API_KEY`  | DeepSeek API key      | Yes      |
 | `LLM_MODEL_ID`      | `deepseek-chat`        | Yes      |
 
 ### AWS Bedrock (Production)
-| Variable                     | Description                             | Required |
-| ---------------------------- | --------------------------------------- | -------- |
-| `AWS_ACCESS_KEY_ID`          | AWS IAM access key                      | Yes      |
-| `AWS_SECRET_ACCESS_KEY`      | AWS IAM secret key                      | Yes      |
-| `AWS_REGION`                 | AWS region (e.g. `ap-southeast-2`)      | Yes      |
-| `BEDROCK_MODEL_ID`           | Claude model ID in Bedrock              | Yes      |
-| `BEDROCK_EMBEDDING_MODEL_ID` | Titan embedding model ID                | Yes      |
+| Variable                     | Description                                                            | Required |
+| ---------------------------- | ---------------------------------------------------------------------- | -------- |
+| `AWS_ACCESS_KEY_ID`          | AWS IAM access key                                                     | Yes*     |
+| `AWS_SECRET_ACCESS_KEY`      | AWS IAM secret key                                                     | Yes*     |
+| `AWS_REGION`                 | AWS region (e.g. `ap-southeast-2`); `AWS_DEFAULT_REGION` also accepted | Yes      |
+| `BEDROCK_MODEL_ID`           | Bedrock model or inference profile ID — no default; verify model access first | Yes |
+| `BEDROCK_TEMPERATURE`        | Optional default temperature (omitted from requests when blank)        | No       |
+| `BEDROCK_MAX_TOKENS`         | Optional default max tokens (omitted from requests when blank)         | No       |
+| `BEDROCK_EMBEDDING_MODEL_ID` | Titan embedding model ID                                               | Yes      |
+
+\* Required only if not using another boto3 credential mechanism (SSO, shared profiles, IAM roles, credential_process).
 
 ### Qdrant
 | Variable              | Description                     | Required |
@@ -299,6 +308,7 @@ python -m src.agent.cli
 # Step 4: Run tests
 pytest tests/                     # unit tests (integration excluded by default)
 pytest tests/ -m integration -v   # real-service integration tests (needs DEEPSEEK_API_KEY + indexed Qdrant)
+RUN_BEDROCK_INTEGRATION=1 pytest tests/test_bedrock_integration.py -m integration -v  # gated Bedrock tests (needs AWS credentials + region + BEDROCK_MODEL_ID)
 ```
 
 ### Full-Stack Dev (Phase E)
@@ -319,6 +329,34 @@ cd frontend && npm install && npm run dev
 ```
 
 See [Roadmap](#roadmap) above for complete development plan.
+
+## LLM Providers
+
+Generation (query rewriting + legal answers) runs behind a provider
+abstraction (`src/rag/generation/llm_provider.py`). DeepSeek is the
+default; AWS Bedrock (Converse API) is selectable via environment:
+
+```bash
+# Default — DeepSeek (LLM_PROVIDER may be unset or blank)
+LLM_PROVIDER=deepseek
+
+# AWS Bedrock (requires region, model access, and boto3-resolvable credentials)
+LLM_PROVIDER=bedrock
+AWS_REGION=ap-southeast-2
+BEDROCK_MODEL_ID=<your-model-or-inference-profile-id>
+```
+
+Notes:
+
+- The DeepSeek path never imports boto3 or triggers AWS credential
+  discovery; Bedrock clients are created lazily on first use.
+- Retrieval, prompts, citation verification, and graph topology are
+  identical across providers.
+- Real Bedrock behaviour is validated by gated integration tests
+  (`RUN_BEDROCK_INTEGRATION=1`, see Getting Started) and the provider
+  comparison harness (`python scripts/compare_providers.py --providers
+  deepseek bedrock`) once AWS is configured. Until then, Bedrock
+  latency/cost/answer quality are unavailable — not fabricated.
 
 ## Observability
 
