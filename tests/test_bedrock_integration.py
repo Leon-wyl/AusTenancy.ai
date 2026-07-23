@@ -24,6 +24,9 @@ import os
 from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def _bedrock_gate_reason() -> str:
@@ -189,3 +192,116 @@ def test_bedrock_answer_citations_survive_guard(
     assert result["citation_check"]["verified"]
     for cite in result["citation_check"]["unverified"]:
         assert cite not in result["answer"]
+
+
+# ── VIC 10-day arrears regression ─────────────────────────────────────
+
+
+def _classify_vic_arrears_conclusion(answer: str) -> str:
+    """Classify conclusion without fragile substring assertions.
+
+    Returns one of:
+        BELOW_THRESHOLD_NO_NOTICE — landlord cannot give valid notice
+        THRESHOLD_MET_NOTICE_MAY_BE_VALID — notice threshold is met
+        AMBIGUOUS — unclear conclusion
+        UNKNOWN — no recognizable conclusion
+    """
+    if not answer.strip():
+        return "UNKNOWN"
+
+    import re
+
+    first_sentence = re.split(r"(?<=[.!?])\s+", answer.strip())[0].lower()
+
+    negation_patterns = [
+        r"\bno\b.*\bvalid\b",
+        r"\bcannot\b.*\bevict\b",
+        r"\bnot\b.*\bmeet\b.*\bthreshold\b",
+        r"\bdoes not\b.*\b14.?day",
+        r"\bare not\b.*\bfourteen",
+        r"\bnot\b.*\bvalid\b.*\bnotice\b",
+        r"\bnot\b.*\ban occasion",
+        r"\blacks\b.*\b14.?day",
+    ]
+    affirmation_patterns = [
+        r"\bcan\b.*\bgive\b.*\bnotice\b",
+        r"\bcan\b.*\bevict\b",
+        r"\bwithin\b.*\brights?\b.*\bevict",
+        r"\bcan\b.*\bissue\b.*\bnotice",
+    ]
+
+    negated = any(re.search(p, first_sentence) for p in negation_patterns)
+    affirmed = any(re.search(p, first_sentence) for p in affirmation_patterns)
+
+    if negated and not affirmed:
+        return "BELOW_THRESHOLD_NO_NOTICE"
+    elif affirmed and not negated:
+        return "THRESHOLD_MET_NOTICE_MAY_BE_VALID"
+    elif negated and affirmed:
+        return "AMBIGUOUS"
+    else:
+        full_lower = " ".join(re.split(r"(?<=[.!?])\s+", answer.strip())[:5]).lower()
+        has_threshold = "14" in full_lower and ("day" in full_lower or "dai" in full_lower)
+        if has_threshold and any(
+            w in full_lower for w in ["not meet", "no valid", "cannot", "not an"]
+        ):
+            return "BELOW_THRESHOLD_NO_NOTICE"
+        return "AMBIGUOUS"
+
+
+class TestVic10DayArrears:
+    """Gated live regression: VIC 10-day arrears must produce correct conclusion.
+
+    The 10-day case is the known failure from the initial comparison.
+    This test uses a conclusion classifier instead of fragile
+    substring assertions (negation is recognised — e.g.
+    "This does not mean the landlord can evict you" is not flagged
+    as prohibited).
+    """
+
+    def test_10_day_arrears_below_threshold_no_valid_notice(
+        self, aws_credentials_or_skip, bedrock_provider_env
+    ):
+        from src.rag.generation.generator import generate_compliance_answer
+
+        result = generate_compliance_answer(
+            query=(
+                "My landlord wants to evict me because I am 10 days behind on rent "
+                "at my apartment in Melbourne VIC"
+            ),
+            state_filter="VIC",
+            top_k_retrieve=10,
+        )
+        answer = result["answer"]
+        citation_check = result["citation_check"]
+
+        # 1. Zero unverified citations
+        assert not citation_check.get("unverified"), (
+            f"unverified citations found: {citation_check.get('unverified')}"
+        )
+
+        # 2. Verified citations include VIC RTA s91ZM (via metadata membership)
+        verified_ids = [v for v in citation_check.get("verified", []) if "91ZM" in v]
+        assert verified_ids, (
+            f"s91ZM missing from verified citations. Verified: {citation_check.get('verified', [])}"
+        )
+
+        # 3. Conclusion classified correctly — must NOT assert affirmative notice entitlement
+        conclusion = _classify_vic_arrears_conclusion(answer)
+        assert conclusion == "BELOW_THRESHOLD_NO_NOTICE", (
+            f"Expected BELOW_THRESHOLD_NO_NOTICE, got {conclusion}. "
+            f"First 3 sentences: {' | '.join(answer.split('.')[:3])}"
+        )
+
+        # 4. Answer must reference s91ZM and the correct conclusion
+        has_correct_reasoning = "91ZM" in answer and (
+            "cannot" in answer.lower()
+            or "14" in answer
+            or "not constitute" in answer.lower()
+            or "no valid" in answer.lower()
+            or "not an occasion" in answer.lower()
+        )
+        assert has_correct_reasoning, (
+            "answer cites s91ZM but does not contain correct reasoning. "
+            f"First 200 chars: {answer[:200]}"
+        )

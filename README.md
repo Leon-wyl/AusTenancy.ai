@@ -172,7 +172,7 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 ### Phase D: Production Deployment
 | Step | Status | What |
 |------|--------|------|
-| 10 | 🔶 | Migrate to AWS Bedrock — `BedrockLLMProvider` (Converse API) + `LLM_PROVIDER` selection built and offline-tested; real AWS validation pending (env setup, model access, provider comparison) |
+| 10 | ✅ | Migrate to AWS Bedrock — `BedrockLLMProvider` (Converse API) + `LLM_PROVIDER` selection built, offline-tested, and validated with `amazon.nova-pro-v1:0` in `ap-southeast-2`. 5/5 gated integration tests pass (20.36s). Provider comparison: Bedrock ~47% faster than DeepSeek; both achieve 100% citation verification rate. One legal-reasoning accuracy caveat noted on vic-eviction (over-reliance on Regulation form without Act threshold). DeepSeek remains default for local development. |
 | 11 | ⬜ | Containerize (Dockerfile, fastembed models baked in, push to ECR) |
 | 12 | ⬜ | Deploy Lambda + API Gateway (FastAPI + Mangum, RAG endpoint) |
 | 12a | ⬜ | File upload & contract analysis (PDF/JPG parsing, clause extraction, dual-source citation [Contract, Clause X] + [VIC RTA 1997 Sec Y], cross-reference detection) |
@@ -334,7 +334,7 @@ See [Roadmap](#roadmap) above for complete development plan.
 
 Generation (query rewriting + legal answers) runs behind a provider
 abstraction (`src/rag/generation/llm_provider.py`). DeepSeek is the
-default; AWS Bedrock (Converse API) is selectable via environment:
+default; AWS Bedrock (Converse API) is validated for AWS deployment:
 
 ```bash
 # Default — DeepSeek (LLM_PROVIDER may be unset or blank)
@@ -343,8 +343,20 @@ LLM_PROVIDER=deepseek
 # AWS Bedrock (requires region, model access, and boto3-resolvable credentials)
 LLM_PROVIDER=bedrock
 AWS_REGION=ap-southeast-2
-BEDROCK_MODEL_ID=<your-model-or-inference-profile-id>
+BEDROCK_MODEL_ID=amazon.nova-pro-v1:0
 ```
+
+**Validated model:** `amazon.nova-pro-v1:0` in `ap-southeast-2` (2026-07-22).
+
+**Provider comparison (5-case benchmark):** Both providers achieve 100%
+citation verification with zero unverified citations across all in-scope
+cases. Bedrock latency is ~47% lower than DeepSeek (mean ~5.5s vs
+~10.3s). Bedrock answers are more concise (~40% shorter); DeepSeek
+answers are more detailed with higher citation density. One legal-reasoning
+caveat observed: Bedrock on the VIC 10-day eviction case cited a verified
+Regulation form but missed the Act's 14-day arrears threshold (s91ZM(7)),
+producing an incorrect permissive conclusion. Full comparison report at
+`reports/provider_comparison/`.
 
 Notes:
 
@@ -352,11 +364,12 @@ Notes:
   discovery; Bedrock clients are created lazily on first use.
 - Retrieval, prompts, citation verification, and graph topology are
   identical across providers.
-- Real Bedrock behaviour is validated by gated integration tests
-  (`RUN_BEDROCK_INTEGRATION=1`, see Getting Started) and the provider
-  comparison harness (`python scripts/compare_providers.py --providers
-  deepseek bedrock`) once AWS is configured. Until then, Bedrock
-  latency/cost/answer quality are unavailable — not fabricated.
+- Run the comparison harness (`python scripts/compare_providers.py
+  --providers deepseek bedrock`) to reproduce results once both
+  providers are configured.
+- DeepSeek remains the default for local development; Bedrock is
+  recommended for AWS Lambda deployment where lower latency and AWS
+  native integration are preferred, with the accuracy caveat noted above.
 
 ## Observability
 
