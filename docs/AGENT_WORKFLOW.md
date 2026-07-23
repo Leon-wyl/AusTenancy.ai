@@ -1,6 +1,8 @@
 # Agent Workflow: LangGraph Orchestration
 
 > **Note:** This document began as the Phase C design draft. The implemented graph lives in `src/agent/graph_skeleton.py` and diverges (different node names and topology from the original design). Sections below are tagged `[IMPLEMENTED]` or `[STATUS: planned — not implemented]` to distinguish actual code from future design.
+>
+> **Deployment architecture:** For Terraform, Lambda, API Gateway, Qdrant topology, IAM, and staging deployment design, see [`agent-deployment-architecture-gate.md`](./agent-deployment-architecture-gate.md).
 
 ## Implemented Graph (Current)
 
