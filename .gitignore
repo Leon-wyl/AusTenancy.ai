@@ -46,3 +46,13 @@ vic_eval_*.json
 
 # Opencode
 .opencode/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+*.tfbackend
+!*.tfbackend.example
