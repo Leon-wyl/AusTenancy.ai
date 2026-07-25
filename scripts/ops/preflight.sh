@@ -200,8 +200,9 @@ if [[ "$HEAD_SHA" == "$EXPECTED_GIT_SHA" ]]; then
   pass "head_match" \
     "HEAD matches image source SHA ($EXPECTED_GIT_SHA)"
 elif git merge-base --is-ancestor "$EXPECTED_GIT_SHA" "$HEAD_SHA"; then
-  warn "head_match" \
-    "HEAD ($HEAD_SHA) is newer than image source SHA ($EXPECTED_GIT_SHA); image source commit is present in current history"
+  printf 'WARNING (HEAD=%s is newer than image source SHA=%s)\n' \
+    "$HEAD_SHA" \
+    "$EXPECTED_GIT_SHA" >&2
 else
   fail "head_match" \
     "Image source SHA ($EXPECTED_GIT_SHA) is not an ancestor of HEAD ($HEAD_SHA)"
