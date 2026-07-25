@@ -197,13 +197,35 @@ fi
 echo -n "[7/10] HEAD matches expected... " >&2
 HEAD_SHA=$(git rev-parse HEAD)
 if [[ "$HEAD_SHA" == "$EXPECTED_GIT_SHA" ]]; then
-  echo "PASSED" >&2
-  check_pass "head_match"
+  pass "head_match" \
+    "HEAD matches image source SHA ($EXPECTED_GIT_SHA)"
+elif git merge-base --is-ancestor "$EXPECTED_GIT_SHA" "$HEAD_SHA"; then
+  warn "head_match" \
+    "HEAD ($HEAD_SHA) is newer than image source SHA ($EXPECTED_GIT_SHA); image source commit is present in current history"
 else
-  echo "FAILED (HEAD=$HEAD_SHA, expected=$EXPECTED_GIT_SHA)" >&2
-  check_fail "head_match" "HEAD ($HEAD_SHA) does not match expected ($EXPECTED_GIT_SHA)"
-  echo '{"status":"FAILED","warnings":'"$warnings"',"failures":'"$(printf '%s\n' "${failures[@]}" | jq -s '.')"',"timestamp":"'"$timestamp"'"}'
-  exit 1
+  fail "head_match" \
+    "Image source SHA ($EXPECTED_GIT_SHA) is not an ancestor of HEAD ($HEAD_SHA)"
+fi
+
+RUNTIME_CHANGED_FILES="$(
+  git diff --name-only "$EXPECTED_GIT_SHA"..HEAD -- \
+    src \
+    app \
+    Dockerfile \
+    pyproject.toml \
+    poetry.lock \
+    uv.lock \
+    requirements.txt \
+    requirements.lock \
+    2>/dev/null || true
+)"
+
+if [[ -n "$RUNTIME_CHANGED_FILES" ]]; then
+  fail "runtime_source_match" \
+    "Runtime-relevant files changed after image source SHA: $(echo "$RUNTIME_CHANGED_FILES" | tr '\n' ' ')"
+else
+  pass "runtime_source_match" \
+    "No runtime-relevant files changed after image source SHA"
 fi
 
 # 8. ECR digest exists
