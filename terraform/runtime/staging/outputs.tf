@@ -37,3 +37,8 @@ output "deployed_image_uri" {
   description = "Image URI deployed to Lambda (immutable digest)"
   value       = var.image_uri
 }
+
+output "source_git_sha" {
+  description = "Git SHA of the source code baked into the Lambda image"
+  value       = var.source_git_sha
+}
