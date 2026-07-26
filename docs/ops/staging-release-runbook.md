@@ -15,8 +15,9 @@ Follow each section sequentially. Do not skip gates.
 ## 1. Build & Push Immutable Image
 
 ```bash
-# Build linux/amd64 image
-docker build --platform linux/amd64 --tag austenancy-staging-agent:latest .
+# Build linux/amd64 image (--provenance=false required — OCI image indexes
+# with attestation manifests are rejected by AWS Lambda)
+docker build --provenance=false --platform linux/amd64 --tag austenancy-staging-agent:latest .
 
 # Run container smoke tests (optional but recommended)
 bash scripts/run_container_smoke.sh
@@ -210,7 +211,7 @@ terraform state show aws_lambda_function.agent
 ## 13. Go/No-Go Decision
 
 **Go criteria:**
-- All 18 checklist items PASSED (WARNING acceptable for INSUFFICIENT_DATA)
+- All 22 checklist items PASSED (WARNING acceptable for INSUFFICIENT_DATA)
 - Smoke tests all PASSED
 - No Lambda errors or access denied in recent logs
 - All alarms in OK state (or expected INSUFFICIENT_DATA)

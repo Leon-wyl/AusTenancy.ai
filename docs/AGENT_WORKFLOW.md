@@ -30,6 +30,7 @@ class AgentState(TypedDict):
     citations_verified: bool
     fallback_reason: str
     citation_errors: list[str]
+    suspicious_input: bool
 ```
 
 ### Nodes (7)

@@ -21,8 +21,11 @@
 | 15 | Smoke | Health check | `GET /health` -> 200, valid JSON schema | |
 | 16 | Smoke | Anonymous denial | `POST /api/agent/invoke` (no auth) -> 403 | |
 | 17 | Smoke | Signed Agent invocation | SigV4 POST -> 200, valid AgentResponse via Pydantic | |
-| 18 | Alarms | No active alarms | All 4 alarms OK or INSUFFICIENT_DATA (WARNING, not FAILED) | |
-| 19 | Logs | No errors or deny events | 0 ERROR, 0 AccessDenied, 0 throttles in recent Lambda logs | |
+| 18 | Safety | Disclaimer present | AgentResponse.answer contains mandatory legal disclaimer | |
+| 19 | Safety | Injection gate | Known suspicious inputs are flagged before graph invocation | |
+| 20 | Smoke | Citation grounded | AgentResponse contains verified citations (citation_count > 0 for in-scope) | |
+| 21 | Alarms | No active alarms | All 4 alarms OK or INSUFFICIENT_DATA (WARNING, not FAILED) | |
+| 22 | Logs | No errors or deny events | 0 ERROR, 0 AccessDenied, 0 throttles in recent Lambda logs | |
 
 ## Go / No-Go Decision
 
@@ -37,7 +40,7 @@
 |-------|-------|
 | Release | `SOURCE_GIT_SHA` |
 | Image digest | `sha256:...` |
-| Checklist result | `18/19 PASSED, 1 WARNING` or `19/19 PASSED` |
+| Checklist result | `20/22 PASSED, 2 WARNING` or `22/22 PASSED` |
 | Decision | GO / NO-GO |
 | Approved by | |
 | Date | |

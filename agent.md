@@ -120,6 +120,15 @@ bash scripts/ops/rollback.sh --digest sha256:<64-hex> --git-sha <40-char-sha>   
 - Rollback **exits 1** on destroys or unexpected resource changes — plan-only
 - Log inspection **never outputs** legal answers or credentials
 
+### Docker Build
+
+Lambda requires a single-platform image manifest, not an OCI image index.
+Always build with `--provenance=false`:
+
+```bash
+docker build --provenance=false --platform linux/amd64 -t austenancy-staging-agent:$GIT_SHA .
+```
+
 ## Architecture
 
 ### Current (Phase C — LangGraph Agent)
@@ -130,7 +139,8 @@ bash scripts/ops/rollback.sh --digest sha256:<64-hex> --git-sha <40-char-sha>   
 intake_analyzer → request_clarification | query_rewriter → rag_retriever → legal_reasoner → citation_verifier → fallback_node
 ```
 
-- **State:** `AgentState` TypedDict (13 fields) — see `src/agent/state.py`
+- **State:** `AgentState` TypedDict (14 fields, including `suspicious_input`) — see `src/agent/state.py`
+- **Safety:** Pre-graph injection detection, PII/secret redaction, mandatory disclaimer — see `src/agent/safety.py` (43 tests in `tests/test_safety.py`)
 - **Routers:** `route_after_intake` (fallback/clarification/rewriter), `route_after_retrieval` (fallback/reasoner), `route_after_verify` (fallback/__end__)
 - **CLI:** Interactive multi-turn REPL with `MemorySaver` checkpointing + per-session `thread_id` (`python -m src.agent.cli`)
 - **LLM prompt:** IRAC format (Issue → Rule → Application → Conclusion)
@@ -199,6 +209,8 @@ intake_analyzer → request_clarification | query_rewriter → rag_retriever →
 3. **No citation hallucination** — if a section isn't in the retrieved set, output uncertainty, not a fabricated citation.
 4. **Pydantic at boundaries** — validate LLM extraction, API input, and tool results with Pydantic. Internal state uses lightweight TypedDict.
 5. **Dual-source citations** — cross-reference uploaded documents against legislation. Flag contradictions. Format: [Contract, Clause X] + [VIC RTA 1997 Sec Y].
+6. **Input safety before graph** — injection detection and PII/secret redaction run in the API handler (see `src/agent/safety.py`), never inside graph nodes. Guard instruction is prepended only when flagged. Mandatory legal disclaimer is appended to all answers.
+7. **No raw legal logs** — Lambda logs are redacted before output. Never expose legal-answer content or credentials in logs or error details.
 
 ## Roadmap
 
@@ -233,8 +245,8 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 | ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 11   | ✅ | **Containerize Full Agent Runtime** — Build one Lambda-compatible `linux/amd64` image containing FastAPI, Mangum, the compiled seven-node LangGraph, all agent nodes, provider abstraction, retrieval dependencies, citation guard, FastEmbed assets and observability hooks. Bake immutable Qdrant and FastEmbed assets into the image, copy writable Qdrant state to `/tmp` at runtime, and never package credentials. Push the verified runtime image to ECR using an immutable Git SHA tag and capture its image digest. |
 | 12   | ✅ | **Deploy Agent Runtime Lambda + API Gateway** — Deploy the complete LangGraph Agent through `graph.ainvoke()`, not only `generate_compliance_answer()` or a standalone RAG chain. Provide public `GET /health` and AWS-IAM-protected `POST /api/agent/invoke` for synchronous staging tests. Configure the Lambda container image by immutable ECR digest, Bedrock least-privilege IAM, static Qdrant runtime initialization, timeouts, structured logs, correlation IDs, API Gateway access logs and CloudWatch alarms. |
-| 13   | ⬜ | **Staging Operational Readiness & Release Automation** — Convert the successful manual deployment into a repeatable, auditable and reversible release workflow. Add clean-worktree and AWS-account preflight checks, immutable digest verification, Terraform state-key isolation and drift checks, public-health and anonymous-403 tests, SigV4-signed Agent smoke tests, Lambda/API log inspection, alarm verification, release checklists, deployment runbooks and rollback-by-digest plan generation. Fail closed on mutable image tags, wrong accounts, destructive Terraform plans, public Agent routes or failed signed invocation. Do not change Agent behaviour in this step. |
-| 13a  | ⬜ | **Agent-Level Safety Guardrails** — Apply strict request schema, input length and payload-size validation before graph invocation while retaining scope detection, clarification and fallback decisions inside the graph. Add PII detection and log redaction, trusted-instruction boundaries, prompt-injection resistance, safe error responses, citation-grounding warnings, uncertainty handling, jurisdiction and scope enforcement, approved legal disclaimers and least-privilege IAM verification. Add adversarial and regression tests, then rebuild, push and deploy the guarded Agent through the Step 13 release workflow. |
+| 13   | ✅ | **Staging Operational Readiness & Release Automation** — Convert the successful manual deployment into a repeatable, auditable and reversible release workflow. Add clean-worktree and AWS-account preflight checks, immutable digest verification, Terraform state-key isolation and drift checks, public-health and anonymous-403 tests, SigV4-signed Agent smoke tests, Lambda/API log inspection, alarm verification, release checklists, deployment runbooks and rollback-by-digest plan generation. Fail closed on mutable image tags, wrong accounts, destructive Terraform plans, public Agent routes or failed signed invocation. Do not change Agent behaviour in this step. |
+| 13a  | ✅ | **Agent-Level Safety Guardrails** — Apply strict request schema, input length and payload-size validation before graph invocation while retaining scope detection, clarification and fallback decisions inside the graph. Add PII detection and log redaction, trusted-instruction boundaries, prompt-injection resistance, safe error responses, citation-grounding warnings, uncertainty handling, jurisdiction and scope enforcement, approved legal disclaimers and least-privilege IAM verification. Add adversarial and regression tests, then rebuild, push and deploy the guarded Agent through the Step 13 release workflow. |
 
 ### Phase E: Full-Stack Chat Application
 
