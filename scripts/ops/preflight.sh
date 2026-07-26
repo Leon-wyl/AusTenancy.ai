@@ -250,7 +250,11 @@ fi
 # 9. No tracked secrets
 echo -n "[9/10] No tracked secrets... " >&2
 TRACKED_SECRETS=$(git ls-files | grep -E '\.(tfstate|tfbackend|tfvars|tfplan|auto\.tfvars\.json)$' | grep -v '\.example$' || true)
-SECRET_COUNT=$(echo "$TRACKED_SECRETS" | grep -c . 2>/dev/null || echo 0)
+if [[ -z "$TRACKED_SECRETS" ]]; then
+  SECRET_COUNT=0
+else
+  SECRET_COUNT=$(echo "$TRACKED_SECRETS" | wc -l | tr -d ' ')
+fi
 if [[ "$SECRET_COUNT" -eq 0 ]]; then
   echo "PASSED (0 tracked)" >&2
   check_pass "tracked_files"
