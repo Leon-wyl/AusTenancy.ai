@@ -197,14 +197,15 @@ fi
 echo -n "[7/10] HEAD matches expected... " >&2
 HEAD_SHA=$(git rev-parse HEAD)
 if [[ "$HEAD_SHA" == "$EXPECTED_GIT_SHA" ]]; then
-  pass "head_match" \
-    "HEAD matches image source SHA ($EXPECTED_GIT_SHA)"
+  check_pass "head_match"
 elif git merge-base --is-ancestor "$EXPECTED_GIT_SHA" "$HEAD_SHA"; then
+  warnings=$((warnings + 1))
+  check_pass "head_match"
   printf 'WARNING (HEAD=%s is newer than image source SHA=%s)\n' \
     "$HEAD_SHA" \
     "$EXPECTED_GIT_SHA" >&2
 else
-  fail "head_match" \
+  check_fail "head_match" \
     "Image source SHA ($EXPECTED_GIT_SHA) is not an ancestor of HEAD ($HEAD_SHA)"
 fi
 
@@ -222,11 +223,10 @@ RUNTIME_CHANGED_FILES="$(
 )"
 
 if [[ -n "$RUNTIME_CHANGED_FILES" ]]; then
-  fail "runtime_source_match" \
+  check_fail "runtime_source_match" \
     "Runtime-relevant files changed after image source SHA: $(echo "$RUNTIME_CHANGED_FILES" | tr '\n' ' ')"
 else
-  pass "runtime_source_match" \
-    "No runtime-relevant files changed after image source SHA"
+  check_pass "runtime_source_match"
 fi
 
 # 8. ECR digest exists
