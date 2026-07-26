@@ -349,7 +349,7 @@ Every production code change follows a gated pipeline through
 `scripts/ops/release.sh`:
 
 ```bash
-bash scripts/ops/release.sh --allowed-account-id 891377120624
+bash scripts/ops/release.sh --allowed-account-id $ALLOWED_ACCOUNT_ID
 ```
 
 ### Pipeline
@@ -375,7 +375,7 @@ bash scripts/ops/release.sh --allowed-account-id 891377120624
 ### Individual scripts
 
 ```bash
-bash scripts/ops/preflight.sh --expected-git-sha $(git rev-parse HEAD) --allowed-account-id 891377120624
+bash scripts/ops/preflight.sh --expected-git-sha $(git rev-parse HEAD) --allowed-account-id $ALLOWED_ACCOUNT_ID
 .venv/bin/python scripts/ops/smoke_test.py --health-url $URL --invoke-url $URL
 bash scripts/ops/verify_deployment.sh
 bash scripts/ops/inspect_logs.sh --minutes 15

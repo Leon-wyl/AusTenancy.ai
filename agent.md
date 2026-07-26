@@ -74,6 +74,52 @@ cd backend && uvicorn main:app --reload       # FastAPI CRUD API
 cd frontend && npm run dev                     # Next.js dev server
 ```
 
+## Release Workflow
+
+Every production code change follows a gated pipeline through
+`scripts/ops/release.sh`:
+
+```bash
+bash scripts/ops/release.sh --allowed-account-id $ALLOWED_ACCOUNT_ID
+```
+
+### Pipeline
+
+| Phase | Script | Gate |
+|-------|--------|------|
+| **Build** | `docker build` → container smoke → ECR push → capture digest | Fail-fast |
+| **Preflight** | `scripts/ops/preflight.sh` — 10 checks (Git, AWS, Terraform, ECR, drift, secrets) | Fail-fast |
+| **Plan** | `terraform plan -out=runtime-staging.tfplan` | Review required |
+| **Apply** | `terraform apply` | **Manual Y/N prompt** |
+| **Smoke** | `scripts/ops/smoke_test.py` — health 200, anonymous 403, SigV4 Agent invoke | Warning |
+| **Verify** | `scripts/ops/verify_deployment.sh` — 16 infra checks | Warning |
+| **Inspect** | `scripts/ops/inspect_logs.sh` — CloudWatch logs + alarms | Warning |
+
+### Flags
+
+| Flag | Effect |
+|------|--------|
+| `--dry-run` | Preflight + plan only (no apply, no smoke) |
+| `--skip-build` | Skip Docker build + ECR push (use existing image) |
+| `--skip-smoke` | Skip post-deploy smoke/verify/inspect |
+
+### Individual scripts
+
+```bash
+bash scripts/ops/preflight.sh --expected-git-sha $(git rev-parse HEAD) --allowed-account-id $ALLOWED_ACCOUNT_ID
+.venv/bin/python scripts/ops/smoke_test.py --health-url $URL --invoke-url $URL
+bash scripts/ops/verify_deployment.sh
+bash scripts/ops/inspect_logs.sh --minutes 15
+bash scripts/ops/rollback.sh --digest sha256:<64-hex> --git-sha <40-char-sha>   # plan-only
+```
+
+### Safety
+
+- Preflight **exits 1** on dirty git, wrong account, mutable image tags, or drift
+- Apply is **always a manual Y/N prompt** — never auto-applies
+- Rollback **exits 1** on destroys or unexpected resource changes — plan-only
+- Log inspection **never outputs** legal answers or credentials
+
 ## Architecture
 
 ### Current (Phase C — LangGraph Agent)
