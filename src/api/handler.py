@@ -91,17 +91,33 @@ async def agent_invoke(request: AgentRequest):
     prepare_qdrant()
     graph = get_compiled_graph()
 
-    state = initial_state_from_request(request.question, request.jurisdiction)
+    from src.agent.safety import detect_injection
+
+    suspicious = detect_injection(request.question)
+
+    state = initial_state_from_request(
+        request.question, request.jurisdiction, suspicious_input=suspicious
+    )
 
     try:
         final_state = await graph.ainvoke(state)
     except Exception as exc:
+        from src.agent.safety import redact_log
+
+        safe_detail = redact_log(str(exc))
         logger.error(
-            "Graph invocation failed request_id=%s error_type=%s",
+            "Graph invocation failed request_id=%s error_type=%s detail=%s",
             request.request_id,
             type(exc).__name__,
+            safe_detail,
         )
-        raise HTTPException(status_code=500, detail="Agent invocation failed") from exc
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Agent invocation failed",
+                "request_id": request.request_id,
+            },
+        ) from exc
 
     elapsed_ms = (time.perf_counter() - start) * 1000
 
@@ -111,6 +127,11 @@ async def agent_invoke(request: AgentRequest):
     status = summary["status"]
 
     answer = _extract_answer(final_state)
+
+    from src.agent.safety import DISCLAIMER
+
+    if answer:
+        answer += DISCLAIMER
 
     return AgentResponse(
         request_id=request.request_id,

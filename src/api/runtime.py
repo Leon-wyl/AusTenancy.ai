@@ -260,12 +260,32 @@ def get_compiled_graph():
 # ── State construction ─────────────────────────────────────────────────
 
 
-def initial_state_from_request(question: str, jurisdiction: str | None = None) -> dict:
-    """Build AgentState dict from request fields without modifying the schema."""
+def initial_state_from_request(
+    question: str,
+    jurisdiction: str | None = None,
+    suspicious_input: bool = False,
+) -> dict:
+    """Build AgentState dict from request fields without modifying the schema.
+
+    Args:
+        question: User's question text (already validated by the Pydantic model).
+        jurisdiction: Optional VIC or NSW jurisdiction hint.
+        suspicious_input: If True, prepend a trusted guard instruction to the
+            user message and set ``state["suspicious_input"] = True`` so
+            downstream nodes can inspect the flag without blocking the graph.
+    """
     from src.agent.state import create_initial_state
 
     state = create_initial_state()
-    state["messages"] = [{"role": "user", "content": question}]
+    state["suspicious_input"] = suspicious_input
+
+    content = question
+    if suspicious_input:
+        from src.agent.safety import GUARD_INSTRUCTION
+
+        content = GUARD_INSTRUCTION + question
+
+    state["messages"] = [{"role": "user", "content": content}]
     if jurisdiction:
         state["jurisdiction"] = jurisdiction
     return state

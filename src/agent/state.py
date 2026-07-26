@@ -23,6 +23,7 @@ class AgentState(TypedDict):
     citations_verified: bool
     fallback_reason: str
     citation_errors: list[str]
+    suspicious_input: bool
 
 
 def create_initial_state() -> AgentState:
@@ -40,4 +41,5 @@ def create_initial_state() -> AgentState:
         citations_verified=False,
         fallback_reason="",
         citation_errors=[],
+        suspicious_input=False,
     )
