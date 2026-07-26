@@ -89,7 +89,7 @@ def test_parse_multi_response_returns_labels():
     assert queries[2].startswith("residential bond maximum amount")
 
 
-@patch("src.rag.generation.generator.DeepSeekLLMProvider")
+@patch("src.rag.generation.generator.get_llm_provider")
 def test_enriches_statutory_query_when_intent_detected(_mock_llm):
     """Regulation intent → STATUTORY query includes 'Regulation' (prompt-driven)."""
     instance = _mock_llm.return_value
@@ -108,7 +108,7 @@ def test_enriches_statutory_query_when_intent_detected(_mock_llm):
     assert "Regulation" not in queries[2]
 
 
-@patch("src.rag.generation.generator.DeepSeekLLMProvider")
+@patch("src.rag.generation.generator.get_llm_provider")
 def test_does_not_enrich_statutory_for_normal_question(_mock_llm):
     """Non-Regulation question → STATUTORY query is NOT modified by post-processing."""
     instance = _mock_llm.return_value
@@ -125,7 +125,7 @@ CONCEPT: unlawful rent increase notice requirements rental provider obligations 
     assert "Regulation" not in queries[1]
 
 
-@patch("src.rag.generation.generator.DeepSeekLLMProvider")
+@patch("src.rag.generation.generator.get_llm_provider")
 def test_no_double_expansion(_mock_llm):
     """If STATUTORY query already contains 'Regulation', don't append again."""
     instance = _mock_llm.return_value
@@ -143,7 +143,7 @@ CONCEPT: bond maximum statutory limit VIC"""
     assert queries[1].count("Regulation") == 1
 
 
-@patch("src.rag.generation.generator.DeepSeekLLMProvider")
+@patch("src.rag.generation.generator.get_llm_provider")
 def test_semantic_and_concept_unmodified(_mock_llm):
     """Only the STATUTORY (index 1) query ever contains Regulation terms."""
     instance = _mock_llm.return_value

@@ -1,0 +1,11 @@
+{
+  "built_at": "2026-07-23T10:13:45.554854+00:00",
+  "chunk_count": 1591,
+  "collection_name": "tenancy_acts",
+  "corpus_version": "1.0.0",
+  "dense_dimensions": 384,
+  "dense_model": "BAAI/bge-small-en-v1.5",
+  "index_sha256": "11e224f39e4560d048c906a2fcd7043517f123f58965752861550a65cd450eb2",
+  "manifest_version": "1.0",
+  "sparse_model": "Qdrant/bm25"
+}

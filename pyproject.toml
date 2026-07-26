@@ -11,6 +11,9 @@ dependencies = [
     "openai",
     "langgraph>=0.2.0,<0.3.0",
     "python-dotenv",
+    "boto3>=1.34.116",
+    "fastapi>=0.115.0",
+    "mangum>=0.19.0",
 ]
 [project.optional-dependencies]
 eval = [
@@ -34,8 +37,9 @@ indent-style = "space"
 "tests/*" = ["E501", "N802", "F401"]
 
 [tool.pytest.ini_options]
-addopts = "-m 'not integration'"
+addopts = "-m 'not integration and not corpus'"
 markers = [
     "slow: slow tests that require full E2E ingestion",
     "integration: tests that require external services (DeepSeek API, Qdrant, local vector data)",
+    "corpus: tests that require the real local Qdrant corpus (not hermetic)",
 ]

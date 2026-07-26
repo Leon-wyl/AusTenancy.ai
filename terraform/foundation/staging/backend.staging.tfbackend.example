@@ -1,0 +1,4 @@
+bucket  = "austenancy-terraform-<unique-suffix>"
+key     = "foundation/staging/terraform.tfstate"
+region  = "ap-southeast-2"
+encrypt = true

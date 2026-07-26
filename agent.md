@@ -14,8 +14,8 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | Retrieval | Qdrant (dense BGE-small + BM25 hybrid, RRF fusion) |
 | Embeddings | BGE-small-en-v1.5 via fastembed (fine-tuning planned) |
 | Embeddings (prod) | Amazon Titan Text Embeddings v2 (via Bedrock) |
-| LLM (current dev) | DeepSeek via OpenAI-compatible SDK |
-| LLM (prod target) | Claude 3.5 Sonnet (via AWS Bedrock) |
+| LLM (current dev) | DeepSeek via OpenAI-compatible SDK (default); AWS Bedrock Converse validated for staging (`LLM_PROVIDER=bedrock`, `BEDROCK_TEMPERATURE=0`) |
+| LLM (prod target) | Amazon Nova Pro v1:0 (via AWS Bedrock, ap-southeast-2) |
 | LLM (classifier) | Amazon Nova Lite — planned |
 | Evaluation | RAGAS (faithfulness, context precision, answer relevance) |
 | Auth + DB + Realtime | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E) |
@@ -25,8 +25,8 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | Frontend | Next.js App Router + Tailwind + shadcn/ui — planned (Phase E) |
 | Frontend Deploy | OpenNext → CloudFront + Lambda@Edge + S3 — planned (Phase E) |
 | E2E Testing | Playwright — planned (Phase E) |
-| Monitoring | LangSmith tracing + Sentry + CloudWatch |
-| Deployment | AWS Lambda + API Gateway (Docker container) |
+| Monitoring | LangSmith tracing + CloudWatch + CloudWatch alarms |
+| Deployment | Terraform + AWS Lambda + API Gateway (Docker container) |
 | CI/CD | GitHub Actions |
 | Language | Python 3.12+ |
 | Lint/Format | Ruff |
@@ -59,6 +59,12 @@ python src/rag/generation/generator.py            # Run RAG compliance pipeline
 python -m src.agent.cli                      # Interactive multi-turn REPL
 pytest tests/                    # unit tests (integration excluded by default)
 pytest tests/ -m integration -v  # real-service integration tests (needs DEEPSEEK_API_KEY + indexed Qdrant)
+RUN_BEDROCK_INTEGRATION=1 pytest tests/test_bedrock_integration.py -m integration -v  # gated Bedrock tests
+
+# Provider hardening and evaluation (optional)
+python scripts/compare_providers.py --providers deepseek bedrock  # cross-provider comparison
+python scripts/capture_baseline.py                                  # multi-stage pipeline tracing
+python scripts/eval_arrears_thresholds.py                           # threshold evaluation (30 runs)
 ```
 
 ```bash
@@ -66,6 +72,61 @@ pytest tests/ -m integration -v  # real-service integration tests (needs DEEPSEE
 # Full-stack (Phase E)
 cd backend && uvicorn main:app --reload       # FastAPI CRUD API
 cd frontend && npm run dev                     # Next.js dev server
+```
+
+## Release Workflow
+
+Every production code change follows a gated pipeline through
+`scripts/ops/release.sh`:
+
+```bash
+bash scripts/ops/release.sh --allowed-account-id $ALLOWED_ACCOUNT_ID
+```
+
+### Pipeline
+
+| Phase | Script | Gate |
+|-------|--------|------|
+| **Build** | `docker build` → container smoke → ECR push → capture digest | Fail-fast |
+| **Preflight** | `scripts/ops/preflight.sh` — 10 checks (Git, AWS, Terraform, ECR, drift, secrets) | Fail-fast |
+| **Plan** | `terraform plan -out=runtime-staging.tfplan` | Review required |
+| **Apply** | `terraform apply` | **Manual Y/N prompt** |
+| **Smoke** | `scripts/ops/smoke_test.py` — health 200, anonymous 403, SigV4 Agent invoke | Warning |
+| **Verify** | `scripts/ops/verify_deployment.sh` — 16 infra checks | Warning |
+| **Inspect** | `scripts/ops/inspect_logs.sh` — CloudWatch logs + alarms | Warning |
+
+### Flags
+
+| Flag | Effect |
+|------|--------|
+| `--dry-run` | Preflight + plan only (no apply, no smoke) |
+| `--skip-build` | Skip Docker build + ECR push (use existing image) |
+| `--skip-smoke` | Skip post-deploy smoke/verify/inspect |
+
+### Individual scripts
+
+```bash
+bash scripts/ops/preflight.sh --expected-git-sha $(git rev-parse HEAD) --allowed-account-id $ALLOWED_ACCOUNT_ID
+.venv/bin/python scripts/ops/smoke_test.py --health-url $URL --invoke-url $URL
+bash scripts/ops/verify_deployment.sh
+bash scripts/ops/inspect_logs.sh --minutes 15
+bash scripts/ops/rollback.sh --digest sha256:<64-hex> --git-sha <40-char-sha>   # plan-only
+```
+
+### Safety
+
+- Preflight **exits 1** on dirty git, wrong account, mutable image tags, or drift
+- Apply is **always a manual Y/N prompt** — never auto-applies
+- Rollback **exits 1** on destroys or unexpected resource changes — plan-only
+- Log inspection **never outputs** legal answers or credentials
+
+### Docker Build
+
+Lambda requires a single-platform image manifest, not an OCI image index.
+Always build with `--provenance=false`:
+
+```bash
+docker build --provenance=false --platform linux/amd64 -t austenancy-staging-agent:$GIT_SHA .
 ```
 
 ## Architecture
@@ -78,7 +139,8 @@ cd frontend && npm run dev                     # Next.js dev server
 intake_analyzer → request_clarification | query_rewriter → rag_retriever → legal_reasoner → citation_verifier → fallback_node
 ```
 
-- **State:** `AgentState` TypedDict (13 fields) — see `src/agent/state.py`
+- **State:** `AgentState` TypedDict (14 fields, including `suspicious_input`) — see `src/agent/state.py`
+- **Safety:** Pre-graph injection detection, PII/secret redaction, mandatory disclaimer — see `src/agent/safety.py` (43 tests in `tests/test_safety.py`)
 - **Routers:** `route_after_intake` (fallback/clarification/rewriter), `route_after_retrieval` (fallback/reasoner), `route_after_verify` (fallback/__end__)
 - **CLI:** Interactive multi-turn REPL with `MemorySaver` checkpointing + per-session `thread_id` (`python -m src.agent.cli`)
 - **LLM prompt:** IRAC format (Issue → Rule → Application → Conclusion)
@@ -147,6 +209,8 @@ intake_analyzer → request_clarification | query_rewriter → rag_retriever →
 3. **No citation hallucination** — if a section isn't in the retrieved set, output uncertainty, not a fabricated citation.
 4. **Pydantic at boundaries** — validate LLM extraction, API input, and tool results with Pydantic. Internal state uses lightweight TypedDict.
 5. **Dual-source citations** — cross-reference uploaded documents against legislation. Flag contradictions. Format: [Contract, Clause X] + [VIC RTA 1997 Sec Y].
+6. **Input safety before graph** — injection detection and PII/secret redaction run in the API handler (see `src/agent/safety.py`), never inside graph nodes. Guard instruction is prepended only when flagged. Mandatory legal disclaimer is appended to all answers.
+7. **No raw legal logs** — Lambda logs are redacted before output. Never expose legal-answer content or credentials in logs or error details.
 
 ## Roadmap
 
@@ -173,26 +237,32 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 | 8 | ⬜ | Agent RAGAS evaluation |
 | 9 | ⬜ | LangSmith tracing |
 
-### Phase D: Production Deployment
+### Phase D: AWS Staging Deployment
+
+> *Bedrock provider migration and hardening (baseline capture, threshold evaluation 30 runs, retrieval quality tests, VIC-10d live regression) were completed prior to the Architecture Gate. See [Completed](#-completed) section below.*
+
 | Step | Status | What |
-|------|--------|------|
-| 10 | ⬜ | Migrate to AWS Bedrock |
-| 11 | ⬜ | Containerize (Docker + ECR) |
-| 12 | ⬜ | Deploy Lambda + API Gateway (FastAPI + Mangum, RAG endpoint) |
-| 12a | ⬜ | File upload & contract analysis (PDF/JPG parsing, clause extraction, dual-source citations) |
-| 13 | ⬜ | Safety guardrails (PII detection, off-topic filter, jailbreak defense, citation grounding alert) |
+| ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11   | ✅ | **Containerize Full Agent Runtime** — Build one Lambda-compatible `linux/amd64` image containing FastAPI, Mangum, the compiled seven-node LangGraph, all agent nodes, provider abstraction, retrieval dependencies, citation guard, FastEmbed assets and observability hooks. Bake immutable Qdrant and FastEmbed assets into the image, copy writable Qdrant state to `/tmp` at runtime, and never package credentials. Push the verified runtime image to ECR using an immutable Git SHA tag and capture its image digest. |
+| 12   | ✅ | **Deploy Agent Runtime Lambda + API Gateway** — Deploy the complete LangGraph Agent through `graph.ainvoke()`, not only `generate_compliance_answer()` or a standalone RAG chain. Provide public `GET /health` and AWS-IAM-protected `POST /api/agent/invoke` for synchronous staging tests. Configure the Lambda container image by immutable ECR digest, Bedrock least-privilege IAM, static Qdrant runtime initialization, timeouts, structured logs, correlation IDs, API Gateway access logs and CloudWatch alarms. |
+| 13   | ✅ | **Staging Operational Readiness & Release Automation** — Convert the successful manual deployment into a repeatable, auditable and reversible release workflow. Add clean-worktree and AWS-account preflight checks, immutable digest verification, Terraform state-key isolation and drift checks, public-health and anonymous-403 tests, SigV4-signed Agent smoke tests, Lambda/API log inspection, alarm verification, release checklists, deployment runbooks and rollback-by-digest plan generation. Fail closed on mutable image tags, wrong accounts, destructive Terraform plans, public Agent routes or failed signed invocation. Do not change Agent behaviour in this step. |
+| 13a  | ✅ | **Agent-Level Safety Guardrails** — Apply strict request schema, input length and payload-size validation before graph invocation while retaining scope detection, clarification and fallback decisions inside the graph. Add PII detection and log redaction, trusted-instruction boundaries, prompt-injection resistance, safe error responses, citation-grounding warnings, uncertainty handling, jurisdiction and scope enforcement, approved legal disclaimers and least-privilege IAM verification. Add adversarial and regression tests, then rebuild, push and deploy the guarded Agent through the Step 13 release workflow. |
 
 ### Phase E: Full-Stack Chat Application
+
 | Step | Status | What |
-|------|--------|------|
-| 14 | ⬜ | **Local Dev & DB Foundation** — Docker Compose (Supabase local + Qdrant + FastAPI + Next.js). Schema via SQLAlchemy 2.0 + asyncpg (users, conversations, messages with status CHECK constraint, citations JSONB). Alembic migrations. Supabase cloud project. Auth (email/password + Google OAuth). JWT middleware with credential scoping (anon_key for CRUD + client, service_role_key for RAG). RLS policies. Rate limiting middleware (per-user 60 RPM, per-IP 30 RPM) with PostgreSQL counters. Correlation ID middleware (X-Request-ID → CloudWatch). Client boundary docs (auth reads → Supabase, CRUD writes → API Gateway, Realtime → Supabase). |
-| 15 | ⬜ | **CRUD Lambda** — FastAPI 128MB/3s Lambda. REST: `GET/POST/DELETE /api/conversations`, `POST /api/conversations/{id}/messages`, `GET /api/conversations/{id}/messages?cursor=&limit=50` (cursor-based pagination), `PATCH title`. Title from first 50 chars of user message. API Gateway rate limit config. Integration tests (CRUD happy-path, JWT 401/403, Realtime subscription contract, rate limit enforcement). |
-| 16 | ⬜ | **Wire CRUD → RAG (Supabase Realtime)** — Client POSTs message → CRUD creates placeholder (`status='generating'`) → fires Step 12 RAG Lambda via `Lambda.Invoke(InvocationType='Event')` (async, fire-and-forget) → returns immediately. RAG Lambda writes tokens to Supabase `messages.content` in ~1s batches, sets `status='complete'` on finish. Error: try/except → `status='error'` with error text, client shows toast. 120s client timeout if no status change. Client subscribes to Supabase Realtime WSS (`messages` table, filtered by conversation_id) → receives tokens with zero additional cost. RAG Lambda 60s timeout. Citation persistence: parse `[VIC RTA 1997 Sec X]` → `messages.citations` JSONB. LangGraph state as JSONB in conversations; >256KB → S3 snapshot with DB reference. Realtime sends full content per batch (not deltas) — <50KB total, acceptable. Real streaming (Function URL) documented as future enhancement. |
-| 17 | ⬜ | **Frontend — Auth & Shell** — Next.js App Router + Tailwind + shadcn/ui. Supabase Auth React SDK (login, signup, logout). Supabase Realtime client (channel subscription). Protected route middleware. Layout shell: collapsible sidebar + main area. Session refresh on focus. SSR/Realtime split: Server Components fetch via Supabase SQL; Client Components subscribe to Realtime post-hydration. |
-| 18 | ⬜ | **Frontend — Chat UI** — Conversation sidebar (history by recency, search/filter, delete with confirmation, inline rename). Chat view (message bubbles, auto-scroll, loading skeleton, error toast on generation failure). Markdown rendering: react-markdown + remark-gfm. Citation badges: styled link badges for `[VIC RTA 1997 Sec X]` (no excerpts). New chat: auto-create conversation on first message. Title sync: POST response body includes auto-generated title. Timeout handling: error toast if status stays 'generating' past 120s. |
-| 19 | ⬜ | **Core CI/CD** — GitHub Actions parallel jobs: Python (Ruff → mypy → CRUD Lambda integration tests) + Node (ESLint → tsc → Next.js build). Pre-deploy: `alembic upgrade head` against Supabase (schema matches code before Lambda update). Package CRUD Lambda Docker image → push ECR → update Lambda. **E2E Playwright gate:** signup → login → session persists → create conversation → send message → receive token stream via Realtime → citations rendered → completion → conversation rename → delete → confirmed gone. Phase E not complete until gate passes. |
-| 20 | ⬜ | **OpenNext Deployment** — OpenNext: Next.js → Lambda@Edge (SSR/ISR) + CloudFront (CDN) + S3 (static). Route53 custom domain + ACM SSL. CI/CD: deploy frontend on push to main + CloudFront cache invalidation. Env: SUPABASE_URL/ANON_KEY → Next.js + CRUD Lambda. SUPABASE_SERVICE_ROLE_KEY → RAG Lambda only. BEDROCK creds → RAG Lambda only. Never client-side. |
-| 21 | ⬜ | **Polish & Observability** — Empty/error/rate-limited states. Toast notifications. Responsive (mobile sidebar drawer). Dark mode + system preference. Sentry SDK (CRUD + RAG Lambda + Next.js). CloudWatch dashboard (Lambda invocations/errors/duration, API Gateway 4xx/5xx). Optional: Vercel Analytics. |
+| ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 14a  | ⬜ | **Local Stack and Database** — Create Docker Compose services for local Supabase, Qdrant, FastAPI and Next.js. Implement a SQLAlchemy 2.0 schema and Alembic migrations for users, conversations, messages, agent jobs and citations. Provision the Supabase cloud project only after the local schema and migration path are validated. |
+| 14b  | ⬜ | **Auth and RLS** — Add email/password and Google OAuth through Supabase Auth. Verify JWTs using Supabase JWKS, implement ownership-based Row Level Security policies, define private Storage policies and isolate service-role credentials from browsers and user-scoped backend operations. |
+| 14c  | ⬜ | **Backend Data Controls** — Use Supavisor transaction-mode runtime connections, scoped database clients, correlation IDs, atomic quota counters, bounded request sizes and structured error contracts. Ensure authorization is checked before every conversation, message, citation, job and file operation. |
+| 15   | ⬜ | **CRUD Lambda** — Implement conversation and message APIs with cursor pagination, title updates, ownership checks and JWT 401/403 coverage. Add API Gateway throttling and structured errors. Start around 512 MB memory and a 10–15 second timeout, then tune from measured execution data. CRUD endpoints must not invoke retrieval or the Agent synchronously. |
+| 16   | ⬜ | **Async Agent Orchestration** — CRUD creates the user message and an idempotent Agent job, then asynchronously invokes the complete deployed LangGraph Agent using identifiers and trusted metadata only. The worker must execute `graph.ainvoke()` across intake, clarification, query rewriting, retrieval, legal reasoning, citation verification and fallback rather than calling a standalone RAG or answer-generation function. Add explicit job-state transitions, idempotency keys, processing leases, bounded retries, DLQ or on-failure handling, stale-job recovery and correlation IDs. Persist the final assistant message, citations, clarification requirements, fallback outcome, execution metadata and safe error state atomically. |
+| 17   | ⬜ | **Frontend Auth and Shell** — Build the Next.js App Router application using Tailwind and shadcn/ui. Add Supabase Auth, protected routes, secure session handling, the responsive sidebar shell and basic authenticated conversation CRUD integration. Browser clients must not receive AWS IAM credentials or call the Agent Runtime's AWS-IAM route directly. |
+| 18   | ⬜ | **Chat UI and Realtime** — Implement controlled Realtime Broadcast or carefully scoped Postgres Changes for Agent job progress and completed messages. Add chunked response presentation, loading and retry states, clarification flows, fallback states, citation badges, conversation history, search, rename and delete. Treat database state as the authoritative source rather than maintaining a second client-only job state. |
+| 18a  | ⬜ | **File Upload and Contract Analysis** — Use direct authenticated uploads to Supabase Storage or S3 with private ownership policies. Add file-type, size and malware validation; asynchronous PDF/JPG extraction; clause and tenancy-document analysis; and dual-source citations linking uploaded evidence and legislation. Never proxy large uploads through the synchronous Agent API or place file contents directly in asynchronous invocation events. |
+| 19   | ⬜ | **Full CI/CD and E2E Gate** — Add Python, Node and Terraform pipelines covering tests, linting, migrations, IaC plans, immutable ECR image publication, runtime updates, Lambda aliases and environment promotion. Add Playwright E2E coverage for authentication, CRUD, Async Agent orchestration, clarification, fallback, Realtime updates, citations and authorization failures. Preserve manual approval before production infrastructure changes. |
+| 20   | ⬜ | **Frontend AWS Deployment** — Run and document an OpenNext/SST compatibility spike, pin compatible versions and deploy Next.js through CloudFront, S3 and the required Lambda components. Add Route 53, ACM, cache policies, security headers and controlled cache invalidation only after the spike passes. |
+| 21   | ⬜ | **Polish, Advanced Security and Observability** — Improve responsive UX, accessibility and dark mode. Add advanced PII controls, jailbreak and abuse monitoring, Sentry, CloudWatch dashboards, cost and anomaly alarms, performance metrics, data-retention controls and incident runbooks. This step extends the foundational Agent guardrails from Step 13a; it does not defer basic safety controls until the end. |
 
 ### Phase F: Market Intelligence
 | Step | Status | What |
@@ -216,8 +286,10 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 | Phase B | VIC + NSW Regulation parsers with Regulation citation support (`[VIC REG 2021 Reg X]`, `[NSW REG 2019 Reg X]`, `[VIC REG 2021 Sch 1 Form 6]`) |
 | Phase B | Citation metrics evaluation (`citation_metrics.py`: deterministic citation precision, golden provision recall, Regulation indicators) |
 | Phase C | LangGraph 7-node agent + interactive streaming CLI |
+| Phase D | Bedrock provider migration + hardening (`BedrockLLMProvider`, provider comparison harness, baseline capture 6 runs, threshold evaluation 30 runs, retrieval quality tests 7 corpus, VIC-10d live regression) |
+| Phase D | Deployment Architecture Gate (Terraform, Lambda container, API Gateway + AWS_IAM, static Qdrant index) — [`docs/agent-deployment-architecture-gate.md`](docs/agent-deployment-architecture-gate.md) |
 
-**Timeline:** ~25 steps, ~50-70 hours with AI assistance. Critical path: 1→7→12→16→20→25.
+**Timeline:** ~30 steps, ~60-80 hours with AI assistance. Critical path: 11→12→13→16→20→25.
 
 ## Project Structure
 
@@ -242,22 +314,15 @@ src/                          # RAG pipeline + agent (Python)
     state.py                  #   AgentState TypedDict (13 fields)
     graph_skeleton.py         #   7-node state machine, 3 routers
     cli.py                    #   Interactive multi-turn REPL
-  processing/                 # Document parsing (planned)
-    document_parser.py        #   PDF/JPG extraction, clause metadata
-backend/                      # FastAPI CRUD Lambda (Phase E)
-  alembic/                    # Alembic migrations
-  app/
-    api/                      # REST endpoints
-    middleware/                # JWT, rate limiting, correlation ID
-    models/                   # SQLAlchemy models
-    schemas/                  # Pydantic schemas
-frontend/                     # Next.js app (Phase E)
-  app/                        # App Router pages + layouts
-  components/                 # React components (sidebar, chat, citations)
-  lib/                        # Supabase client, auth helpers, SSE client
+    observability.py          #   Run summaries, LangSmith config
 tests/                        # Pytest suite
   evaluation/                 # Golden datasets + contexts
-docs/                         # Design docs, PRD, workflows
+scripts/                      # Utility and evaluation scripts
+  run_agent_observed.py       #   One-shot agent run with JSON summary
+  compare_providers.py        #   DeepSeek vs Bedrock comparison harness
+  capture_baseline.py         #   Multi-stage pipeline tracing
+  eval_arrears_thresholds.py  #   Threshold evaluation (VIC/NSW arrears cases)
+docs/                         # Design docs, PRD, workflows, architecture gate
 data/raw/                     # PDF legislation files (gitignored)
 data/processed/               # Generated hierarchical chunks (gitignored)
 qdrant_storage/               # Local Qdrant database (gitignored)

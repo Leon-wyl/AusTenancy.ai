@@ -1,0 +1,30 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/agent/invoke",
+  "rawPath": "/api/agent/invoke",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json",
+    "x-amzn-trace-id": "Root=1-60b8c1e6-0a3b4c5d6e7f8a9b0c1d2e3f"
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "api-id",
+    "domainName": "api-id.execute-api.ap-southeast-2.amazonaws.com",
+    "domainPrefix": "api-id",
+    "http": {
+      "method": "POST",
+      "path": "/api/agent/invoke",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "192.168.1.1",
+      "userAgent": "smoke-test"
+    },
+    "requestId": "id",
+    "routeKey": "POST /api/agent/invoke",
+    "stage": "$default",
+    "time": "12/Mar/2020:19:03:58 +0000",
+    "timeEpoch": 1583348638390
+  },
+  "body": "{\"question\": \"What notice period does a landlord need to give for eviction due to unpaid rent in Victoria?\", \"jurisdiction\": \"VIC\"}",
+  "isBase64Encoded": false
+}

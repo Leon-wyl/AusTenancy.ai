@@ -1,5 +1,7 @@
 # Architecture Design: Australian Residential Tenancies Compliance Agent
 
+> **Deployment note:** This document describes the original architecture design and rationale. The canonical deployment decisions for Phase D Step 11 (Terraform over SAM, static Qdrant over Cloud, Bedrock-only staging, AWS_IAM auth, three-stack Terraform structure) are in [`agent-deployment-architecture-gate.md`](./agent-deployment-architecture-gate.md). Some details below (Qdrant Cloud, SAM, Claude Sonnet as prod target) represent the original plan and may differ from the gate document's implementation choices.
+
 ## 1. Cloud Infrastructure & Security
 
 > **Current agent implementation:** The LangGraph agent is in `src/agent/` (graph_skeleton.py, state.py, cli.py). See [AGENT_WORKFLOW.md](./AGENT_WORKFLOW.md) "Implemented Graph" for the actual node topology and state schema.
