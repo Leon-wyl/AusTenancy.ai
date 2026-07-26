@@ -86,7 +86,7 @@ else echo "FAILED (got=$EPHEMERAL)" >&2; check_fail "lambda_ephemeral_storage" "
 
 # 5. Image digest
 echo -n "[5/16] Image URI uses digest... " >&2
-IMAGE_URI=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" --query 'Configuration.ImageUri' --output text 2>&1) || IMAGE_URI=""
+IMAGE_URI=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" --query 'Code.ImageUri' --output text 2>&1) || IMAGE_URI=""
 if echo "$IMAGE_URI" | grep -qE '@sha256:[0-9a-f]{64}$'; then echo "PASSED" >&2; check_pass "image_digest"
 else echo "FAILED" >&2; check_fail "image_digest" "Image URI not digest-based: $IMAGE_URI"; fi
 
