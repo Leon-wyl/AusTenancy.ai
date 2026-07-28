@@ -265,12 +265,11 @@ cp .env.example .env
 | `QDRANT_API_KEY`      | Qdrant API key                  | Yes      |
 | `QDRANT_COLLECTION`   | Collection name for tenancy docs | Yes      |
 
-### Supabase (Phase E)
-| Variable                     | Description                          | Required |
-| ---------------------------- | ------------------------------------ | -------- |
-| `SUPABASE_URL`               | Supabase project URL                 | Yes      |
-| `SUPABASE_ANON_KEY`           | Public anon key (client + CRUD Lambda) | Yes    |
-| `SUPABASE_SERVICE_ROLE_KEY`   | Secret service_role key (RAG Lambda only) | Yes  |
+### Phase E Configuration
+
+The root `.env.example` is limited to the current Agent Runtime. Phase E
+configuration ownership, browser-safe values, and server-only secrets are
+defined in [the local development contract](docs/phase-e/local-development.md).
 
 ### Application
 | Variable               | Description                       | Required |
@@ -328,18 +327,9 @@ python scripts/eval_arrears_thresholds.py                           # threshold 
 ### Full-Stack Dev (Phase E)
 
 ```bash
-# Phase E — not yet built
-# Start local dev environment
-docker compose up
-
-# Run DB migrations
-cd backend && alembic upgrade head
-
-# Backend API
-cd backend && uvicorn app.main:app --reload
-
-# Frontend
-cd frontend && npm install && npm run dev
+# Phase E is not implemented yet.
+# Step 14a will create the root compose.yaml and supabase/ configuration.
+# See docs/phase-e/local-development.md for the agreed local-stack contract.
 ```
 
 See [Roadmap](#roadmap) above for complete development plan.

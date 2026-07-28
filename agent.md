@@ -19,7 +19,7 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | LLM (classifier) | Amazon Nova Lite — planned |
 | Evaluation | RAGAS (faithfulness, context precision, answer relevance) |
 | Auth + DB + Realtime | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E) |
-| Backend API | FastAPI on AWS Lambda (CRUD + RAG) — planned (Phase E) |
+| Backend APIs | Existing FastAPI/Mangum Agent Runtime; separate FastAPI CRUD service planned (Phase E) |
 | ORM | SQLAlchemy 2.0 + asyncpg — planned (Phase E) |
 | Migrations | Alembic — planned (Phase E) |
 | Frontend | Next.js App Router + Tailwind + shadcn/ui — planned (Phase E) |
@@ -43,12 +43,11 @@ cp .env.example .env
 ```
 
 ```bash
-# Phase E — not yet built
-# Full-stack dev env (Phase E)
-docker compose up          # Supabase local + Qdrant + FastAPI + Next.js
-cd backend && alembic upgrade head  # Run DB migrations
-cd frontend && npm install           # Install frontend deps
+# Phase E is not implemented yet.
+# See the Phase E documentation before creating the local stack, CRUD API, or web app.
 ```
+
+See [Phase E documentation](docs/phase-e/README.md).
 
 ## Run
 
@@ -68,11 +67,11 @@ python scripts/eval_arrears_thresholds.py                           # threshold 
 ```
 
 ```bash
-# Phase E — not yet built
-# Full-stack (Phase E)
-cd backend && uvicorn main:app --reload       # FastAPI CRUD API
-cd frontend && npm run dev                     # Next.js dev server
+# Phase E commands are defined when Step 14a creates compose.yaml and supabase/.
+# See the local-development contract.
 ```
+
+See [local-development.md](docs/phase-e/local-development.md).
 
 ## Release Workflow
 
@@ -323,9 +322,13 @@ scripts/                      # Utility and evaluation scripts
   capture_baseline.py         #   Multi-stage pipeline tracing
   eval_arrears_thresholds.py  #   Threshold evaluation (VIC/NSW arrears cases)
 docs/                         # Design docs, PRD, workflows, architecture gate
+  phase-e/                    # Phase E boundaries and local-development contract
+apps/web/                      # Reserved for the Phase E Next.js app
+services/crud-api/             # Reserved for the Phase E FastAPI CRUD service
 data/raw/                     # PDF legislation files (gitignored)
 data/processed/               # Generated hierarchical chunks (gitignored)
 qdrant_storage/               # Local Qdrant database (gitignored)
-docker-compose.yml            # Phase E: local dev env
+compose.yaml                  # Step 14a: local multi-service stack (not yet created)
+supabase/                     # Step 14a: Supabase CLI config/migrations (not yet created)
 agent.md                      # This file
 ```
