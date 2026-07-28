@@ -1,0 +1,11 @@
+# Supabase local dev (not committed)
+.supabase/
+.temp/
+.branches/
+
+# Generated types (local)
+*.gen.ts
+
+# Environment
+.env
+.env.local

@@ -24,8 +24,9 @@ A stateful, graph-based RAG Agent delivering high-precision compliance queries f
 | LLM (prod target)     | Anthropic Claude 3.5 Sonnet (via AWS Bedrock)                     |
 | Evaluation            | RAGAS (faithfulness, context precision, answer relevance)         |
 | Auth + DB + Realtime  | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E)    |
-| Backend API           | FastAPI on AWS Lambda (CRUD 128MB + RAG 1024MB+) — designed; implementation planned |
-| ORM + Migrations      | SQLAlchemy 2.0 + asyncpg / Alembic — planned (Phase E)            |
+| Backend API           | NestJS on AWS Lambda (CRUD 512MB) — designed; implementation planned |
+| RAG Backend           | FastAPI/Mangum on AWS Lambda (1024MB+) — built                     |
+| DB Client + Schema    | Prisma (client generation) + Supabase SQL migrations — planned (Phase E) |
 | Frontend              | Next.js App Router + Tailwind + shadcn/ui — planned (Phase E)     |
 | Frontend Deploy       | OpenNext → CloudFront + Lambda@Edge + S3 — planned (Phase E)      |
 | E2E Testing           | Playwright — planned (Phase E)                                    |
@@ -327,10 +328,24 @@ python scripts/eval_arrears_thresholds.py                           # threshold 
 ### Full-Stack Dev (Phase E)
 
 ```bash
-# Phase E is not implemented yet.
-# Step 14a will create the root compose.yaml and supabase/ configuration.
-# See docs/phase-e/local-development.md for the agreed local-stack contract.
+# Step 14a: Start the local stack (requires supabase CLI and Docker)
+cp apps/web/.env.local.example apps/web/.env.local
+cp services/crud-api/.env.example services/crud-api/.env
+cd services/crud-api && npm ci
+cd apps/web && npm ci
+supabase start
+docker compose up --build
+
+# Verify local schema (before provisioning any Supabase Cloud project)
+supabase db reset
+cd services/crud-api && npm test
+
+# Individual service startup
+cd services/crud-api && npm run start:dev   # http://localhost:3001/health
+cd apps/web && npm run dev                  # http://localhost:3000
 ```
+
+See [docs/phase-e/](docs/phase-e/README.md) for boundaries, configuration ownership, and local-stack contract.
 
 See [Roadmap](#roadmap) above for complete development plan.
 

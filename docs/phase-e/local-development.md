@@ -1,7 +1,7 @@
 # Phase E Local Development Contract
 
-Step 14a will add the local stack. Step 13b defines its ownership and command
-conventions only; it does not add runnable services.
+Step 14a creates the local stack. Step 13b defined its ownership and command
+conventions only; Step 14a adds runnable services.
 
 ## Future Entry Points
 
@@ -25,7 +25,7 @@ and will hold the committed, non-sensitive local configuration and migrations.
 |---|---|---|
 | Supabase | Auth, PostgreSQL, Realtime, and RLS | Supabase CLI reports all local services healthy |
 | Qdrant | Development retrieval data only | HTTP health endpoint responds successfully |
-| CRUD API | User-scoped data APIs and job creation | FastAPI health endpoint responds successfully |
+| CRUD API | User-scoped data APIs and job creation | NestJS health endpoint responds successfully |
 | Web | Authenticated browser application | Next.js development server serves the application |
 
 The existing Agent Runtime retains its own local ASGI and Lambda-compatible
@@ -41,6 +41,27 @@ test contracts documented in
 | CRUD API database, JWKS, and service configuration | `services/crud-api/.env` | Server-only; never commit |
 | Local stack defaults | Root `compose.yaml` and Supabase CLI configuration | Non-sensitive values only |
 
-Step 14a will add the service-specific environment examples after it defines the
-actual service interfaces. Do not copy Phase E credentials into the root Agent
-Runtime `.env`.
+Step 14a adds the service-specific environment examples and configuration files.
+See `services/crud-api/.env.example` and `apps/web/.env.local.example`.
+Do not copy Phase E credentials into the root Agent Runtime `.env`.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| CRUD Framework | NestJS (Express platform) |
+| Database Client | Prisma (client generation only) |
+| Schema Authority | Supabase SQL migrations (`supabase/migrations/`) |
+| Language (CRUD) | TypeScript 5.x, Node 22 |
+| Web | Next.js 15, React 19 |
+| Compose | docker compose v2 |
+
+## Startup Order (Step 14a)
+
+1. `cp services/crud-api/.env.example services/crud-api/.env`
+2. `cp apps/web/.env.local.example apps/web/.env.local`
+3. `cd services/crud-api && npm ci`
+4. `cd apps/web && npm ci`
+5. `supabase start`
+6. `supabase db reset` (validates schema)
+7. `docker compose up --build`

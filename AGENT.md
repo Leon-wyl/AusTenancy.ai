@@ -19,9 +19,9 @@ This agent must follow `CONTRIBUTING.md` for all branching, commit, linting, and
 | LLM (classifier) | Amazon Nova Lite — planned |
 | Evaluation | RAGAS (faithfulness, context precision, answer relevance) |
 | Auth + DB + Realtime | Supabase (PostgreSQL, JWT, RLS, WebSocket) — planned (Phase E) |
-| Backend APIs | Existing FastAPI/Mangum Agent Runtime; separate FastAPI CRUD service planned (Phase E) |
-| ORM | SQLAlchemy 2.0 + asyncpg — planned (Phase E) |
-| Migrations | Alembic — planned (Phase E) |
+| Backend APIs | Existing FastAPI/Mangum Agent Runtime; separate NestJS CRUD service planned (Phase E) |
+| Database Client | Prisma (client generation only) — planned (Phase E) |
+| Migrations | Supabase SQL migrations — planned (Phase E) |
 | Frontend | Next.js App Router + Tailwind + shadcn/ui — planned (Phase E) |
 | Frontend Deploy | OpenNext → CloudFront + Lambda@Edge + S3 — planned (Phase E) |
 | E2E Testing | Playwright — planned (Phase E) |
@@ -43,11 +43,16 @@ cp .env.example .env
 ```
 
 ```bash
-# Phase E is not implemented yet.
-# See the Phase E documentation before creating the local stack, CRUD API, or web app.
+# Phase E — Step 14a local stack (requires supabase CLI and Docker)
+cp apps/web/.env.local.example apps/web/.env.local
+cp services/crud-api/.env.example services/crud-api/.env
+cd services/crud-api && npm ci
+cd apps/web && npm ci
+supabase start
+docker compose up --build
 ```
 
-See [Phase E documentation](docs/phase-e/README.md).
+See [Phase E documentation](docs/phase-e/README.md) for boundaries, configuration ownership, and local-stack contract.
 
 ## Run
 
@@ -67,8 +72,13 @@ python scripts/eval_arrears_thresholds.py                           # threshold 
 ```
 
 ```bash
-# Phase E commands are defined when Step 14a creates compose.yaml and supabase/.
-# See the local-development contract.
+# Phase E — individual service commands (after supabase start)
+cd services/crud-api && npm run start:dev   # NestJS CRUD API (http://localhost:3001/health)
+cd apps/web && npm run dev                  # Next.js (http://localhost:3000)
+
+# Schema verification (before any Supabase Cloud provisioning)
+supabase db reset
+cd services/crud-api && npm test
 ```
 
 See [local-development.md](docs/phase-e/local-development.md).
@@ -251,7 +261,7 @@ Golden-context diagnostic confirmed retrieval quality is not the bottleneck — 
 
 | Step | Status | What |
 | ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 14a  | ⬜ | **Local Stack and Database** — Create Docker Compose services for local Supabase, Qdrant, FastAPI and Next.js. Implement a SQLAlchemy 2.0 schema and Alembic migrations for users, conversations, messages, agent jobs and citations. Provision the Supabase cloud project only after the local schema and migration path are validated. |
+| 14a  | ✅ | **Local Stack and Database** — Create Docker Compose services for local Qdrant, NestJS CRUD API and Next.js placeholder. Initialize Supabase CLI configuration and SQL migrations for users, conversations, messages, agent jobs and citations. Add Prisma client generation from the database-first schema. Provision the Supabase cloud project only after the local schema and migration path are validated. |
 | 14b  | ⬜ | **Auth and RLS** — Add email/password and Google OAuth through Supabase Auth. Verify JWTs using Supabase JWKS, implement ownership-based Row Level Security policies, define private Storage policies and isolate service-role credentials from browsers and user-scoped backend operations. |
 | 14c  | ⬜ | **Backend Data Controls** — Use Supavisor transaction-mode runtime connections, scoped database clients, correlation IDs, atomic quota counters, bounded request sizes and structured error contracts. Ensure authorization is checked before every conversation, message, citation, job and file operation. |
 | 15   | ⬜ | **CRUD Lambda** — Implement conversation and message APIs with cursor pagination, title updates, ownership checks and JWT 401/403 coverage. Add API Gateway throttling and structured errors. Start around 512 MB memory and a 10–15 second timeout, then tune from measured execution data. CRUD endpoints must not invoke retrieval or the Agent synchronously. |
@@ -324,11 +334,25 @@ scripts/                      # Utility and evaluation scripts
 docs/                         # Design docs, PRD, workflows, architecture gate
   phase-e/                    # Phase E boundaries and local-development contract
 apps/web/                      # Reserved for the Phase E Next.js app
-services/crud-api/             # Reserved for the Phase E FastAPI CRUD service
+  app/                        #   App Router routes (layout + placeholder)
+  .env.local.example          #   Browser-safe NEXT_PUBLIC_* template
+services/crud-api/             # Step 14a: NestJS CRUD service (owner of user-scoped data)
+  src/                        #   NestJS modules (health controller, future CRUD routes)
+  prisma/                     #   Prisma schema (mirrors supabase/migrations/)
+  Dockerfile                  #   Node 22 development image
+  .env.example                #   Server-side environment template
+  package.json                #   NestJS + Prisma + Jest + ESLint
+apps/web/                      # Step 14a: Next.js App Router placeholder
+  app/                        #   App Router routes (layout + placeholder page)
+  Dockerfile                  #   Node 22 development image
+  .env.local.example          #   Browser-safe NEXT_PUBLIC_* template
+  package.json                #   Next.js 15 + React 19 + ESLint
+supabase/                      # Step 14a: Supabase CLI config and SQL migrations
+  config.toml                 #   Non-sensitive local project configuration
+  migrations/                 #   SQL migration files (DDL authority)
+compose.yaml                  # Step 14a: local Qdrant + CRUD API + Web stack
 data/raw/                     # PDF legislation files (gitignored)
 data/processed/               # Generated hierarchical chunks (gitignored)
 qdrant_storage/               # Local Qdrant database (gitignored)
-compose.yaml                  # Step 14a: local multi-service stack (not yet created)
-supabase/                     # Step 14a: Supabase CLI config/migrations (not yet created)
 agent.md                      # This file
 ```

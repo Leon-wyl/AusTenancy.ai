@@ -7,10 +7,13 @@ LangGraph Agent Runtime. It remains AWS-IAM protected and is not the home for
 user CRUD routes, SQLAlchemy models, Alembic migrations, or browser-facing
 authentication.
 
-`services/crud-api/` is the future FastAPI service for user-scoped application
+`services/crud-api/` is the future NestJS service for user-scoped application
 data: conversations, messages, agent jobs, citations, and related ownership
 checks. CRUD endpoints create durable job records and do not synchronously call
 retrieval or the Agent Runtime.
+
+The deployed Agent Runtime in `src/api/` is a separate FastAPI/Mangum service.
+Do not place NestJS modules, Prisma schema, or CRUD routes there.
 
 ## Client and Credential Boundary
 
@@ -34,5 +37,8 @@ non-sensitive Supabase CLI configuration and migrations after Step 14a.
 
 Step 13b does not change Agent Runtime endpoints, Pydantic models, Lambda
 handlers, Agent graph behavior, Docker image behavior, Terraform resources, or
-release automation. Existing boundaries in `src/agent/`, `src/api/`,
-`src/rag/`, `terraform/`, and `scripts/ops/` remain stable.
+release automation.
+
+Step 14a adds the NestJS CRUD service, Prisma client, Supabase SQL migrations,
+Next.js placeholder, and root compose.yaml. It does not modify `src/agent/`,
+`src/api/`, `src/rag/`, `terraform/`, `scripts/ops/`, or `Dockerfile`.

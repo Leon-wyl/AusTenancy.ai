@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  conversations Conversation[]
+  agentJobs     AgentJob[]
+
+  @@map("users")
+}
+
+model Conversation {
+  id             String   @id @default(uuid()) @db.Uuid
+  ownerUserId    String   @map("owner_user_id") @db.Uuid
+  title          String   @default("New conversation")
+  lastActivityAt DateTime @default(now()) @map("last_activity_at") @db.Timestamptz()
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  owner    User       @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  messages Message[]
+  jobs     AgentJob[]
+
+  @@index([ownerUserId, lastActivityAt(sort: Desc), id(sort: Desc)], map: "idx_conversations_owner_activity")
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(uuid()) @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  authorRole     String   @map("author_role") @db.VarChar(50)
+  content        String   @db.Text
+  metadata       Json?    @db.JsonB
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  citations    Citation[]
+  triggerJobs  AgentJob[]  @relation("TriggerMessage")
+
+  @@index([conversationId, createdAt], map: "idx_messages_conversation_time")
+  @@map("messages")
+}
+
+model AgentJob {
+  id               String    @id @default(uuid()) @db.Uuid
+  conversationId   String    @map("conversation_id") @db.Uuid
+  triggerMessageId String    @map("trigger_message_id") @db.Uuid
+  ownerUserId      String    @map("owner_user_id") @db.Uuid
+  status           String    @default("queued") @db.VarChar(50)
+  idempotencyKey   String    @map("idempotency_key")
+  correlationId    String    @default(uuid()) @map("correlation_id") @db.Uuid
+  attempt          Int       @default(1)
+  maxAttempts      Int       @default(3) @map("max_attempts")
+  leaseUntil       DateTime? @map("lease_until") @db.Timestamptz()
+  nextAttemptAt    DateTime? @map("next_attempt_at") @db.Timestamptz()
+  completedAt      DateTime? @map("completed_at") @db.Timestamptz()
+  errorMetadata    Json?     @map("error_metadata") @db.JsonB
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  triggerMessage Message      @relation("TriggerMessage", fields: [triggerMessageId], references: [id], onDelete: Restrict)
+  owner          User         @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerUserId, idempotencyKey], map: "uq_idempotency_per_owner")
+  @@index([conversationId, createdAt], map: "idx_agent_jobs_conversation")
+  @@map("agent_jobs")
+}
+
+model Citation {
+  id               String   @id @default(uuid()) @db.Uuid
+  messageId        String   @map("message_id") @db.Uuid
+  label            String
+  jurisdiction     String   @default("VIC")
+  instrumentType   String   @default("rta") @map("instrument_type")
+  instrumentTitle  String   @default("") @map("instrument_title")
+  instrumentVersion String  @default("") @map("instrument_version")
+  sectionReference String   @default("") @map("section_reference")
+  sourceChunkId    String?  @map("source_chunk_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId], map: "idx_citations_message")
+  @@map("citations")
+}
