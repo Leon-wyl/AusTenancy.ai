@@ -58,14 +58,3 @@ vic_eval_*.json
 *.tfplan
 *.tfbackend
 !*.tfbackend.example
-
-# Node (Phase E)
-**/node_modules/
-**/dist/
-.next/
-
-# Supabase (Phase E)
-supabase/.temp/
-supabase/.branches/
-supabase/.supabase/
-*.env.local
